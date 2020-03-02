@@ -30,7 +30,6 @@ class Message:
 
         Message.init_actions = False
 
-
     def __init__(self, from_client_id, identity_char):
 
         if Message.init_actions:

@@ -82,6 +82,10 @@ if __name__ == "__main__":
     socket_inst.bind(("127.0.0.1", 8222))
     socket_inst.listen(5)                   # Allow up to 5 connection. TODO: make not magic!
 
+    # initialize the game and singletons actions
+    # TODO: Add Game Instance
+    Message.initialize_actions(None, send_message, get_client_list, get_client)
+
     # start a thread to receive connections
     accepting_conn_thread = threading.Thread(target=accept_clients, args=(socket_inst,))
     accepting_conn_thread.start()
