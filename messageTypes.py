@@ -2,5 +2,5 @@
 class MessageTypes:
 
     @staticmethod
-    def Message( from_client, message ):
+    def message( from_client, message ):
         return locals()

@@ -47,11 +47,24 @@ def accept_clients(socket_):
     print("that's enough clients for now")
 
 
-def send_message(msg):
+def get_client_list( except_clients=[] ):
 
-    for k in [*clients]:
-        if k != msg.fromClientId:
-            clients[k].send_queue.put(msg.message)
+    thread_lock.acquire()
+
+    client_list = [*clients]
+
+    thread_lock.release()
+
+    for ec in except_clients:
+        client_list.remove(ec)
+
+    return client_list
+
+
+def send_message(message_obj):
+
+    for c in message_obj.to_clients:
+        clients[k].send_queue.put(message_obj)
 
 
 if __name__ == "__main__":
@@ -72,7 +85,7 @@ if __name__ == "__main__":
         for k in [*clients]:
             # clean up any lost clients
             if not clients[k].is_valid():
-                # Clean up the client and make sure that all the threads have stoped
+                # Clean up the client and make sure that all the threads have stopped
                 clients[k].close()
                 del clients[k]  # kill the zombie before it eats all out brains
                 continue
