@@ -167,4 +167,16 @@ class Client:
         return True
 
     def close(self):
-        pass
+        # mark the client as invalid so the threads can exit once the sockets are closed
+        self.set_is_valid( False )
+
+        # close the connection
+        self.socket.shutdown( py_socket.SHUT_RDWR )
+        self.socket.close()  # close the socket once and for all, ready for GC
+
+        # close any working threads
+        if self.inbound_thread.is_alive():
+            self.inbound_thread.join()
+
+        if self.outbound_thread.is_alive():
+            self.outbound_thread.join()
