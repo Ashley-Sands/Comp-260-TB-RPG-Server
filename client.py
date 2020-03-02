@@ -3,6 +3,7 @@ import queue as q
 import threading
 import time
 import socket as py_socket
+from message import Message
 
 # server
 class Client:
@@ -12,11 +13,13 @@ class Client:
     """
 
     MESSAGE_LEN_PACKET_SIZE = 2
+    MESSAGE_TYPE_PACKET_SIZE = 1
     BYTE_ORDER = "big"
 
-    def __init__(self, name, socket):
+    def __init__(self, name, socket, client_key):
 
         self.name = name
+        self.key = client_key
         self.socket = socket
         self.started = False
 
@@ -105,7 +108,7 @@ class Client:
 
         try:
 
-            # receive the first bytes couple of bytes for our message len
+            # receive the first couple of bytes for our message len
             data = self.socket.recv(self.MESSAGE_LEN_PACKET_SIZE)
             message_len = int.from_bytes(data, self.BYTE_ORDER)
 
@@ -116,9 +119,18 @@ class Client:
                 self.set_is_valid( False )
                 return False
 
+            # receive the identity of the message
+            data = self.socket.recv(self.MESSAGE_TYPE_PACKET_SIZE)
+            message_id = chr(int.from_bytes(data, self.BYTE_ORDER))
+
             # receive the message
             message = self.socket.recv(message_len).decode("utf-8")
-            self.received_queue.put(message, block=True, timeout=None)
+
+            # create the message instance
+            message_obj = Message(self.key, message_id)
+            message_obj.set_message( message )
+
+            self.received_queue.put(message_obj, block=True, timeout=None)
 
             # self.timestamp_received = int(
             #    (datetime.datetime.utcnow() - datetime.datetime(1970, 1, 1) ).total_seconds())
@@ -147,18 +159,22 @@ class Client:
         if not self.is_valid(True):
             return False
 
-        message = self.send_queue.get(block=True, timeout=None)
+        message_obj = self._send_queue.get(block=True, timeout=None)
+
+        message = message_obj.get_message()
+        message_size = len(message).to_bytes(self.MESSAGE_LEN_PACKET_SIZE, self.BYTE_ORDER)
+        message_id = ord(message_obj.identity).to_bytes(1, self.BYTE_ORDER)
 
         # check that the message is within the max message size
         if len(message) > pow(255, self.MESSAGE_LEN_PACKET_SIZE):
             print("Error: Message has exceeded the max message length.")
             return False
 
-        message_length = len(message).to_bytes(self.MESSAGE_LEN_PACKET_SIZE, self.BYTE_ORDER)
 
         try:
-            self.socket.send( message_length )
-            self.socket.send( message.encode() )
+            self.socket.send( message_size )        # send the payload message size (2 bytes)
+            self.socket.send( message_id )          # send the message object type  (1 byte )
+            self.socket.send( message.encode() )    # send the message payload
         except Exception as e:
             print(e)
             self.set_is_valid( False )
