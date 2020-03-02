@@ -2,6 +2,8 @@ import datetime
 import queue as q
 import threading
 import time
+import socket as py_socket
+
 # server
 class Client:
     """ The protocol used by the socket
@@ -12,14 +14,16 @@ class Client:
     MESSAGE_LEN_PACKET_SIZE = 2
     BYTE_ORDER = "big"
 
-    def __init__(self, socket):
+    def __init__(self, name, socket):
 
+        self.name = name
         self.socket = socket
         self.started = False
 
         self._valid = self.socket is not None   # unsafe, use set and is valid functions
         self.received_queue = q.Queue()
-        self.send_queue = q.Queue()
+        # this should not be used directly. Use 'que_message' function instead
+        self._send_queue = q.Queue()
 
         self.inbound_thread = threading.Thread(target=self.inbound, args=(socket,))
         self.outbound_thread = threading.Thread(target=self.outbound, args=(socket,))
@@ -36,23 +40,6 @@ class Client:
 
         self.inbound_thread.start()
         self.outbound_thread.start()
-
-    def inbound(self, socket):
-        print("-starting inbound")
-        # receive messages until it fails :/
-        while self.is_valid():
-            if not self.receive():
-                return
-            time.sleep(0.5)
-
-    def outbound(self, socket):
-        print("-starting outbound")
-        # send messages until its fails :/
-        while self.is_valid():
-            if not self.send_queue.empty():
-                if not self.send():
-                    return
-                time.sleep(0.5)
 
     def is_valid(self, print_message=False):
         """ Thread safe method to see if the client is valid
@@ -72,16 +59,84 @@ class Client:
 
         return valid
 
-    def set_is_vaild(self, vaild):
+    def set_is_valid( self, valid ):
         """ Thread safe method to set is vaild
 
-        :param vaild: is the socket vaild?
+        :param valid: is the socket vaild?
         """
         self.thread_lock.acquire()
 
-        self._valid = vaild
+        self._valid = valid
 
         self.thread_lock.release()
+
+    def que_message( self, message_obj ):
+        """Ques a message to be sent.
+        If the send thread is not running this will start one
+        :param message_obj:    An instance of the message class containing the message to be sent
+        """
+        # create the thread if we don't have one
+        if self.outbound_thread is None:
+            self.outbound_thread = threading.Thread( target=self.outbound, args=(self.socket,) )
+
+        # que the message
+        self._send_queue.put( message_obj )
+
+        # if its not already start the thread to send messages
+        if not self.outbound_thread.is_alive():
+            self.outbound_thread.start()
+
+    def inbound(self, socket):
+        print("-starting inbound")
+        # receive messages until it fails :/
+        while self.is_valid():
+            if not self.receive():
+                return
+            time.sleep(0.5)
+
+    def receive(self):
+        """ Receives message putting it on top of the recived queue
+
+        :return:    True if successful, false other wise.
+        """
+
+        if not self.is_valid(True):
+            return False
+
+        try:
+
+            # receive the first bytes couple of bytes for our message len
+            data = self.socket.recv(self.MESSAGE_LEN_PACKET_SIZE)
+            message_len = int.from_bytes(data, self.BYTE_ORDER)
+
+            # if recv returns 0 bytes the socket has been disconnected
+            # see https://docs.python.org/3.7/howto/sockets.html for more info
+            # search "When a recv returns 0 bytes" on page.
+            if len(data) == 0:
+                self.set_is_valid( False )
+                return False
+
+            # receive the message
+            message = self.socket.recv(message_len).decode("utf-8")
+            self.received_queue.put(message, block=True, timeout=None)
+
+            # self.timestamp_received = int(
+            #    (datetime.datetime.utcnow() - datetime.datetime(1970, 1, 1) ).total_seconds())
+
+        except Exception as e:
+            print(e)
+            self.set_is_valid( False )
+            return False
+
+        return True
+
+    def outbound(self, socket):
+        print("-starting outbound")
+
+        # send all messages in the queue
+        while not self._send_queue.empty():
+            if not self.send():
+                return
 
     def send(self):
         """ Send message from the start of the send que
@@ -106,43 +161,7 @@ class Client:
             self.socket.send( message.encode() )
         except Exception as e:
             print(e)
-            self.set_is_vaild( False )
-            return False
-
-        return True
-
-    def receive(self):
-        """ Receives message putting it on top of the recived queue
-
-        :return:    True if successful, false other wise.
-        """
-
-        if not self.is_valid(True):
-            return False
-
-        try:
-
-            # receive the first bytes couple of bytes for our message len
-            data = self.socket.recv(self.MESSAGE_LEN_PACKET_SIZE)
-            message_len = int.from_bytes(data, self.BYTE_ORDER)
-
-            # if recv returns 0 bytes the socket has been disconnected
-            # see https://docs.python.org/3.7/howto/sockets.html for more info
-            # search "When a recv returns 0 bytes" on page.
-            if len(data) == 0:
-                self.set_is_vaild(False)
-                return False
-
-            # receive the message
-            message = self.socket.recv(message_len).decode("utf-8")
-            self.received_queue.put(message, block=True, timeout=None)
-
-            # self.timestamp_received = int(
-            #    (datetime.datetime.utcnow() - datetime.datetime(1970, 1, 1) ).total_seconds())
-
-        except Exception as e:
-            print(e)
-            self.set_is_vaild( False )
+            self.set_is_valid( False )
             return False
 
         return True
