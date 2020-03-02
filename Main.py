@@ -28,7 +28,7 @@ def accept_clients(socket_):
                 break
 
             client_name = "client" + str(client_count)
-            clients[client_name] = Client(client_name, client)
+            clients[client_name] = Client(client_name, client, client_name)
             clients[client_name].start()
 
             client_count += 1
