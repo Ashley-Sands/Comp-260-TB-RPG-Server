@@ -61,6 +61,14 @@ def get_client_list( except_clients=[] ):
     return client_list
 
 
+def get_client(client_key):
+    """Get a single client returns none if not found"""
+    if client_key in clients:
+        return clients[client_key]
+    else:
+        return None
+
+
 def send_message(message_obj):
 
     for c in message_obj.to_clients:

@@ -20,10 +20,13 @@ class Message:
     init_actions = True
 
     @staticmethod
-    def initialize_actions( send_message_func, get_client_list_func ):
+    def initialize_actions( game_inst, send_message_func, get_client_list_func, get_client_func ):
         # create an instance of each actions, ready to run call run when required
         for act in Message.ACTIONS:
-            Message.ACTIONS[ act ] = Message.ACTIONS[ act ]( send_message_func, get_client_list_func )
+            Message.ACTIONS[ act ] = Message.ACTIONS[ act ]( game_inst,
+                                                             send_message_func,
+                                                             get_client_list_func,
+                                                             get_client_func )
 
         Message.init_actions = False
 
@@ -38,9 +41,11 @@ class Message:
         self.to_clients = []    # if this is empty then it needs to be processed by the sever
         self.message = {}
 
-        # function to get a new message dict for self.identity
+        # functions to get a new message dict for self.identity
         self.new_message = Message.TYPES[identity_char]
 
+    def run_action( self ):
+        Message.ACTIONS[ self.identity ].run( self )
 
     def set_message( self, json_str ):
         """Set message from json string"""
