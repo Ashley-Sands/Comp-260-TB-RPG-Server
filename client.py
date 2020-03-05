@@ -132,6 +132,8 @@ class Client:
 
             self.received_queue.put(message_obj, block=True, timeout=None)
 
+            print( "message received msg", message, " id", message_id )
+
             # self.timestamp_received = int(
             #    (datetime.datetime.utcnow() - datetime.datetime(1970, 1, 1) ).total_seconds())
 
@@ -149,6 +151,8 @@ class Client:
         while not self._send_queue.empty():
             if not self.send():
                 return
+
+        self.outbound_thread = None
 
     def send(self):
         """ Send message from the start of the send que

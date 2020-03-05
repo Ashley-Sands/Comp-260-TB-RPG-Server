@@ -56,7 +56,8 @@ def get_client_list( except_clients=[] ):
     thread_lock.release()
 
     for ec in except_clients:
-        client_list.remove(ec)
+        if ec in clients:
+            client_list.remove(ec)
 
     return client_list
 
@@ -72,7 +73,8 @@ def get_client(client_key):
 def send_message(message_obj):
 
     for c in message_obj.to_clients:
-        clients[k].send_queue.put(message_obj)
+        print("Sending to", c)
+        clients[k].que_message(message_obj)
 
 
 if __name__ == "__main__":
@@ -100,12 +102,14 @@ if __name__ == "__main__":
                 # Clean up the client and make sure that all the threads have stopped
                 clients[k].close()
                 del clients[k]  # kill the zombie before it eats all out brains
+                print("Lost client", k)
                 continue
 
             try:
                 while not clients[k].received_queue.empty():
-                    send_message(Message(k, clients[k].received_queue.get(block=True, timeout=None)))
-            except:
-                pass
+                    recv_msg = clients[k].received_queue.get(block=True, timeout=None)
+                    recv_msg.run_action()
+            except Exception as e:
+                print(e)
 
         time.sleep(0.5)
