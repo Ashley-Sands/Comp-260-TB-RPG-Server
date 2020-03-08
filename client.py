@@ -24,6 +24,7 @@ class Client:
         self.started = False
 
         self._valid = self.socket is not None   # unsafe, use set and is valid functions
+        self._closed = False
         self.received_queue = q.Queue()
         # this should not be used directly. Use 'que_message' function instead
         self._send_queue = q.Queue()
@@ -60,7 +61,7 @@ class Client:
         if print_message and not valid:
             print("Error: Invalid Socket")
 
-        return valid
+        return valid and not self._closed
 
     def set_is_valid( self, valid ):
         """ Thread safe method to set is vaild
@@ -189,6 +190,10 @@ class Client:
         return True
 
     def close(self):
+
+        if self._closed :
+            return;
+
         # mark the client as invalid so the threads can exit once the sockets are closed
         self.set_is_valid( False )
 
@@ -202,3 +207,5 @@ class Client:
 
         if self.outbound_thread is not None and self.outbound_thread.is_alive():
             self.outbound_thread.join()
+
+        self._closed = True
