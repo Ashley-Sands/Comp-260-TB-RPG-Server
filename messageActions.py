@@ -1,3 +1,4 @@
+from StaticActions import StaticActions
 
 class MessageAction:
 
@@ -10,8 +11,8 @@ class MessageAction:
     def run( self, message_obj ):
         """
 
-        :param message_obj:
-        :return:
+        :param message_obj: instance of messages containing the data
+        :return: None
         """
         pass
 
@@ -26,3 +27,13 @@ class Action_SendMessage( MessageAction ):
         self.send_message( message_obj )
         print("Sending message")
 
+class Action_ClientIdentity( MessageAction ):
+
+    def run( self, message_obj ):
+        client = self.get_client( message_obj.from_client_key )
+        client.name = message_obj.message["nickname"]
+
+        # notify the other players that they have connected
+        # TODO: this might get dropped when theres more than one room
+        StaticActions.send_client_status( True, client.key, client.name,
+                                          self.get_client_list, self.send_message )

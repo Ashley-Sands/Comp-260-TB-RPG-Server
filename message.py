@@ -9,6 +9,7 @@ class Message:
     # use self.new_message to create the correct type for that message class
     TYPES = {
         'm': MessageTypes.message,
+        'i': MessageTypes.client_identity,
         's': MessageTypes.client_status     # No Action.
     }
 
@@ -17,7 +18,8 @@ class Message:
     # Not all message types have actions :) ie.
     # Client status ('s') as its handled by main :)
     ACTIONS = {
-        'm': Action_SendMessage
+        'm': Action_SendMessage,
+        'i': Action_ClientIdentity
     }
 
     init_actions = True
