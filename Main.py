@@ -7,6 +7,7 @@ from message import Message
 
 clients = {}
 client_count = 0
+clients_max = 4
 
 accepting_conn_thread = None
 accepting_connections = True
@@ -17,7 +18,7 @@ def accept_clients(socket_):
     global accepting_connections, client_count
     print("starting to accept clients")
 
-    while True:
+    while len(clients) < clients_max:
 
         try:
             client = socket_.accept()[0]
@@ -43,13 +44,13 @@ def accept_clients(socket_):
             print("new client accepted!")
         except Exception as e:
             print("error on socket, ", e)
-
-            thread_lock.acquire()
-            accepting_connections = False
-            thread_lock.release()
             break
 
         time.sleep(0.5)
+
+    thread_lock.acquire()
+    accepting_connections = False
+    thread_lock.release()
 
     print("that's enough clients for now")
 
@@ -103,14 +104,22 @@ if __name__ == "__main__":
     # TODO: Add Game Instance
     Message.initialize_actions(None, send_message, get_client_list, get_client)
 
-    # start a thread to receive connections
-    accepting_conn_thread = threading.Thread(target=accept_clients, args=(socket_inst,))
-    accepting_conn_thread.start()
+
 
     print ("\nwaiting for connections...")
 
     # process all the data :)
     while True:
+
+        thread_lock.acquire()
+
+        # start a thread to receive connections
+        if not accepting_connections and len( clients ) < clients_max:
+            accepting_conn_thread = threading.Thread( target=accept_clients, args=(socket_inst,) )
+            accepting_conn_thread.start()
+
+        thread_lock.release()
+
         for k in [*clients]:
             # clean up any lost clients
             if not clients[k].is_valid():
