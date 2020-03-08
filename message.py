@@ -25,13 +25,14 @@ class Message:
     init_actions = True
 
     @staticmethod
-    def initialize_actions( game_inst, send_message_func, get_client_list_func, get_client_func ):
+    def initialize_actions( game_inst, send_message_func, get_client_list_func, get_client_func, get_games_func ):
         # create an instance of each actions, ready to run call run when required
         for act in Message.ACTIONS:
             Message.ACTIONS[ act ] = Message.ACTIONS[ act ]( game_inst,
                                                              send_message_func,
                                                              get_client_list_func,
-                                                             get_client_func )
+                                                             get_client_func,
+                                                             get_games_func)
 
         Message.init_actions = False
 

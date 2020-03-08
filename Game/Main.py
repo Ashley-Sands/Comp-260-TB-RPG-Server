@@ -14,6 +14,7 @@ class Main:
         self.start_thread.start()
         self.thread_lock = threading.Lock()
 
+        self.game_name = "default"
         self.map_name = "default"
 
         self.max_players = 4
@@ -31,6 +32,10 @@ class Main:
         self.thread_lock.release()
 
         return player_count
+
+    def get_available_slots( self ):
+
+        return self.max_players - self.get_player_count()
 
     def can_join( self ):
 

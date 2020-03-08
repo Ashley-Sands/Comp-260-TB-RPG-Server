@@ -2,11 +2,12 @@ from StaticActions import StaticActions
 
 class MessageAction:
 
-    def __init__( self, game_inst, send_message_func, get_client_list_func, get_client_func ):
+    def __init__( self, game_inst, send_message_func, get_client_list_func, get_client_func, get_games_func ):
         self.game_inst = game_inst
         self.send_message = send_message_func
         self.get_client_list = get_client_list_func
         self.get_client = get_client_func
+        self.get_games = get_games_func
 
     def run( self, message_obj ):
         """
@@ -37,3 +38,23 @@ class Action_ClientIdentity( MessageAction ):
         # TODO: this might get dropped when theres more than one room
         StaticActions.send_client_status( True, client.key, client.name,
                                           self.get_client_list, self.send_message )
+
+class Action_GamesRequest( MessageAction ):
+
+    def run( self, message_obj ):
+
+        # fill in the game names and slots data and send the class back to the client
+        games = self.get_games()
+
+        game_names = []
+        game_slots = []
+
+        for g in games:
+            game_names.append( g.game_name )
+            game_slots.append( g.max_players + " of" + g.getPlayerCount )
+
+        message_obj.to_clients = message_obj.from_client_key
+        message_obj.message["available_games"] = game_names
+        message_obj.message["available_slots"] = game_slots
+
+        self.send_message( message_obj )

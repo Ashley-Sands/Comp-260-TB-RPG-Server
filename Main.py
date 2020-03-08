@@ -49,11 +49,15 @@ def accept_clients(socket_):
                 clients[client_key].close()
                 continue
 
+            # request the identity of the client
+            identity_msg = Message( client_key, 'i')
+            new_message = identity_msg.new_message( SERVER_NAME, "" )
+            identity_msg.message = new_message
+            identity_msg.to_clients = [ client_key ]
+
             thread_lock.release()
 
-            # notify other users that someone has connected :)
-            StaticActions.send_client_status(True, client_key, client_name,
-                                             get_client_list, send_message )
+            send_message( identity_msg )
 
             # count and release our client into the wild!
             client_count += 1
@@ -93,6 +97,20 @@ def get_client(client_key):
     else:
         return None
 
+def get_games(available_only=True):
+    """
+    :return list of games]
+    """
+
+    # TODO: add games...
+    if not available_only:
+        return [ game ]
+
+    if game.can_join():
+        return [ game ]
+
+    return []
+
 
 def send_message(message_obj):
 
@@ -109,7 +127,6 @@ def send_client_message( message, client_key ):
 
     send_message( new_client_message )
 
-
 if __name__ == "__main__":
 
     # Spin up the socket
@@ -119,7 +136,7 @@ if __name__ == "__main__":
 
     # initialize the game and singletons actions
     # TODO: Add Game Instance
-    Message.initialize_actions(None, send_message, get_client_list, get_client)
+    Message.initialize_actions(None, send_message, get_client_list, get_client, get_games)
 
     # start a thread to receive connections
     accepting_conn_thread = threading.Thread(target=accept_clients, args=(socket_inst,))

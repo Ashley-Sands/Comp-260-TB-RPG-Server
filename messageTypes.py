@@ -19,3 +19,12 @@ class MessageTypes:
         """
         return locals()
 
+    @staticmethod
+    def game_request( from_client, available_games, available_slots ):
+        """ list of games request
+
+        :param from_client:
+        :param available_games: List of games available to play
+        :param available_slots: the amount of slots available in game
+        """
+        return locals()
