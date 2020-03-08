@@ -36,13 +36,7 @@ def accept_clients(socket_):
             thread_lock.release()
 
             # notify other users that someone has connected :)
-            new_client_message = Message(client_key, 's')
-            new_message = new_client_message.new_message(client_name, True)
-            new_client_message.message = new_message
-            print(new_message)
-            new_client_message.to_clients = get_client_list( [client_key] )
-
-            send_message(new_client_message)
+            send_client_status(True, client_key, client_name)
 
             # count and release our client into the wild!
             client_count += 1
@@ -89,6 +83,14 @@ def send_message(message_obj):
         print("Sending to", c)
         clients[c].que_message(message_obj)
 
+def send_client_status( status, client_key, client_name ):
+
+    new_client_message = Message( client_key, 's' )
+    new_message = new_client_message.new_message( client_name, status )
+    new_client_message.message = new_message
+    new_client_message.to_clients = get_client_list( [ client_key ] )
+
+    send_message( new_client_message )
 
 if __name__ == "__main__":
 
@@ -114,7 +116,10 @@ if __name__ == "__main__":
             if not clients[k].is_valid():
                 # Clean up the client and make sure that all the threads have stopped
                 clients[k].close()
-                del clients[k]  # kill the zombie before it eats all out brains
+                # notify the others that the client is dead to us
+                send_client_status(False, k, clients[k].name)
+                # kill the zombie before it eats all out brains
+                del clients[k]
                 print("Lost client", k)
                 continue
 
