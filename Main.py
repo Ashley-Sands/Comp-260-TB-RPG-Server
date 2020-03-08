@@ -27,13 +27,26 @@ def accept_clients(socket_):
             if not accepting_connections:
                 break
 
-            client_name = "client" + str(client_count)
-            clients[client_name] = Client(client_name, client, client_name)
+            client_key = "client-" + str(client_count)
+            client_name = client_key
+
+            clients[client_name] = Client(client_name, client, client_key)
             clients[client_name].start()
 
+            thread_lock.release()
+
+            # notify other users that someone has connected :)
+            new_client_message = Message(client_key, 's')
+            new_message = new_client_message.new_message(client_name, True)
+            new_client_message.message = new_message
+            print(new_message)
+            new_client_message.to_clients = get_client_list( [client_key] )
+
+            send_message(new_client_message)
+
+            # count and release our client into the wild!
             client_count += 1
             print("new client accepted!")
-            thread_lock.release()
         except Exception as e:
             print("error on socket, ", e)
 
@@ -74,7 +87,7 @@ def send_message(message_obj):
 
     for c in message_obj.to_clients:
         print("Sending to", c)
-        clients[k].que_message(message_obj)
+        clients[c].que_message(message_obj)
 
 
 if __name__ == "__main__":

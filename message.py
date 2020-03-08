@@ -8,11 +8,14 @@ class Message:
     # dict of all new message functions
     # use self.new_message to create the correct type for that message class
     TYPES = {
-        'm': MessageTypes.message
+        'm': MessageTypes.message,
+        's': MessageTypes.client_status     # No Action.
     }
 
     # treat these like singletons , they will become an instance at run time.
     # then we just have to call run and pass in the correct message data :)
+    # Not all message types have actions :) ie.
+    # Client status ('s') as its handled by main :)
     ACTIONS = {
         'm': Action_SendMessage
     }
@@ -30,13 +33,13 @@ class Message:
 
         Message.init_actions = False
 
-    def __init__(self, from_client_id, identity_char):
+    def __init__(self, from_client_key, identity_char):
 
         if Message.init_actions:
             Message.initialize_actions()
 
         self.identity = identity_char
-        self.from_client_id = from_client_id
+        self.from_client_key = from_client_key
         self.to_clients = []    # if this is empty then it needs to be processed by the sever
         self.message = {}
 
@@ -44,12 +47,22 @@ class Message:
         self.new_message = Message.TYPES[identity_char]
 
     def run_action( self ):
+
+        if self.identity not in Message.ACTIONS:
+            print("identity", self.identity, "has no action")
+            return
+
         Message.ACTIONS[ self.identity ].run( self )
 
-    def set_message( self, json_str ):
+    def set_message( self, from_client_name, json_str ):
         """Set message from json string"""
 
         self.message = json.loads(json_str)
+
+        # We should assume that the client has not set who it is from.
+        # It is required by the client when receiving messages tho.
+        self.message["from_client"] = from_client_name
+
 
     def get_message( self ):
         """Gets the message as a json string"""

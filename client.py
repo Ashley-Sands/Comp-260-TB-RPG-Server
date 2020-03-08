@@ -107,10 +107,10 @@ class Client:
             return False
 
         try:
-
             # receive the first couple of bytes for our message len
             data = self.socket.recv(self.MESSAGE_LEN_PACKET_SIZE)
             message_len = int.from_bytes(data, self.BYTE_ORDER)
+            print("trying", data)
 
             # if recv returns 0 bytes the socket has been disconnected
             # see https://docs.python.org/3.7/howto/sockets.html for more info
@@ -128,17 +128,17 @@ class Client:
 
             # create the message instance
             message_obj = Message(self.key, message_id)
-            message_obj.set_message( message )
+            message_obj.set_message( self.name, message )   # should this be the users key?
 
             self.received_queue.put(message_obj, block=True, timeout=None)
 
-            print( "message received msg", message, " id", message_id )
+            print( "message received msg", message, " id", message_id, "from", self.name )
 
             # self.timestamp_received = int(
             #    (datetime.datetime.utcnow() - datetime.datetime(1970, 1, 1) ).total_seconds())
 
         except Exception as e:
-            print(e)
+            print("Client ~line 141", e)
             self.set_is_valid( False )
             return False
 
@@ -161,6 +161,7 @@ class Client:
         """
 
         if not self.is_valid(True):
+            print( "Not Vaild" )
             return False
 
         message_obj = self._send_queue.get(block=True, timeout=None)
@@ -174,11 +175,12 @@ class Client:
             print("Error: Message has exceeded the max message length.")
             return False
 
-
         try:
             self.socket.send( message_size )        # send the payload message size (2 bytes)
             self.socket.send( message_id )          # send the message object type  (1 byte )
             self.socket.send( message.encode() )    # send the message payload
+            print( "sent to", self.name )
+
         except Exception as e:
             print(e)
             self.set_is_valid( False )
@@ -198,5 +200,5 @@ class Client:
         if self.inbound_thread.is_alive():
             self.inbound_thread.join()
 
-        if self.outbound_thread.is_alive():
+        if self.outbound_thread is not None and self.outbound_thread.is_alive():
             self.outbound_thread.join()

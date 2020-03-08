@@ -20,8 +20,9 @@ class Action_SendMessage( MessageAction ):
 
     def run( self, message_obj ):
 
-        clients = self.get_client_list( [message_obj.from_client_id] )
+        clients = self.get_client_list( [message_obj.from_client_key] )
         message_obj.to_clients = clients
 
         self.send_message( message_obj )
         print("Sending message")
+
