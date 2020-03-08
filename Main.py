@@ -4,10 +4,13 @@ import threading
 
 from client import Client
 from message import Message
+from Game.Main import Main as MainGame
 
 SERVER_NAME = "SERVER"
 
-clients = {}
+game = MainGame()
+
+clients = {}        # ref to all clients within all games :)
 client_count = 0
 clients_max = 4
 
