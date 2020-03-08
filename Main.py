@@ -5,6 +5,7 @@ import threading
 from client import Client
 from message import Message
 from Game.Main import Main as MainGame
+from StaticActions import StaticActions
 
 SERVER_NAME = "SERVER"
 
@@ -51,7 +52,8 @@ def accept_clients(socket_):
             thread_lock.release()
 
             # notify other users that someone has connected :)
-            send_client_status(True, client_key, client_name)
+            StaticActions.send_client_status(True, client_key, client_name,
+                                             get_client_list, send_message )
 
             # count and release our client into the wild!
             client_count += 1
@@ -98,15 +100,6 @@ def send_message(message_obj):
         print("Sending to", c)
         clients[c].que_message(message_obj)
 
-def send_client_status( status, client_key, client_name ):
-
-    new_client_message = Message( client_key, 's' )
-    new_message = new_client_message.new_message( client_name, status )
-    new_client_message.message = new_message
-    new_client_message.to_clients = get_client_list( [ client_key ] )
-
-    send_message( new_client_message )
-
 def send_client_message( message, client_key ):
 
     new_client_message = Message( client_key, 'm' )
@@ -115,6 +108,7 @@ def send_client_message( message, client_key ):
     new_client_message.to_clients = [ client_key ]
 
     send_message( new_client_message )
+
 
 if __name__ == "__main__":
 
@@ -141,7 +135,8 @@ if __name__ == "__main__":
                 # Clean up the client and make sure that all the threads have stopped
                 clients[k].close()
                 # notify the others that the client is dead to us
-                send_client_status(False, k, clients[k].name)
+                StaticActions.send_client_status(False, k, clients[k].name,
+                                                 get_client_list, send_message)
                 # kill the zombie before it eats all out brains
                 del clients[k]
                 print("Lost client", k)
