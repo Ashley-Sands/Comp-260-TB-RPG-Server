@@ -10,7 +10,9 @@ class Message:
     TYPES = {
         'm': MessageTypes.message,
         'i': MessageTypes.client_identity,
-        's': MessageTypes.client_status     # No Action.
+        's': MessageTypes.client_status,     # No Action.
+        'S': MessageTypes.server_status,     # No Action
+        'g': MessageTypes.game_request
     }
 
     # treat these like singletons , they will become an instance at run time.
@@ -19,7 +21,8 @@ class Message:
     # Client status ('s') as its handled by main :)
     ACTIONS = {
         'm': Action_SendMessage,
-        'i': Action_ClientIdentity
+        'i': Action_ClientIdentity,
+        'g': Action_GamesRequest
     }
 
     init_actions = True

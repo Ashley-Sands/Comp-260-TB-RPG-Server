@@ -20,7 +20,14 @@ class MessageTypes:
         return locals()
 
     @staticmethod
-    def game_request( from_client, available_games, available_slots ):
+    def server_status( from_client, ok ):               # S
+        """Basic message for client connect/dissconnect
+        connected is true, otherwise false
+        """
+        return locals()
+
+    @staticmethod
+    def game_request( from_client, available_games, available_slots ):      # g
         """ list of games request
 
         :param from_client:
