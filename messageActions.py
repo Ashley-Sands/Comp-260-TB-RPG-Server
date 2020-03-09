@@ -59,7 +59,7 @@ class Action_GamesRequest( MessageAction ):
 
         for g in games:
             game_names.append( g.game_name )
-            game_slots.append( str(g.max_players) + " of" + str(g.get_player_count) )
+            game_slots.append( str(g.max_players - g.get_player_count()) + " of " + str(g.max_players) )
 
         message_obj.to_clients = [message_obj.from_client_key]
         message_obj.message["available_games"] = game_names
