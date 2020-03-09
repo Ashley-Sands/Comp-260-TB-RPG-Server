@@ -12,7 +12,11 @@ class Message:
         'i': MessageTypes.client_identity,
         's': MessageTypes.client_status,     # No Action.
         'S': MessageTypes.server_status,     # No Action
-        'g': MessageTypes.game_request
+        'g': MessageTypes.game_request,
+        'j': MessageTypes.join_game_request,
+        'l': MessageTypes.leave_game_request,
+        'G': MessageTypes.game_status,
+        'd': MessageTypes.game_data
     }
 
     # treat these like singletons , they will become an instance at run time.

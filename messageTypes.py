@@ -35,3 +35,36 @@ class MessageTypes:
         :param available_slots: the amount of slots available in game
         """
         return locals()
+
+    @staticmethod
+    def join_game_request( match_name ):
+        """ a request to join a game
+
+        :param match_name: name of game
+        :return: as dict
+        """
+        return locals()
+
+    @staticmethod
+    def leave_game_request():
+        """Request to leave game"""
+        return {}
+
+    @staticmethod
+    def game_status( ok, message ):
+        """game status of the clients current game
+
+        :param ok:          is the game ok?
+        :param message:     if not why?
+        :return:
+        """
+        return locals()
+
+    @staticmethod
+    def game_data( players ):
+        """ game data such as current players ect...
+
+        :param players:     list of current players
+        :return:
+        """
+        return locals()
