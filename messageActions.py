@@ -66,3 +66,8 @@ class Action_GamesRequest( MessageAction ):
         message_obj.message["available_slots"] = game_slots
 
         self.send_message( message_obj )
+
+class Action_JoinGameRequest( MessageAction ):
+
+    def run( self, message_obj ):
+        pass;

@@ -26,7 +26,8 @@ class Message:
     ACTIONS = {
         'm': Action_SendMessage,
         'i': Action_ClientIdentity,
-        'g': Action_GamesRequest
+        'g': Action_GamesRequest,
+        'j': Action_JoinGameRequest
     }
 
     init_actions = True
