@@ -80,7 +80,7 @@ class StaticActions:
         """
 
         game_info = message.Message( client_key, 'd' )
-        new_message = game_info.new_message(game.game_name, game.players,
+        new_message = game_info.new_message(from_name, game.game_name, game.players,
                                             game.max_players, 1)
         game_info.message = new_message
         game_info.to_clients = [ client_key ]

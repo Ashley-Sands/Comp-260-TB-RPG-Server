@@ -94,6 +94,8 @@ class Action_JoinGameRequest( MessageAction ): # j
                     # let the player knows every thing is ok
                     StaticActions.send_game_status(True, "", message_obj.from_client_key,
                                                    SERVER_NAME, self.send_message)
+                    # send the initial game data to the client.
+
                 else:
                     StaticActions.send_game_status( False, self.get_error_message(g, client),
                                                     message_obj.from_client_key,

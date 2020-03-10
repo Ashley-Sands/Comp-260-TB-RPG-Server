@@ -15,7 +15,7 @@ class Message:
         'j': MessageTypes.join_game_request,
 
         'l': MessageTypes.leave_game_request,
-        'd': MessageTypes.game_data
+        'd': MessageTypes.game_info
     }
 
     # treat these like singletons , they will become an instance at run time.

@@ -34,7 +34,7 @@ class MessageTypes:
         return locals()
 
     @staticmethod
-    def join_game_request( match_name ):
+    def join_game_request( from_client, match_name ):
         """ a request to join a game
 
         :param match_name: name of game
@@ -43,15 +43,17 @@ class MessageTypes:
         return locals()
 
     @staticmethod
-    def leave_game_request():
+    def leave_game_request(from_client):
         """Request to leave game"""
-        return {}
+        return locals()
 
     @staticmethod
-    def game_data( players ):
+    def game_info( from_client, game_name, players, max_players, starts_in ):
         """ game data such as current players ect...
-
+        :param game_name:   name of name that info belongs to
         :param players:     list of current players
+        :param max_players: max number of players allowed on the server
+        :param starts_in:   the amount of time until the game starts
         :return:
         """
         return locals()
