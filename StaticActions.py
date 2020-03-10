@@ -34,7 +34,6 @@ class StaticActions:
         :param msg:                     the message to send other clients (if required)
         :param client_key:              The key of the client to send the message to
         :param from_name:               who has sent the send ie SERVER
-        :param get_client_list_func:    function to get a list of clients
         :param send_message_func:       function to send message
         :return:                        None
         """
@@ -56,7 +55,6 @@ class StaticActions:
         :param msg:                     the message to send other clients (if required)
         :param client_key:              The key of the client to send the message to
         :param from_name:               who has sent the send ie SERVER
-        :param get_client_list_func:    function to get a list of clients
         :param send_message_func:       function to send message
         :return:                        None
         """

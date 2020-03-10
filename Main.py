@@ -98,6 +98,7 @@ def get_client(client_key):
     else:
         return None
 
+
 def get_games(available_only=True):
     """
     :return list of games]
@@ -116,8 +117,9 @@ def get_games(available_only=True):
 def send_message(message_obj):
 
     for c in message_obj.to_clients:
-        print("Sending to", c)
+        print("Sending to", c, "type:", message_obj.identity)
         clients[c].que_message(message_obj)
+
 
 def send_client_message( message, client_key ):
 

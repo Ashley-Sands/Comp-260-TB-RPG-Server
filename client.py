@@ -111,7 +111,6 @@ class Client:
             # receive the first couple of bytes for our message len
             data = self.socket.recv(self.MESSAGE_LEN_PACKET_SIZE)
             message_len = int.from_bytes(data, self.BYTE_ORDER)
-            print("trying", data)
 
             # if recv returns 0 bytes the socket has been disconnected
             # see https://docs.python.org/3.7/howto/sockets.html for more info
@@ -180,7 +179,6 @@ class Client:
             self.socket.send( message_size )        # send the payload message size (2 bytes)
             self.socket.send( message_id )          # send the message object type  (1 byte )
             self.socket.send( message.encode() )    # send the message payload
-            print( "sent to", self.name )
 
         except Exception as e:
             print(e)
