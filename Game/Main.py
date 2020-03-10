@@ -9,6 +9,7 @@ class Main:
         self.game_active = False
 
         self.start_in = 300         # start in 5 min
+        self.starts_at = 0;
 
         self.start_thread = threading.Thread(target=self.start_game)
         self.start_thread.start()
@@ -32,6 +33,19 @@ class Main:
         self.thread_lock.release()
 
         return player_count
+
+    def get_player_names( self ):
+
+        p_names = []
+
+        for p in self.players:
+            p_names.append( self.players[p].name )
+
+        return p_names
+
+    def get_player_keys( self ):
+
+        return [*self.players]
 
     def get_available_slots( self ):
 
@@ -66,14 +80,24 @@ class Main:
 
         return True
 
+    def get_time_till_start( self ):
+
+        self.thread_lock.acquire()
+        remaining_time = self.starts_at - time.time()
+        self.thread_lock.release()
+
+        return remaining_time
+
     # threaded
     def start_game( self ):
 
         can_start = False
+        start_delay = self.start_in
 
         while not can_start:
 
-            time.sleep( self.start_in )     # sleep until its time to start the game
+            self.starts_at = time.time() + start_delay
+            time.sleep( start_delay )     # sleep until its time to start the game
 
             if self.get_player_count() > 1:
                 can_start = True
