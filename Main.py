@@ -9,7 +9,6 @@ from StaticActions import StaticActions
 
 from constants import *
 
-game = MainGame()
 
 clients = {}        # ref to all clients within all games :)
 client_count = 0
@@ -141,6 +140,8 @@ def send_client_message( message, client_key ):
     send_message( new_client_message )
 
 if __name__ == "__main__":
+
+    game = MainGame( send_message )
 
     # Spin up the socket
     socket_inst = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

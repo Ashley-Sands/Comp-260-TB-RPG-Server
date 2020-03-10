@@ -13,9 +13,10 @@ class Message:
         's': MessageTypes.status,
         'g': MessageTypes.game_request,
         'j': MessageTypes.join_game_request,
+        'd': MessageTypes.game_info,  # TODO: add action. if the client sends this to use we need to fill in the missing data and return it
+        'b': MessageTypes.launch_game,
 
         'l': MessageTypes.leave_game_request,
-        'd': MessageTypes.game_info             # TODO: add action. if the client sends this to use we need to fill in the missing data and return it
     }
 
     # treat these like singletons , they will become an instance at run time.

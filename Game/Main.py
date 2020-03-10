@@ -1,14 +1,17 @@
 import  threading
 import time
+import message
+import constants
+import random
 
 class Main:
 
-    def __init__(self):
+    def __init__(self, send_message_func):
 
         self._can_join = True
         self.game_active = False
 
-        self.start_in = 300         # start in 5 min
+        self.start_in = 120  # 300         # start in 5 min
         self.starts_at = 0;
 
         self.start_thread = threading.Thread(target=self.start_game)
@@ -22,6 +25,7 @@ class Main:
 
         self.players = {}
 
+        self.send_message = send_message_func
 
     def get_player_count( self ):
         """Thread safe method to get player Count"""
@@ -101,4 +105,20 @@ class Main:
 
             if self.get_player_count() > 1:
                 can_start = True
+
+        self._can_join = False
+
+        # get player ids so we can select them at random
+        player_ids = [*range(len(self.players))]
+
+        for p in self.players:
+            rand_id = random.choice(player_ids)
+            player_ids.remove(rand_id)
+
+            launch_game = message.Message(constants.SERVER_NAME, 'b')
+            launch_game.message = launch_game.new_message(constants.SERVER_NAME, rand_id)
+            launch_game.to_clients = [p]
+
+
+            self.send_message( launch_game )
 

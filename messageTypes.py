@@ -57,3 +57,13 @@ class MessageTypes:
         :return:
         """
         return locals()
+
+    @staticmethod
+    def launch_game( from_client, player_id):
+        """
+
+        :param from_client:     SERVER
+        :param player_id:       the ID that the game will use
+        :return:
+        """
+        return locals()
