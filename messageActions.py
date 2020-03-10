@@ -81,16 +81,21 @@ class Action_JoinGameRequest( MessageAction ): # j
     def run( self, message_obj ):
 
         games = self.get_games(False)
+        client = self.get_client( message_obj.from_client_key )
+        joined = False
 
         for g in games:
             if g.game_name == message_obj["match_name"]:
+                # attempt to join game
                 if g.can_join():
-                    # TODO: add the player to the game...
+                    joined = client.set_active_game(g)
+
+                if joined:
                     # let the player knows every thing is ok
                     StaticActions.send_game_status(True, "", message_obj.from_client_key,
                                                    SERVER_NAME, self.send_message)
                 else:
-                    StaticActions.send_game_status( False, self.get_error_message(g),
+                    StaticActions.send_game_status( False, self.get_error_message(g, client),
                                                     message_obj.from_client_key,
                                                     SERVER_NAME, self.send_message )
                 return
@@ -100,12 +105,14 @@ class Action_JoinGameRequest( MessageAction ): # j
                                             SERVER_NAME, self.send_message )
 
 
-    def get_error_message( self, game ):
+    def get_error_message( self, game, client ):
 
         err_msg = ""
         if game.game_active:
             err_msg = "Game has already started"
         elif game.get_available_slots() < 1:
             err_msg = "Server is full"
+        elif client.get_active_game() is not None:
+            err_msg = "Client is already in an active game"
 
         return err_msg

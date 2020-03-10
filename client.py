@@ -22,6 +22,7 @@ class Client:
         self.key = client_key
         self.socket = socket
         self.started = False
+        self._active_game = None    # use setter, getter and remove
 
         self._valid = self.socket is not None   # unsafe, use set and is valid functions
         self._closed = False
@@ -73,6 +74,38 @@ class Client:
         self._valid = valid
 
         self.thread_lock.release()
+
+    def set_active_game( self, game ):
+        """Sets the clients active and and adds the client to the game
+        :return: True if added, otherwise false
+        """
+        if self._active_game is not None:
+            print("Player can not join another game")
+            return False
+
+        self._active_game = game
+        game.players[self.key] = self
+
+        return True
+
+    def get_active_game( self ):
+        """Gets the players active game. None if there is no active game"""
+
+        return self._active_game
+
+    def remove_active_game( self, game ):
+        """Removes the clinets active game and removes the client from the game
+        :return: True if successfully remove, otherwise false
+        """
+
+        if game != self._active_game:
+            return False
+
+        game.players.remove( game )
+        self._active_game = None
+
+        return True
+
 
     def que_message( self, message_obj ):
         """Ques a message to be sent.
