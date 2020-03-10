@@ -1,5 +1,6 @@
 from StaticActions import StaticActions
 import message as msg
+from constants import *
 
 class MessageAction:
 
@@ -19,7 +20,7 @@ class MessageAction:
         pass
 
 
-class Action_SendMessage( MessageAction ):
+class Action_SendMessage( MessageAction ):  # m
 
     def run( self, message_obj ):
 
@@ -30,7 +31,7 @@ class Action_SendMessage( MessageAction ):
         print("Sending message")
 
 
-class Action_ClientIdentity( MessageAction ):
+class Action_ClientIdentity( MessageAction ):   # i
 
     def run( self, message_obj ):
         client = self.get_client( message_obj.from_client_key )
@@ -38,16 +39,24 @@ class Action_ClientIdentity( MessageAction ):
 
         # notify the other players that they have connected
         # TODO: this might get dropped when theres more than one room
-        StaticActions.send_client_status( True, client.key, client.name,
+        StaticActions.send_client_status( True, "", client.key, SERVER_NAME,
                                           self.get_client_list, self.send_message )
 
-        status_message = msg.Message( client.key, 'S')
-        status_message.to_clients = [client.key]
-        status_message.message = status_message.new_message("SERVER", True);
-        self.send_message(status_message)
+        StaticActions.send_server_status(True, "", client.key, SERVER_NAME,
+                                         self.send_message)
 
 
-class Action_GamesRequest( MessageAction ):
+class Action_status( MessageAction ):
+
+    TYPE_NONE   = -1
+    TYPE_SERVER = 0
+    TYPE_CLIENT = 1
+    TYPE_GAME   = 2
+
+    def run ( self, messageObj ):
+        pass
+
+class Action_GamesRequest( MessageAction ): # g
 
     def run( self, message_obj ):
 
@@ -67,7 +76,7 @@ class Action_GamesRequest( MessageAction ):
 
         self.send_message( message_obj )
 
-class Action_JoinGameRequest( MessageAction ):
+class Action_JoinGameRequest( MessageAction ): # j
 
     def run( self, message_obj ):
         pass;

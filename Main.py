@@ -7,7 +7,7 @@ from message import Message
 from Game.Main import Main as MainGame
 from StaticActions import StaticActions
 
-SERVER_NAME = "SERVER"
+from constants import *
 
 game = MainGame()
 
@@ -44,6 +44,7 @@ def accept_clients(socket_):
             # even if they disconnect.
             # so accept them tell um we're full and slam the door in there face
             if len(clients) > clients_max:
+                # TODO: this should be status protocol, type server, ok ummm no...
                 send_client_message("is full, try again later...", client_key )
                 time.sleep( 0.05 )  # give it a sec to send the message (TODO: Improve!)
                 clients[client_key].close()
@@ -152,7 +153,7 @@ if __name__ == "__main__":
                 # Clean up the client and make sure that all the threads have stopped
                 clients[k].close()
                 # notify the others that the client is dead to us
-                StaticActions.send_client_status(False, k, clients[k].name,
+                StaticActions.send_client_status(False, "Client has disconnected", k, clients[k].name,
                                                  get_client_list, send_message)
                 # kill the zombie before it eats all out brains
                 del clients[k]

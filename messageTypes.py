@@ -13,16 +13,13 @@ class MessageTypes:
         return locals()
 
     @staticmethod
-    def client_status( from_client, connected ):        # s
+    def status( from_client, status_type, ok, message ):        # s
         """Basic message for client connect/dissconnect
         connected is true, otherwise false
-        """
-        return locals()
-
-    @staticmethod
-    def server_status( from_client, ok ):               # S
-        """Basic message for client connect/dissconnect
-        connected is true, otherwise false
+        :param from_client: the client that the message was received from
+        :param status_type: type of status, See Action_status for constance status types
+        :param ok:          is everything ok?
+        :param message:     if not what up?
         """
         return locals()
 
@@ -49,16 +46,6 @@ class MessageTypes:
     def leave_game_request():
         """Request to leave game"""
         return {}
-
-    @staticmethod
-    def game_status( ok, message ):
-        """game status of the clients current game
-
-        :param ok:          is the game ok?
-        :param message:     if not why?
-        :return:
-        """
-        return locals()
 
     @staticmethod
     def game_data( players ):

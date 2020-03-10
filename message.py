@@ -10,22 +10,21 @@ class Message:
     TYPES = {
         'm': MessageTypes.message,
         'i': MessageTypes.client_identity,
-        's': MessageTypes.client_status,     # No Action.
-        'S': MessageTypes.server_status,     # No Action
+        's': MessageTypes.status,
         'g': MessageTypes.game_request,
         'j': MessageTypes.join_game_request,
+
         'l': MessageTypes.leave_game_request,
-        'G': MessageTypes.game_status,
         'd': MessageTypes.game_data
     }
 
     # treat these like singletons , they will become an instance at run time.
     # then we just have to call run and pass in the correct message data :)
     # Not all message types have actions :) ie.
-    # Client status ('s') as its handled by main :)
     ACTIONS = {
         'm': Action_SendMessage,
         'i': Action_ClientIdentity,
+        's': Action_status,
         'g': Action_GamesRequest,
         'j': Action_JoinGameRequest
     }
@@ -48,6 +47,9 @@ class Message:
 
         if Message.init_actions:
             Message.initialize_actions()
+
+        if identity_char not in Message.TYPES :
+            print("Error: Message type", identity_char, "not found")
 
         self.identity = identity_char
         self.from_client_key = from_client_key
