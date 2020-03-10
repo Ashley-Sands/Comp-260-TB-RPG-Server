@@ -37,11 +37,6 @@ class Action_ClientIdentity( MessageAction ):   # i
         client = self.get_client( message_obj.from_client_key )
         client.name = message_obj.message["nickname"]
 
-        # notify the other players that they have connected
-        # TODO: this might get dropped when theres more than one room
-        StaticActions.send_client_status( True, "", client.key, SERVER_NAME,
-                                          self.get_client_list, self.send_message )
-
         StaticActions.send_server_status(True, "", client.key, SERVER_NAME,
                                          self.send_message)
 
@@ -94,6 +89,9 @@ class Action_JoinGameRequest( MessageAction ): # j
                     # let the player knows every thing is ok
                     StaticActions.send_game_status(True, "", message_obj.from_client_key,
                                                    SERVER_NAME, self.send_message)
+                    # notify the other players that they have connected
+                    StaticActions.send_client_status( True, "", client.key, SERVER_NAME,
+                                                      self.get_client_list, self.send_message, g )
                     # send the initial game data to the client.
                     StaticActions.send_game_info(g, message_obj.from_client_key,
                                                  SERVER_NAME, self.send_message)
@@ -103,7 +101,7 @@ class Action_JoinGameRequest( MessageAction ): # j
                                                     SERVER_NAME, self.send_message )
                 return
 
-            # so its not ok, the game is no longer available
+            # its not ok, the game is no longer exist!
             StaticActions.send_game_status( False, "Game does not exist!", message_obj.from_client_key,
                                             SERVER_NAME, self.send_message )
 

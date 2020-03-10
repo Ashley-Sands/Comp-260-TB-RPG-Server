@@ -6,7 +6,7 @@ import messageActions
 class StaticActions:
 
     @staticmethod
-    def send_client_status( ok, msg, client_key, from_name, get_client_list_func, send_message_func ):
+    def send_client_status( ok, msg, client_key, from_name, get_client_list_func, send_message_func, game=None ):
         """ Send the status of a client to all other clients
 
         :param ok:                      has the user connected (True) or disconnected (False)
@@ -15,6 +15,7 @@ class StaticActions:
         :param from_name:               who has sent the send ie SERVER
         :param get_client_list_func:    function to get a list of clients
         :param send_message_func:       function to send message
+        :param game:                    the game clients belong to
         :return:                        None
         """
         status_type = messageActions.Action_status.TYPE_CLIENT
@@ -22,7 +23,7 @@ class StaticActions:
         new_client_message = message.Message( client_key, 's' )
         new_message = new_client_message.new_message( from_name, status_type, ok, msg )
         new_client_message.message = new_message
-        new_client_message.to_clients = get_client_list_func( [ client_key ] )
+        new_client_message.to_clients = get_client_list_func( [ client_key ], game )
 
         send_message_func( new_client_message )
 
