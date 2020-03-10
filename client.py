@@ -1,4 +1,5 @@
 import datetime
+import traceback
 import queue as q
 import threading
 import time
@@ -165,13 +166,13 @@ class Client:
 
             self.received_queue.put(message_obj, block=True, timeout=None)
 
-            print( "message received msg", message, " id", message_id, "from", self.name )
+            print( "message received msg", message, "id", message_id, "from", self.name )
 
             # self.timestamp_received = int(
             #    (datetime.datetime.utcnow() - datetime.datetime(1970, 1, 1) ).total_seconds())
 
         except Exception as e:
-            print("Client ~line 141", e)
+            print("Client ~line 175", e)
             self.set_is_valid( False )
             return False
 

@@ -76,16 +76,26 @@ def accept_clients(socket_):
     print("that's enough clients for now")
 
 
-def get_client_list( except_clients=[] ):
+def get_client_list( except_clients=[], game=None ):
+    """Gets a list of all clients, ignoring the except_clients
+    if game is passed in then it will only get clients from that game
+    :param except_clients:  list of clients to excuse from the list
+    :param game:            if supplied the game to get the clients from
+    :return:                a list of clients
+    """
+    client_list = []
 
     thread_lock.acquire()
 
-    client_list = [*clients]
+    if game is None:
+        client_list = [*clients]
+    else:
+        client_list = [*game.players]
 
     thread_lock.release()
 
     for ec in except_clients:
-        if ec in clients:
+        if ec in client_list:
             client_list.remove(ec)
 
     return client_list
