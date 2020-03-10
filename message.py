@@ -59,6 +59,10 @@ class Message:
         # functions to get a new message dict for self.identity
         self.new_message = Message.TYPES[identity_char]
 
+    """Shortcut to access message dict"""
+    def __getitem__(self, item):
+        return self.message[item]
+
     def run_action( self ):
 
         if self.identity not in Message.ACTIONS:
