@@ -67,3 +67,22 @@ class StaticActions:
         new_client_message.to_clients = [ client_key ]
 
         send_message_func( new_client_message )
+
+    @staticmethod
+    def send_game_info( game, client_key, from_name, send_message_func ):
+        """ sends the game info to client key
+
+        :param game:                the game to get data from
+        :param client_key:          the client key to send to
+        :param from_name:           the client that the message came from ie SERVER
+        :param send_message_func:   the send message function
+        :return:                    None
+        """
+
+        game_info = message.Message( client_key, 'd' )
+        new_message = game_info.new_message(game.game_name, game.players,
+                                            game.max_players, 1)
+        game_info.message = new_message
+        game_info.to_clients = [ client_key ]
+
+        send_message_func( game_info )
