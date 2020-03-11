@@ -69,7 +69,7 @@ class MessageTypes:
         return locals()
 
     @staticmethod
-    def joined_game ( from_client, player_name, player_id ):
+    def joined_game ( from_client, player_id ):
         """
 
         :param from_client:

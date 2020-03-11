@@ -124,4 +124,7 @@ class Action_JoinedGame( MessageAction ):
 
         # send to all other players
         from_client = self.get_client(message_obj.from_client_key)
-        message_obj.to_clients = self.get_client_list( [from_client.key], from_client.get_active_game() )
+        game = from_client.get_active_game()
+        message_obj.to_clients = self.get_client_list( [from_client.key], game )
+
+        game.player_joined( message_obj.from_client_key, message_obj["player_id"] )

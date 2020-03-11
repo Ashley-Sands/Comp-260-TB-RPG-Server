@@ -23,7 +23,8 @@ class Main:
 
         self.max_players = 4
 
-        self.players = {}
+        self.players = {}   # clients that are in the game
+        self.playerId = {}  # key: player id, value: player_key
 
         self.send_message = send_message_func
 
@@ -83,6 +84,19 @@ class Main:
         del self.players[ client.key ]
 
         return True
+
+    def player_joined( self, player_key, player_id ):
+        """ Adds the player to player id. once all players have been added
+        the game can become active
+
+        :param player_key:      the key of the player
+        :param player_id:       the players id in the game
+        :return:
+        """
+        self.playerId[player_id] = player_key
+
+        if len( self.playerId ) == len( self.players ):
+            pass # update the clients with the full player list, ready to begin.
 
     def get_time_till_start( self ):
 
