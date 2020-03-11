@@ -1,7 +1,8 @@
 import json
 from messageTypes import *
 from messageActions import *
-
+from playerMessageTypes import *
+from playerMessageActions import *
 
 class Message:
 
@@ -17,6 +18,10 @@ class Message:
         'b': MessageTypes.launch_game,
 
         'l': MessageTypes.leave_game_request,
+
+        # in game
+        'M': PlayerMessageTypes.move_player
+
     }
 
     # treat these like singletons , they will become an instance at run time.
@@ -27,7 +32,10 @@ class Message:
         'i': Action_ClientIdentity,
         's': Action_status,
         'g': Action_GamesRequest,
-        'j': Action_JoinGameRequest
+        'j': Action_JoinGameRequest,
+
+        # in game
+        'M': PlayerAction_Move
     }
 
     init_actions = True
