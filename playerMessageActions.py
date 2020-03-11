@@ -5,7 +5,7 @@ class PlayerAction_Move( messageActions.MessageAction ):
 
     def run( self, message_obj ):
 
-        from_client = self.get_client( message_obj.form_client_key )
+        from_client = self.get_client( message_obj.from_client_key )
 
         if from_client == None:
             print("Error can not find game / client")
