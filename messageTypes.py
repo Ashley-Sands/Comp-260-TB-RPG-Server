@@ -67,3 +67,14 @@ class MessageTypes:
         :return:
         """
         return locals()
+
+    @staticmethod
+    def joined_game ( from_client, player_name, player_id ):
+        """
+
+        :param from_client:
+        :param player_name:
+        :param player_id:
+        :return:
+        """
+        return locals()

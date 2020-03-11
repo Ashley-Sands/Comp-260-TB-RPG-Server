@@ -9,16 +9,18 @@ class Message:
     # dict of all new message functions
     # use self.new_message to create the correct type for that message class
     TYPES = {
+        # General
         'm': MessageTypes.message,
         'i': MessageTypes.client_identity,
         's': MessageTypes.status,
         'g': MessageTypes.game_request,
         'j': MessageTypes.join_lobby_request,
         'd': MessageTypes.game_info,  # TODO: add action. if the client sends this to use we need to fill in the missing data and return it
+
         'b': MessageTypes.launch_game,
-
         'l': MessageTypes.leave_game_request,
-
+        # Joining game
+        'J': MessageTypes.launch_game,
         # in game
         'M': PlayerMessageTypes.move_player
 

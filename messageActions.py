@@ -117,3 +117,11 @@ class Action_JoinLobbyRequest( MessageAction ): # j
             err_msg = "Client is already in an active game"
 
         return err_msg
+
+class Action_JoinedGame( MessageAction ):
+
+    def run( self, message_obj ):
+
+        # send to all other players
+        from_client = self.get_client(message_obj.from_client_key)
+        message_obj.to_clients = self.get_client_list( [from_client.key], from_client.get_active_game() )
