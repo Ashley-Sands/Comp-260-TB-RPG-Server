@@ -71,7 +71,7 @@ class Action_GamesRequest( MessageAction ): # g
 
         self.send_message( message_obj )
 
-class Action_JoinGameRequest( MessageAction ): # j
+class Action_JoinLobbyRequest( MessageAction ): # j
 
     def run( self, message_obj ):
 

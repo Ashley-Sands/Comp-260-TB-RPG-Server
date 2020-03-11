@@ -34,7 +34,7 @@ class MessageTypes:
         return locals()
 
     @staticmethod
-    def join_game_request( from_client, match_name ):
+    def join_lobby_request( from_client, match_name ):
         """ a request to join a game
 
         :param match_name: name of game

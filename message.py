@@ -13,7 +13,7 @@ class Message:
         'i': MessageTypes.client_identity,
         's': MessageTypes.status,
         'g': MessageTypes.game_request,
-        'j': MessageTypes.join_game_request,
+        'j': MessageTypes.join_lobby_request,
         'd': MessageTypes.game_info,  # TODO: add action. if the client sends this to use we need to fill in the missing data and return it
         'b': MessageTypes.launch_game,
 
@@ -32,7 +32,7 @@ class Message:
         'i': Action_ClientIdentity,
         's': Action_status,
         'g': Action_GamesRequest,
-        'j': Action_JoinGameRequest,
+        'j': Action_JoinLobbyRequest,
 
         # in game
         'M': PlayerAction_Move
