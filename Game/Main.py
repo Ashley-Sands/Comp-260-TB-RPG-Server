@@ -96,7 +96,13 @@ class Main:
         self.playerId[player_id] = player_key
 
         if len( self.playerId ) == len( self.players ):
-            pass # update the clients with the full player list, ready to begin.
+            # update the clients with the full player list, ready to begin.
+            pre_start_message = message.Message(player_key, 'P')
+            pre_start_message.message = pre_start_message.new_message(constants.SERVER_NAME, [*self.playerId], list(self.playerId))
+            pre_start_message.to_clients = [*self.players]
+
+            self.send_message(pre_start_message) # now we wait for the player to ok. then we begin :D
+
 
     def get_time_till_start( self ):
 

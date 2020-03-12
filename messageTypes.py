@@ -78,3 +78,24 @@ class MessageTypes:
         :return:
         """
         return locals()
+
+    @staticmethod
+    def pre_start_game( from_client, player_ids, player_names ):
+        """
+
+        :param from_client:
+        :param player_ids:
+        :param player_names:
+        :return:
+        """
+        return locals()
+
+    @staticmethod
+    def start_game( from_client, ok ):
+        """
+
+        :param from_client:
+        :param ok:
+        :return:
+        """
+        return locals()

@@ -21,6 +21,8 @@ class Message:
         'l': MessageTypes.leave_game_request,
         # Joining game
         'J': MessageTypes.launch_game,
+        'P': MessageTypes.pre_start_game,
+        'S': MessageTypes.start_game,
         # in game
         'M': PlayerMessageTypes.move_player
 
