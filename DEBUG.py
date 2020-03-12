@@ -6,11 +6,18 @@ import time
 # treat as if static :)
 class DEBUG:
 
+    MESSAGE_TYPE_DEFAULT = 1
+    MESSAGE_TYPE_WARNING = 2
+    MESSAGE_TYPE_ERROR   = 3
+
+
     debug_mode = True
     inited = False
     active = False
     print_que = None
     debug_thread = None
+    print_debug_intervals = 1
+
 
     @staticmethod
     def init():
@@ -29,23 +36,26 @@ class DEBUG:
         DEBUG.debug_thread.start()
 
     @staticmethod
-    def print( *argv, error=False, sept=' ' ):
+    def print( *argv, message_type=0, sept=' ' ):
 
         if not DEBUG.debug_mode or not DEBUG.inited:
             return
 
-        now = datetime.datetime.now()
+        now = datetime.datetime.utcnow()
         time_str = now.strftime("%m/%d/%Y @ %H:%M:%S.%f")
 
         # make sure all the values in argv are strings
         argv = [ str( a ) for a in argv ]
 
-        message_type = "MESSAGE"
 
-        if error:
-            message_type = "ERROR  "
+        if message_type == DEBUG.MESSAGE_TYPE_WARNING:
+            message_type_name = "WARNING"
+        elif message_type == DEBUG.MESSAGE_TYPE_ERROR:
+            message_type_name = "ERROR  "
+        else:
+            message_type_name = "MESSAGE"
 
-        DEBUG.print_que.put( "{0} | {1} | {2}".format(time_str, message_type, sept.join(argv)) )
+        DEBUG.print_que.put( "{0} | {1} | {2}".format(time_str, message_type_name, sept.join(argv)) )
 
     @staticmethod
     def debug_print_thread( ):
@@ -61,7 +71,7 @@ class DEBUG:
             while not DEBUG.print_que.empty():
                 print( DEBUG.print_que.get(block=True, timeout=None) )
 
-            time.sleep(0.5)
+            time.sleep(DEBUG.print_debug_intervals)   # theres no need to
 
         DEBUG.active = False
         print("dead debug thread")
