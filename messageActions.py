@@ -63,8 +63,8 @@ class Action_GamesRequest( MessageAction ): # g
         game_slots = []
 
         for g in games:
-            game_names.append( g.game_name )
-            game_slots.append( str(g.max_players - g.get_player_count()) + " of " + str(g.max_players) )
+            game_names.append( g.game.game_name )
+            game_slots.append( str(g.game.max_players - g.get_player_count()) + " of " + str(g.game.max_players) )
 
         message_obj.to_clients = [message_obj.from_client_key]
         message_obj.message["available_games"] = game_names
@@ -126,9 +126,16 @@ class Action_JoinedGame( MessageAction ):
         # send to all other players
         from_client = self.get_client(message_obj.from_client_key)
         game = from_client.get_active_game()
+
+        if game is None:
+            DEBUG.DEBUG.print( "{0} ({1}) can not join game, not in lobby".format(from_client.key, from_client.name),
+                               message_type=DEBUG.DEBUG.MESSAGE_TYPE_ERROR )
+            return;
+
         message_obj.to_clients = self.get_client_list( [from_client.key], game )
 
         game.player_joined( message_obj.from_client_key, message_obj["player_id"] )
+
 
 class Action_StartGame( MessageAction ):
 

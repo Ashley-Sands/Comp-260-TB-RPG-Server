@@ -180,6 +180,6 @@ if __name__ == "__main__":
                     recv_msg = clients[k].received_queue.get(block=True, timeout=None)
                     recv_msg.run_action()
             except Exception as e:
-                DEBUG.DEBUG.print(e)
+                DEBUG.DEBUG.print(e, "\nMain Line ~183", message_type=DEBUG.DEBUG.MESSAGE_TYPE_ERROR)
 
         time.sleep(0.5)

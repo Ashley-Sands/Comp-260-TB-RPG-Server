@@ -93,7 +93,7 @@ class Client:
         if self._active_game is not None:
             DEBUG.DEBUG.print("Player can not join another game")
             return False
-
+        DEBUG.DEBUG.print(game)
         self._active_game = game
         game.players[self.key] = self
 

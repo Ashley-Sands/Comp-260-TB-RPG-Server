@@ -21,7 +21,7 @@ class Message:
         'b': MessageTypes.launch_game,
         'l': MessageTypes.leave_game_request,
         # Joining game
-        'J': MessageTypes.launch_game,
+        'J': MessageTypes.joined_game,
         'P': MessageTypes.pre_start_game,
         'S': MessageTypes.start_game,
         # in game
