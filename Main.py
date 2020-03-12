@@ -1,6 +1,7 @@
 import socket
 import time
 import threading
+import DEBUG
 
 from client import Client
 from message import Message
@@ -21,7 +22,7 @@ thread_lock = threading.Lock()
 
 def accept_clients(socket_):
     global accepting_connections, client_count
-    print("starting to accept clients")
+    DEBUG.DEBUG.print("starting to accept clients")
 
     while True:
 
@@ -141,6 +142,9 @@ def send_client_message( message, client_key ):
 
 if __name__ == "__main__":
 
+    print("Hi")
+    DEBUG.DEBUG.init()
+    print("hmmmm")
     game = MainGame( send_message )
 
     # Spin up the socket
@@ -170,7 +174,7 @@ if __name__ == "__main__":
                                                  get_client_list, send_message)
                 # kill the zombie before it eats all out brains
                 del clients[k]
-                print("Lost client", k)
+                DEBUG.DEBUG.print("Lost client", k)
                 continue
 
             try:
@@ -178,6 +182,6 @@ if __name__ == "__main__":
                     recv_msg = clients[k].received_queue.get(block=True, timeout=None)
                     recv_msg.run_action()
             except Exception as e:
-                print(e)
+                DEBUG.DEBUG.print(e)
 
         time.sleep(0.5)
