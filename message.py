@@ -1,3 +1,4 @@
+import DEBUG
 import json
 from messageTypes import *
 from messageActions import *
@@ -63,7 +64,7 @@ class Message:
             Message.initialize_actions()
 
         if identity_char not in Message.TYPES :
-            print("Error: Message type", identity_char, "not found")
+            DEBUG.DEBUG.print("Error: Message type", identity_char, "not found")
 
         self.identity = identity_char
         self.from_client_key = from_client_key
@@ -80,7 +81,7 @@ class Message:
     def run_action( self ):
 
         if self.identity not in Message.ACTIONS:
-            print("identity", self.identity, "has no action")
+            DEBUG.DEBUG.print("identity", self.identity, "has no action")
             return
 
         Message.ACTIONS[ self.identity ].run( self )
@@ -90,8 +91,8 @@ class Message:
         try:
             self.message = json.loads(json_str)
         except Exception as e:
-            print (e)
-            print (json_str)
+            DEBUG.DEBUG.print (e)
+            DEBUG.DEBUG.print (json_str)
         # We should assume that the client has not set who it is from.
         # It is required by the client when receiving messages tho.
         self.message["from_client"] = from_client_name

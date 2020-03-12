@@ -1,5 +1,5 @@
 import messageActions
-
+import DEBUG
 
 class PlayerAction_Move( messageActions.MessageAction ):
 
@@ -8,7 +8,7 @@ class PlayerAction_Move( messageActions.MessageAction ):
         from_client = self.get_client( message_obj.from_client_key )
 
         if from_client == None:
-            print("Error can not find game / client")
+            DEBUG.DEBUG.print("Error can not find game / client")
             return
 
         game = from_client.get_active_game()

@@ -1,3 +1,4 @@
+import DEBUG
 from StaticActions import StaticActions
 import message as msg
 from constants import *
@@ -28,7 +29,7 @@ class Action_SendMessage( MessageAction ):  # m
         message_obj.to_clients = clients
 
         self.send_message( message_obj )
-        print("Sending message")
+        DEBUG.DEBUG.print("Sending message")
 
 
 class Action_ClientIdentity( MessageAction ):   # i

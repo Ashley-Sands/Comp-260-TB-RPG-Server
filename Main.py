@@ -62,9 +62,9 @@ def accept_clients(socket_):
 
             # count and release our client into the wild!
             client_count += 1
-            print("new client accepted!")
+            DEBUG.DEBUG.print("new client accepted!")
         except Exception as e:
-            print("error on socket, ", e)
+            DEBUG.DEBUG.print("error on socket, ", e)
             break
 
         time.sleep(0.5)
@@ -73,7 +73,7 @@ def accept_clients(socket_):
     accepting_connections = False
     thread_lock.release()
 
-    print("that's enough clients for now")
+    DEBUG.DEBUG.print("that's enough clients for now")
 
 
 def get_client_list( except_clients=[], game=None ):
@@ -127,7 +127,7 @@ def get_games(available_only=True):
 def send_message(message_obj):
 
     for c in message_obj.to_clients:
-        print("Sending to", c, "type:", message_obj.identity)
+        DEBUG.DEBUG.print("Sending to", c, "type:", message_obj.identity)
         clients[c].que_message(message_obj)
 
 
@@ -142,9 +142,7 @@ def send_client_message( message, client_key ):
 
 if __name__ == "__main__":
 
-    print("Hi")
     DEBUG.DEBUG.init()
-    print("hmmmm")
     game = MainGame( send_message )
 
     # Spin up the socket
@@ -160,7 +158,7 @@ if __name__ == "__main__":
     accepting_conn_thread = threading.Thread(target=accept_clients, args=(socket_inst,))
     accepting_conn_thread.start()
 
-    print ("\nwaiting for connections...")
+    DEBUG.DEBUG.print ("waiting for connections...")
 
     # process all the data :)
     while True:

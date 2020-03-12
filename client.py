@@ -4,6 +4,7 @@ import queue as q
 import threading
 import time
 import socket as py_socket
+import DEBUG
 from message import Message
 
 # server
@@ -39,7 +40,7 @@ class Client:
     def start(self):
 
         if self.inbound_thread.is_alive() or self.outbound_thread.is_alive():
-            print("Error: can not start client, already alive")
+            DEBUG.DEBUG.print("Error: can not start client, already alive")
             return
 
         self.started = True
@@ -61,7 +62,7 @@ class Client:
         self.thread_lock.release()
 
         if print_message and not valid:
-            print("Error: Invalid Socket")
+            DEBUG.DEBUG.print("Error: Invalid Socket")
 
         return valid and not self._closed
 
@@ -81,7 +82,7 @@ class Client:
         :return: True if added, otherwise false
         """
         if self._active_game is not None:
-            print("Player can not join another game")
+            DEBUG.DEBUG.print("Player can not join another game")
             return False
 
         self._active_game = game
@@ -125,7 +126,7 @@ class Client:
             self.outbound_thread.start()
 
     def inbound(self, socket):
-        print("-starting inbound")
+        DEBUG.DEBUG.print("-starting inbound for ", self.key)
         # receive messages until it fails :/
         while self.is_valid():
             if not self.receive():
@@ -159,7 +160,7 @@ class Client:
 
             # receive the message
             message = self.socket.recv(message_len).decode("utf-8")
-            print( "message received msg len:", message_len ,"msg:", message, "id", message_id, "from", self.name )
+            DEBUG.DEBUG.print( "message received msg len:", message_len ,"msg:", message, "id", message_id, "from", self.name )
 
             # create the message instance
             message_obj = Message(self.key, message_id)
@@ -173,15 +174,15 @@ class Client:
             #    (datetime.datetime.utcnow() - datetime.datetime(1970, 1, 1) ).total_seconds())
 
         except Exception as e:
-            traceback.print_last()
-            print("Client ~line 175", e)
+            # traceback.print_last()
+            DEBUG.DEBUG.print("Client ~line 175", e)
             self.set_is_valid( False )
             return False
 
         return True
 
     def outbound(self, socket):
-        print("-starting outbound")
+        DEBUG.DEBUG.print("-starting outbound for", self.key)
 
         # send all messages in the queue
         while not self._send_queue.empty():
@@ -197,7 +198,7 @@ class Client:
         """
 
         if not self.is_valid(True):
-            print( "Not Vaild" )
+            DEBUG.DEBUG.print( "Not Vaild" )
             return False
 
         message_obj = self._send_queue.get(block=True, timeout=None)
@@ -208,7 +209,7 @@ class Client:
 
         # check that the message is within the max message size
         if len(message) > pow(255, self.MESSAGE_LEN_PACKET_SIZE):
-            print("Error: Message has exceeded the max message length.")
+            DEBUG.DEBUG.print("Error: Message has exceeded the max message length.")
             return False
 
         try:
@@ -217,7 +218,7 @@ class Client:
             self.socket.send( message.encode() )    # send the message payload
 
         except Exception as e:
-            print(e)
+            DEBUG.DEBUG.print(e)
             self.set_is_valid( False )
             return False
 
