@@ -180,5 +180,7 @@ class Main:
 
     def update_game( self ):
 
-        self.game.run()
+        while self.game_active():
+            self.game.run()
+            time.sleep(0.016)   # update ~60 times a second
 

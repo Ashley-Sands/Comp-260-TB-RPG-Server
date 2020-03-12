@@ -15,12 +15,14 @@ class DefaultGame:
         self.current_player = 0
         self.max_players = 4
 
+        self.max_time = 15
+
         self.send_message = send_message_func
 
 
     def run( self ):
 
-        time.sleep(30)
+        time.sleep(self.max_time)
 
         # get the next player id
         # taking into account that a player might of disconnected
@@ -33,7 +35,10 @@ class DefaultGame:
                 break
 
         changePlayer = msg.Message(constants.SERVER_NAME, 'C')
-        changePlayer.message = changePlayer.new_message(constants.SERVER_NAME, self.current_player)
+        changePlayer.message = changePlayer.new_message(constants.SERVER_NAME,
+                                                        self.current_player,
+                                                        self.max_time )
+
         changePlayer.to_clients = list( self.playerId.values() )
 
         self.send_message( changePlayer )
