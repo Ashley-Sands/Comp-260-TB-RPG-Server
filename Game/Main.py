@@ -25,6 +25,7 @@ class Main:
 
         self.players = {}   # clients that are in the game
         self.playerId = {}  # key: player id, value: player_key
+        self.ready = {}     # Are the players ready Key: player id value True or False
 
         self.send_message = send_message_func
 
@@ -68,12 +69,12 @@ class Main:
         if not self.can_join():
             return False
 
-        self.player[client.key] = client
+        self.players[client.key] = client
 
         return True
 
     def remove_player( self, client ):
-        """Adds a client to the players list
+        """Removes a client to the players list
 
         :return:    true if successfully removed otherwise false
         """
@@ -98,11 +99,31 @@ class Main:
         if len( self.playerId ) == len( self.players ):
             # update the clients with the full player list, ready to begin.
             pre_start_message = message.Message(player_key, 'P')
-            pre_start_message.message = pre_start_message.new_message(constants.SERVER_NAME, [*self.playerId], list(self.playerId))
+            pre_start_message.message = pre_start_message.new_message(constants.SERVER_NAME, [*self.playerId], list(self.playerId.values()))
             pre_start_message.to_clients = [*self.players]
 
             self.send_message(pre_start_message) # now we wait for the player to ok. then we begin :D
 
+    def ready_player( self, player_id, ready ):
+        """Readies the player to start the game!"""
+
+        self.ready[ player_id ] = ready
+
+        # once we have a responce from all the players
+        # if every ones status is OK :)
+        ok = True
+        if len(self.ready) == len(self.playerId):
+            for r in self.ready:
+                if not self.ready[r]:
+                    ok = False
+                    break   # todo: find out why
+
+        if ok:
+            start_game_msg = message.Message(constants.SERVER_NAME, 'S')
+            start_game_msg.message = start_game_msg.new_message(constants.SERVER_NAME, True)
+            start_game_msg.to_clients = list( self.playerId.values() )  # we use the playerId as they have been confirmed and joined!
+
+            self.send_message( start_game_msg )
 
     def get_time_till_start( self ):
 
