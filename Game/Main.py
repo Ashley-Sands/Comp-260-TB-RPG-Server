@@ -4,10 +4,13 @@ import message
 import constants
 import random
 from Game.default_game import DefaultGame
+import StaticActions
 
 class Main:
 
     def __init__(self, send_message_func):
+
+        self.send_message = send_message_func
 
         self._can_join = True
         self._game_active = False
@@ -15,17 +18,15 @@ class Main:
         self.start_in = 30  # 300         # start in 5 min
         self.starts_at = 0
 
+        self.game = DefaultGame( send_message_func )
+
+        self.players = {}   # clients that are in the game
+
         self.lobby_thread = threading.Thread(target=self.update_lobby)
         self.lobby_thread.start()
         self.game_thread = threading.Thread(target=self.update_game)
 
         self.thread_lock = threading.Lock()
-
-        self.game = DefaultGame( send_message_func )
-
-        self.players = {}   # clients that are in the game
-
-        self.send_message = send_message_func
 
     def get_player_count( self ):
         """Thread safe method to get player Count"""
@@ -100,7 +101,7 @@ class Main:
         :param player_id:       the players id in the game
         :return:
         """
-        self.game.playerId[player_id] = player_key
+        self.game.playerId[player_id] = self.players[player_key]
 
         if len( self.game.playerId ) == len( self.players ):
             # update the clients with the full player list, ready to begin.
@@ -152,6 +153,10 @@ class Main:
         while not can_start:
 
             self.starts_at = time.time() + start_delay
+
+            # update any connected players, that we're going to wait again
+            StaticActions.StaticActions.send_game_info_to_all( self, self.send_message )
+
             time.sleep( start_delay )     # sleep until its time to start the game
 
             if self.get_player_count() > 1:  # there must be at least 2 players
@@ -170,7 +175,6 @@ class Main:
             launch_game = message.Message(constants.SERVER_NAME, 'b')
             launch_game.message = launch_game.new_message(constants.SERVER_NAME, rand_id)
             launch_game.to_clients = [p]
-
 
             self.send_message( launch_game )
 

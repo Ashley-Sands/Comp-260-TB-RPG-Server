@@ -81,7 +81,7 @@ class Action_JoinLobbyRequest( MessageAction ): # j
         joined = False
 
         for g in games:
-            if g.game_name == message_obj["match_name"]:
+            if g.game.game_name == message_obj["match_name"]:
                 # attempt to join game
                 if g.can_join():
                     joined = client.set_active_game(g)

@@ -1,5 +1,6 @@
 import message
 import messageActions
+import constants
 # these are actions that are not trigger by send/receiving messages
 
 
@@ -70,7 +71,7 @@ class StaticActions:
         send_message_func( new_client_message )
 
     @staticmethod
-    def send_game_info( game, client_key, from_name, send_message_func ):
+    def send_game_info( game, client_key, from_name, send_message_func ):   # TODO: change game to lobby?
         """ sends the game info to client key
 
         :param game:                the game to get data from
@@ -81,9 +82,21 @@ class StaticActions:
         """
 
         game_info = message.Message( client_key, 'd' )
-        new_message = game_info.new_message(from_name, game.game_name, game.get_player_names(),
-                                            game.max_players, game.get_time_till_start())
+        new_message = game_info.new_message(from_name, game.game.game_name, game.get_player_names(),
+                                            game.game.max_players, game.get_time_till_start())
         game_info.message = new_message
         game_info.to_clients = [ client_key ]
 
         send_message_func( game_info )
+
+    @staticmethod
+    def send_game_info_to_all( game, send_message_func):
+        """ sends the game info to all users in the game
+
+        :param game:
+        :param send_message_func:
+        :return:
+        """
+
+        for p in game.players:
+            StaticActions.send_game_info(game, game.players[p].key, constants.SERVER_NAME, send_message_func)
