@@ -39,6 +39,7 @@ class Message:
         'j': Action_JoinLobbyRequest,
 
         # in game
+        'J': Action_JoinedGame,
         'M': PlayerAction_Move
     }
 
@@ -86,9 +87,11 @@ class Message:
 
     def set_message( self, from_client_name, json_str ):
         """Set message from json string"""
-
-        self.message = json.loads(json_str)
-
+        try:
+            self.message = json.loads(json_str)
+        except Exception as e:
+            print (e)
+            print (json_str)
         # We should assume that the client has not set who it is from.
         # It is required by the client when receiving messages tho.
         self.message["from_client"] = from_client_name

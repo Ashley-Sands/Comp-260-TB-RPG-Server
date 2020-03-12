@@ -11,7 +11,7 @@ class Main:
         self._can_join = True
         self.game_active = False
 
-        self.start_in = 60  # 300         # start in 5 min
+        self.start_in = 30  # 300         # start in 5 min
         self.starts_at = 0;
 
         self.start_thread = threading.Thread(target=self.start_game)

@@ -159,6 +159,7 @@ class Client:
 
             # receive the message
             message = self.socket.recv(message_len).decode("utf-8")
+            print( "message received msg len:", message_len ,"msg:", message, "id", message_id, "from", self.name )
 
             # create the message instance
             message_obj = Message(self.key, message_id)
@@ -166,12 +167,13 @@ class Client:
 
             self.received_queue.put(message_obj, block=True, timeout=None)
 
-            print( "message received msg", message, "id", message_id, "from", self.name )
+            #print( "message received msg len:", message_len ,"msg:", message, "id", message_id, "from", self.name )
 
             # self.timestamp_received = int(
             #    (datetime.datetime.utcnow() - datetime.datetime(1970, 1, 1) ).total_seconds())
 
         except Exception as e:
+            traceback.print_last()
             print("Client ~line 175", e)
             self.set_is_valid( False )
             return False
