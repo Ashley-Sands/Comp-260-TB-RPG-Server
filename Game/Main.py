@@ -104,10 +104,10 @@ class Main:
 
             self.send_message(pre_start_message) # now we wait for the player to ok. then we begin :D
 
-    def ready_player( self, player_id, ready ):
+    def ready_player( self, player_key, ready ):
         """Readies the player to start the game!"""
 
-        self.ready[ player_id ] = ready
+        self.ready[ player_key ] = ready
 
         # once we have a responce from all the players
         # if every ones status is OK :)

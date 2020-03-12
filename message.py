@@ -41,6 +41,7 @@ class Message:
 
         # in game
         'J': Action_JoinedGame,
+        'S': Action_StartGame,
         'M': PlayerAction_Move
     }
 

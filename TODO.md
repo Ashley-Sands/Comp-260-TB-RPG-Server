@@ -9,3 +9,6 @@
 
 - [ ] Change client key to socket
 - [ ] 
+
+==========================================
+- [ ] Finish move player ready and player id in to client

@@ -129,3 +129,13 @@ class Action_JoinedGame( MessageAction ):
         message_obj.to_clients = self.get_client_list( [from_client.key], game )
 
         game.player_joined( message_obj.from_client_key, message_obj["player_id"] )
+
+class Action_StartGame( MessageAction ):
+
+    def run( self, message_obj ):
+
+        # ready the player
+        from_client = self.get_client( message_obj.from_client_key )
+        game = from_client.get_active_game()
+
+        game.ready_player( message_obj.from_client_key, message_obj["ok"])

@@ -20,22 +20,31 @@ class Client:
 
     def __init__(self, name, socket, client_key):
 
+        # client
         self.name = name
         self.key = client_key
-        self.socket = socket
-        self.started = False
-        self._active_game = None    # use setter, getter and remove
 
+        # socket
+        self.started = False
+        self.socket = socket
         self._valid = self.socket is not None   # unsafe, use set and is valid functions
         self._closed = False
+
         self.received_queue = q.Queue()
         # this should not be used directly. Use 'que_message' function instead
+        # as the que message function will spin up the send thread if its not already
         self._send_queue = q.Queue()
 
         self.inbound_thread = threading.Thread(target=self.inbound, args=(socket,))
         self.outbound_thread = threading.Thread(target=self.outbound, args=(socket,))
 
         self.thread_lock = threading.Lock()
+
+        # game
+        self._active_game = None            # use setter, getter and remove
+        # values are reset via the remove game function
+        self.game_player_id = -1
+        self.game_player_is_ready = False
 
     def start(self):
 
@@ -105,6 +114,8 @@ class Client:
 
         game.players.remove( game )
         self._active_game = None
+        self.game_player_id = -1
+        self.game_player_is_ready = False
 
         return True
 
