@@ -12,7 +12,7 @@ class Main:
         self.game_active = False
 
         self.start_in = 30  # 300         # start in 5 min
-        self.starts_at = 0;
+        self.starts_at = 0
 
         self.start_thread = threading.Thread(target=self.start_game)
         self.start_thread.start()
@@ -162,4 +162,5 @@ class Main:
 
 
             self.send_message( launch_game )
+
 

@@ -25,6 +25,7 @@ class Message:
         'P': MessageTypes.pre_start_game,
         'S': MessageTypes.start_game,
         # in game
+        'C': PlayerMessageTypes.change_player,
         'M': PlayerMessageTypes.move_player
 
     }
