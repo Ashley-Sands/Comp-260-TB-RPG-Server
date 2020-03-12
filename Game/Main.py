@@ -111,8 +111,8 @@ class Main:
 
         # once we have a responce from all the players
         # if every ones status is OK :)
-        ok = True
-        if len(self.ready) == len(self.playerId):
+        ok = len(self.ready) == len(self.playerId)
+        if ok:
             for r in self.ready:
                 if not self.ready[r]:
                     ok = False
