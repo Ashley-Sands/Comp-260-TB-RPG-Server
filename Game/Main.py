@@ -3,29 +3,27 @@ import time
 import message
 import constants
 import random
+from Game.default_game import DefaultGame
 
 class Main:
 
     def __init__(self, send_message_func):
 
         self._can_join = True
-        self.game_active = False
+        self._game_active = False
 
         self.start_in = 30  # 300         # start in 5 min
         self.starts_at = 0
 
-        self.start_thread = threading.Thread(target=self.start_game)
-        self.start_thread.start()
+        self.lobby_thread = threading.Thread(target=self.update_lobby)
+        self.lobby_thread.start()
+        self.game_thread = threading.Thread(target=self.update_game)
+
         self.thread_lock = threading.Lock()
 
-        self.game_name = "default"
-        self.map_name = "default"
-
-        self.max_players = 4
+        self.game = DefaultGame( send_message_func )
 
         self.players = {}   # clients that are in the game
-        self.playerId = {}  # key: player id, value: player_key
-        self.ready = {}     # Are the players ready Key: player id value True or False
 
         self.send_message = send_message_func
 
@@ -55,11 +53,19 @@ class Main:
 
     def get_available_slots( self ):
 
-        return self.max_players - self.get_player_count()
+        return self.game.max_players - self.get_player_count()
 
     def can_join( self ):
 
-        return self._can_join and not self.game_active and self.get_player_count() < self.max_players
+        return self._can_join and not self.game_active() and self.get_player_count() < self.game.max_players
+
+    def game_active( self ):
+
+        self.thread_lock.acquire()
+        active = self._game_active
+        self.thread_lock.release()
+
+        return active
 
     def add_player( self, client):
         """Adds a client to the players list
@@ -94,12 +100,12 @@ class Main:
         :param player_id:       the players id in the game
         :return:
         """
-        self.playerId[player_id] = player_key
+        self.game.playerId[player_id] = player_key
 
-        if len( self.playerId ) == len( self.players ):
+        if len( self.game.playerId ) == len( self.players ):
             # update the clients with the full player list, ready to begin.
             pre_start_message = message.Message(player_key, 'P')
-            pre_start_message.message = pre_start_message.new_message(constants.SERVER_NAME, [*self.playerId], list(self.playerId.values()))
+            pre_start_message.message = pre_start_message.new_message(constants.SERVER_NAME, [*self.game.playerId], list(self.game.playerId.values()))
             pre_start_message.to_clients = [*self.players]
 
             self.send_message(pre_start_message) # now we wait for the player to ok. then we begin :D
@@ -107,23 +113,26 @@ class Main:
     def ready_player( self, player_key, ready ):
         """Readies the player to start the game!"""
 
-        self.ready[ player_key ] = ready
+        self.game.ready[ player_key ] = ready
 
         # once we have a responce from all the players
-        # if every ones status is OK :)
-        ok = len(self.ready) == len(self.playerId)
+        # the game can start as long as
+        # every ones status is OK :)
+        ok = len(self.game.ready) == len(self.game.playerId)
         if ok:
-            for r in self.ready:
-                if not self.ready[r]:
+            for r in self.game.ready:
+                if not self.game.ready[r]:
                     ok = False
                     break   # todo: find out why
 
-        if ok:
+        if ok:  # so we good :)
             start_game_msg = message.Message(constants.SERVER_NAME, 'S')
             start_game_msg.message = start_game_msg.new_message(constants.SERVER_NAME, True)
-            start_game_msg.to_clients = list( self.playerId.values() )  # we use the playerId as they have been confirmed and joined!
+            start_game_msg.to_clients = list( self.game.playerId.values() )  # we use the playerId as they have been confirmed and joined!
 
             self.send_message( start_game_msg )
+            self.game_thread.start()
+
 
     def get_time_till_start( self ):
 
@@ -134,8 +143,9 @@ class Main:
         return remaining_time
 
     # threaded
-    def start_game( self ):
+    def update_lobby( self ):
 
+        # wait for the lobby to launch into the game
         can_start = False
         start_delay = self.start_in
 
@@ -144,9 +154,10 @@ class Main:
             self.starts_at = time.time() + start_delay
             time.sleep( start_delay )     # sleep until its time to start the game
 
-            if self.get_player_count() > 1:
+            if self.get_player_count() > 1:  # there must be at least 2 players
                 can_start = True
 
+        # prevent more players from joining
         self._can_join = False
 
         # get player ids so we can select them at random
@@ -163,4 +174,7 @@ class Main:
 
             self.send_message( launch_game )
 
+    def update_game( self ):
+
+        self.game.run()
 
