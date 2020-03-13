@@ -218,7 +218,7 @@ class Main:
                 game_error = message.Message(constants.SERVER_NAME, 's')
                 game_error.message = game_error.new_message( constants.SERVER_NAME,
                                                              messageActions.Action_status.TYPE_SERVER,
-                                                             False, "ERROR: Not enough players to continue game...")
+                                                             False, "Not enough players to continue game...")
                 game_error.to_clients = [*self.players]
                 self.send_message( game_error )
 
