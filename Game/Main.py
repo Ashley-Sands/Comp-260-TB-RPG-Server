@@ -121,13 +121,17 @@ class Main:
         :param player_id:       the players id in the game
         :return:
         """
+        print(self.players[ player_key ].name, "==", player_key)
         self.game.playerId[player_id] = player_key
         self.players[ player_key ].game_player_id = player_id
 
         if len( self.game.playerId ) == len( self.players ):
             # update the clients with the full player list, ready to begin.
             pre_start_message = message.Message(player_key, 'P')
-            pre_start_message.message = pre_start_message.new_message(constants.SERVER_NAME, [*self.game.playerId], list(self.game.playerId.values()))
+            pre_start_message.message = pre_start_message.new_message(constants.SERVER_NAME,
+                                                                      [*self.game.playerId],
+                                                                      [ p.name for p in list(self.players.values() ) ]
+                                                                      )
             pre_start_message.to_clients = [*self.players]
 
             self.send_message(pre_start_message) # now we wait for the player to ok. then we begin :D
@@ -151,7 +155,7 @@ class Main:
             self.set_game_active(True)
             start_game_msg = message.Message(constants.SERVER_NAME, 'S')
             start_game_msg.message = start_game_msg.new_message(constants.SERVER_NAME, True)
-            start_game_msg.to_clients = list( self.game.playerId.values() )  # we use the playerId as they have been confirmed and joined!
+            start_game_msg.to_clients = [ *self.players ]
 
             self.send_message( start_game_msg )
             self.game_thread.start()

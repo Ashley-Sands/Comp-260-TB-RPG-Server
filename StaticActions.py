@@ -11,7 +11,7 @@ class StaticActions:
         """ Send the status of a client to all other clients
 
         :param ok:                      has the user connected (True) or disconnected (False)
-        :param msg:                 the message to send other clients (if required)
+        :param msg:                     the message to send other clients (if required)
         :param client_key:              The key of the client who's status this is
         :param from_name:               who has sent the send ie SERVER
         :param get_client_list_func:    function to get a list of clients
