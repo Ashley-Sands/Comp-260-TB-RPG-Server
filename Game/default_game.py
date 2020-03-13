@@ -13,6 +13,7 @@ class DefaultGame:
         self.ready = {}     # Are the players ready Key: player key value True or False
 
         self.current_player = 0
+        self.min_players = 2
         self.max_players = 4
 
         self.max_time = 15

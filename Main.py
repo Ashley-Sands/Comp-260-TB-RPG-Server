@@ -183,6 +183,10 @@ if __name__ == "__main__":
                 DEBUG.DEBUG.print("Lost client", k)
                 continue
 
+            if not game.is_valid():
+                DEBUG.DEBUG.print("Game invalid, starting new")
+                game = MainGame( send_message )
+
             try:
                 while not clients[k].received_queue.empty():
                     recv_msg = clients[k].received_queue.get(block=True, timeout=None)

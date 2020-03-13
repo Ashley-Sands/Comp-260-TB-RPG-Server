@@ -5,6 +5,9 @@ import constants
 import random
 from Game.default_game import DefaultGame
 import StaticActions
+import messageActions
+import DEBUG
+
 
 class Main:
 
@@ -14,6 +17,7 @@ class Main:
 
         self._can_join = True
         self._game_active = False
+        self._valid = True
 
         self.start_in = 30  # 300         # start in 5 min
         self.starts_at = 0
@@ -22,11 +26,12 @@ class Main:
 
         self.players = {}   # clients that are in the game
 
+        self.thread_lock = threading.Lock()
+
         self.lobby_thread = threading.Thread(target=self.update_lobby)
         self.lobby_thread.start()
         self.game_thread = threading.Thread(target=self.update_game)
 
-        self.thread_lock = threading.Lock()
 
     def get_player_count( self ):
         """Thread safe method to get player Count"""
@@ -56,9 +61,18 @@ class Main:
 
         return self.game.max_players - self.get_player_count()
 
+    def set_is_valid( self, valid ):
+
+        self.thread_lock.acquire()
+        self._valid = valid
+        self.thread_lock.release()
+
+    def is_valid( self ):
+        return self._valid
+
     def can_join( self ):
 
-        return self._can_join and not self.game_active() and self.get_player_count() < self.game.max_players
+        return self._can_join and not self.game_active() and self.get_player_count() < self.game.max_players and self.is_valid()
 
     def game_active( self ):
 
@@ -160,6 +174,10 @@ class Main:
 
         while not can_start:
 
+            # sleep until there are enough players to start
+            while self.get_player_count() < self.game.min_players:
+                time.sleep(5)   # TODO: add min players to game info protocol
+
             self.starts_at = time.time() + start_delay
 
             # update any connected players, that we're going to wait again
@@ -167,7 +185,7 @@ class Main:
 
             time.sleep( start_delay )     # sleep until its time to start the game
 
-            if self.get_player_count() > 1:  # there must be at least 2 players
+            if self.get_player_count() >= self.game.min_players:  # there must be at least 2 players
                 can_start = True
 
         # prevent more players from joining
@@ -188,9 +206,22 @@ class Main:
 
     def update_game( self ):
 
-        print("Helloo World**********************************");
+        DEBUG.DEBUG.print("Starting game", self.game.game_name)
 
         while self.game_active():
             self.game.run()
+
             time.sleep(0.016)   # update ~60 times a second
 
+            # check there are still players
+            if self.get_player_count() < self.game.min_players:
+                game_error = message.Message(constants.SERVER_NAME, 's')
+                game_error.message = game_error.new_message( constants.SERVER_NAME,
+                                                             messageActions.Action_status.TYPE_SERVER,
+                                                             False, "ERROR: Not enough players to continue game...")
+                game_error.to_clients = [*self.players]
+                self.send_message( game_error )
+
+                self.set_is_valid(False)    # mark as invalid so it can get reset
+
+                return
