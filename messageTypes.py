@@ -48,10 +48,11 @@ class MessageTypes:
         return locals()
 
     @staticmethod
-    def game_info( from_client, game_name, players, max_players, starts_in ):
+    def game_info( from_client, game_name, players, min_players, max_players, starts_in ):
         """ game data such as current players ect...
         :param game_name:   name of name that info belongs to
         :param players:     list of current players
+        :param min_players: min number of players allowed on the server
         :param max_players: max number of players allowed on the server
         :param starts_in:   the amount of time until the game starts
         :return:
