@@ -171,7 +171,15 @@ if __name__ == "__main__":
                 StaticActions.send_client_status(False, "Client has disconnected", k, clients[k].name,
                                                  get_client_list, send_message)
                 # kill the zombie before it eats all out brains
-                del clients[k]
+                if clients[k].get_active_game() is not None:
+                    # remove all ref from the game.
+                    # TODO: put in close function in player
+                    cliGame = clients[k].get_active_game()
+                    del cliGame.game.playerId[ clients[k].game_player_id ]
+                    del cliGame.game.ready[ k ]
+                    del cliGame.players[ k ]
+                del clients[ k ]
+
                 DEBUG.DEBUG.print("Lost client", k)
                 continue
 

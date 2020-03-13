@@ -10,7 +10,7 @@ class DefaultGame:
         self.map_name = "default"
 
         self.playerId = {}  # key: player id, value: player_key
-        self.ready = {}     # Are the players ready Key: player id value True or False
+        self.ready = {}     # Are the players ready Key: player key value True or False
 
         self.current_player = 0
         self.max_players = 4

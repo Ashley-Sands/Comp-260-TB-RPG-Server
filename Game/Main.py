@@ -108,6 +108,7 @@ class Main:
         :return:
         """
         self.game.playerId[player_id] = player_key
+        self.players[ player_key ].game_player_id = player_id
 
         if len( self.game.playerId ) == len( self.players ):
             # update the clients with the full player list, ready to begin.
