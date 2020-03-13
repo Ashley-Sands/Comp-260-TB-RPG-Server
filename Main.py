@@ -175,8 +175,13 @@ if __name__ == "__main__":
                     # remove all ref from the game.
                     # TODO: put in close function in player
                     cliGame = clients[k].get_active_game()
-                    del cliGame.game.playerId[ clients[k].game_player_id ]
-                    del cliGame.game.ready[ k ]
+
+                    if clients[k].game_player_id in cliGame.game.playerId:
+                        del cliGame.game.playerId[ clients[k].game_player_id ]
+
+                    if k in cliGame.game.ready:
+                        del cliGame.game.ready[ k ]
+
                     del cliGame.players[ k ]
                 del clients[ k ]
 
