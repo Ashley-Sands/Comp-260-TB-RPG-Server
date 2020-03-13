@@ -68,6 +68,12 @@ class Main:
 
         return active
 
+    def set_game_active( self, active ):
+
+        self.thread_lock.acquire()
+        self._game_active = active
+        self.thread_lock.release()
+
     def add_player( self, client):
         """Adds a client to the players list
 
@@ -101,7 +107,7 @@ class Main:
         :param player_id:       the players id in the game
         :return:
         """
-        self.game.playerId[player_id] = self.players[player_key]
+        self.game.playerId[player_id] = player_key
 
         if len( self.game.playerId ) == len( self.players ):
             # update the clients with the full player list, ready to begin.
@@ -127,6 +133,7 @@ class Main:
                     break   # todo: find out why
 
         if ok:  # so we good :)
+            self.set_game_active(True)
             start_game_msg = message.Message(constants.SERVER_NAME, 'S')
             start_game_msg.message = start_game_msg.new_message(constants.SERVER_NAME, True)
             start_game_msg.to_clients = list( self.game.playerId.values() )  # we use the playerId as they have been confirmed and joined!
@@ -179,6 +186,8 @@ class Main:
             self.send_message( launch_game )
 
     def update_game( self ):
+
+        print("Helloo World**********************************");
 
         while self.game_active():
             self.game.run()

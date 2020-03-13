@@ -22,8 +22,9 @@ class DefaultGame:
 
     def run( self ):
 
+        print("sleeping for ", self.max_time)
         time.sleep(self.max_time)
-
+        print("Who awakens me!")
         # get the next player id
         # taking into account that a player might of disconnected
         for i in range(self.max_players):

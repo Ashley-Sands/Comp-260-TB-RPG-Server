@@ -103,4 +103,10 @@ class Message:
     def get_message( self ):
         """Gets the message as a json string"""
 
-        return json.dumps( self.message )
+        try:
+            return json.dumps( self.message )
+        except Exception as e:
+            DEBUG.DEBUG.print( e, "\n", self.message, "\nid:", self.identity,
+                               message_type=DEBUG.DEBUG.MESSAGE_TYPE_ERROR )
+            return ""
+
