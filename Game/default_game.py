@@ -4,9 +4,9 @@ import constants
 
 class DefaultGame:
 
-    def __init__(self, send_message_func):
+    def __init__(self, game_name, send_message_func):
 
-        self.game_name = "default"
+        self.game_name = game_name
         self.map_name = "default"
 
         self.playerId = {}  # key: player id, value: player_key

@@ -116,12 +116,15 @@ def get_games(available_only=True):
 
     # TODO: add games...
     if not available_only:
-        return [ game ]
+        return game
 
-    if game.can_join():
-        return [ game ]
+    avail_games = []
 
-    return []
+    for g in game:
+        if g.can_join():
+            avail_games.append( g )
+
+    return avail_games
 
 
 def send_message(message_obj):
@@ -143,15 +146,14 @@ def send_client_message( message, client_key ):
 if __name__ == "__main__":
 
     DEBUG.DEBUG.init()
-    game = MainGame( send_message )
+    game = [MainGame( "MG-0", send_message ), MainGame( "MG-1", send_message ), MainGame( "MG-2", send_message )]
 
     # Spin up the socket
     socket_inst = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     socket_inst.bind(("127.0.0.1", 8222))
-    socket_inst.listen(5)                   # Allow up to 5 connection. TODO: make not magic!
+    socket_inst.listen(12)                   # Allow up to 12 connection. TODO: make not magic!
 
     # initialize the game and singletons actions
-    # TODO: Add Game Instance
     Message.initialize_actions(None, send_message, get_client_list, get_client, get_games)
 
     # start a thread to receive connections
@@ -188,9 +190,10 @@ if __name__ == "__main__":
                 DEBUG.DEBUG.print("Lost client", k)
                 continue
 
-            if not game.is_valid():
-                DEBUG.DEBUG.print("Game invalid, starting new")
-                game = MainGame( send_message )
+            for i, g in enumerate(game):
+                if not g.is_valid():
+                    DEBUG.DEBUG.print("Game ["+i+"] invalid, starting new")
+                    game[i] = MainGame( "MG-"+i, send_message )
 
             try:
                 while not clients[k].received_queue.empty():

@@ -11,7 +11,7 @@ import DEBUG
 
 class Main:
 
-    def __init__(self, send_message_func):
+    def __init__(self, game_name, send_message_func):
 
         self.send_message = send_message_func
 
@@ -22,7 +22,7 @@ class Main:
         self.start_in = 30  # 300         # start in 5 min
         self.starts_at = 0
 
-        self.game = DefaultGame( send_message_func )
+        self.game = DefaultGame( game_name, send_message_func )
 
         self.players = {}   # clients that are in the game
 
