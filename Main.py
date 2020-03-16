@@ -13,7 +13,7 @@ from constants import *
 
 clients = {}        # ref to all clients within all games :)
 client_count = 0
-clients_max = 4
+clients_max = 12
 
 accepting_conn_thread = None
 accepting_connections = True
@@ -151,7 +151,7 @@ if __name__ == "__main__":
     # Spin up the socket
     socket_inst = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     socket_inst.bind(("127.0.0.1", 8222))
-    socket_inst.listen(12)                   # Allow up to 12 connection. TODO: make not magic!
+    socket_inst.listen(clients_max)                   # Allow up to 12 connection.
 
     # initialize the game and singletons actions
     Message.initialize_actions(None, send_message, get_client_list, get_client, get_games)
