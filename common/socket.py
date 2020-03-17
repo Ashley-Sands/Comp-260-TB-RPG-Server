@@ -1,6 +1,7 @@
 import socket
 import threading
 import DEBUG
+import time
 
 class SocketClient:
     """Base class for indervidule socket connections
@@ -12,6 +13,9 @@ class SocketClient:
         self.socket = sock
         self.client_key = ""    # this is the key that is stored in the DB!
 
+        self.registration_timeout = time.time() + 30    # if the user fails to reg by this time they are kicked
+
+        self._valid = True
 
 class SocketConnection:
 
@@ -35,22 +39,23 @@ class SocketConnection:
         """Starts allowing connections via the socket"""
 
         self.socket_inst = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket_inst.bind( self.ip, self.port )
+        self.socket_inst.bind( (self.ip, self.port) )
         self.socket_inst.listen( self.max_conn )
 
         self.accepting_connections = True
 
         self.accept_connection_thread = threading.Thread(target=self.accept_connection,
                                                          args=(self.socket_inst,) )
+        self.accept_connection_thread.start()
 
 
     def accept_connection( self, active_socket ):
 
-        DEBUG.DEBUG.print("--starting to accept connections--")
+        DEBUG.DEBUG.print("starting to accept connections")
         # we must allways accept the connection
         # even if we not accepting connections anymore,
         # other wise they build up and connect/disconnect
-        # ass soon as we start accepting connection again.
+        # as soon as we start accepting connection again.
         while True:
 
             client_sock = self.socket_inst.accept()[0]
@@ -77,7 +82,6 @@ class SocketConnection:
 
         if sock is not None:
             self.send_message(sock, message)
-
 
     def socket_exist( self, sock ):
         return sock in self.connections
