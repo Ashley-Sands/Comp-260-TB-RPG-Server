@@ -5,12 +5,15 @@ from constants import *
 
 class MessageAction:
 
-    def __init__( self, game_inst, send_message_func, get_client_list_func, get_client_func, get_games_func ):
+    def __init__( self, database, send_message_func, get_client_list_func, get_client_func, game_inst=None ):
         # self.game_inst = game_inst
+        self.database = database
         self.send_message = send_message_func
         self.get_client_list = get_client_list_func
         self.get_client = get_client_func
-        self.get_games = get_games_func
+        self.game_inst = game_inst
+
+
 
     def run( self, message_obj ):
         """
@@ -35,8 +38,24 @@ class Action_SendMessage( MessageAction ):  # m
 class Action_ClientIdentity( MessageAction ):   # i
 
     def run( self, message_obj ):
-        client = self.get_client( message_obj.from_client_key )
-        client.name = message_obj.message["nickname"]
+
+        connection = self.get_client( message_obj.from_client_key )
+
+        nickname = message_obj["nickname"]
+        reg_key = message_obj["reg_key"]
+
+        # make sure that the users has set a nick name
+        if not nickname.string():
+            StaticActions.send_server_status( False, "No username", client.key, SERVER_NAME,
+                                              self.send_message )
+            return
+
+        # if they have a reg key find if they where connected to a lobby or game
+        if reg_key.strip():
+            pass
+        else:   # reg the user :)
+            connection.client_key, reg_key = self.database.add_new_client(nickname)
+
 
         StaticActions.send_server_status(True, "", client.key, SERVER_NAME,
                                          self.send_message)

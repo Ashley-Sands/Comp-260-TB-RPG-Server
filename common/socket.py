@@ -167,6 +167,7 @@ class SocketConnection:
         self.accept_connection_thread = None
         self.thread_lock = threading.Lock()
 
+        self._accepted_client_callback = []
 
     def start( self ):
         """Starts allowing connections via the socket"""
@@ -181,6 +182,18 @@ class SocketConnection:
                                                          args=(self.socket_inst,) )
         self.accept_connection_thread.start()
 
+    def accepted_client_bind( self, ac_callback ):
+        """ binds to the accepted client function
+
+        :param ac_callback:     function with param connection
+        """
+
+        self._accepted_client_callback.append( ac_callback )
+
+    def invoke_accepted_callback( self, con ):
+
+        for f in self._accepted_client_callback:
+            f(con)
 
     def accept_connection( self, active_socket ):
 
@@ -200,10 +213,13 @@ class SocketConnection:
 
             self.connections[client_sock] = self.socket_client_class(client_sock)
 
-            # request the player identity.
-            # TODO: ...
+            self.invoke_accepted_callback( self.connections[client_sock] )
 
             self.thread_lock.release()
+
+        DEBUG.DEBUG.print("Not accepting connections anymore")
+
+
 
     def send_message( self, message ):
 

@@ -19,7 +19,7 @@ class MessageTypes:
         return locals()
 
     @staticmethod
-    def client_registered(from_client, ok, client_id, reg_key):
+    def client_registered(from_client, ok, client_id, reg_key):     #r
         """Notifies the client that they have successfully registered"""
         return locals()
 

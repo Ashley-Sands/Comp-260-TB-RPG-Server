@@ -13,6 +13,8 @@ class Message:
         # General
         'm': MessageTypes.message,
         'i': MessageTypes.client_identity,
+        'r': MessageTypes.client_registered,
+        # ----------
         's': MessageTypes.status,
         'g': MessageTypes.game_request,
         'j': MessageTypes.join_lobby_request,
@@ -49,14 +51,29 @@ class Message:
     init_actions = True
 
     @staticmethod
-    def initialize_actions( game_inst, send_message_func, get_client_list_func, get_client_func, get_games_func ):
+    def initialize_actions( database, send_message_func, get_client_list_func, get_client_func, available_actions=[], game_inst=None ):
+        '''
+
+        :param database:             the database to get client list ect from
+        :param send_message_func:    function to use for sending message
+        :param get_client_list_func  function to get list of players client id's
+        :param get_client_func       function to get a client by its client id
+        :param available_actions:    a list of action chars, if empty list uses all actions
+        :param game_inst:            the game instance (default is None)
+        :return:
+        '''
         # create an instance of each actions, ready to run call run when required
+        # remove any actions that are not available
         for act in Message.ACTIONS:
-            Message.ACTIONS[ act ] = Message.ACTIONS[ act ]( game_inst,
-                                                             send_message_func,
-                                                             get_client_list_func,
-                                                             get_client_func,
-                                                             get_games_func)
+            if len(available_actions) > 0 and act not in available_actions:
+                del Message.ACTIONS[act]
+            else:
+                Message.ACTIONS[ act ] = Message.ACTIONS[ act ]( database,
+                                                                 send_message_func,
+                                                                 get_client_list_func,
+                                                                 get_client_func,
+                                                                 game_inst
+                                                                 )
 
         Message.init_actions = False
 
