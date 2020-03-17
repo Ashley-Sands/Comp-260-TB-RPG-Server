@@ -3,15 +3,26 @@ class MessageTypes:
     # All messages types should have a from client param
 
     @staticmethod
-    def message( from_client, message ):                # m
+    def message( from_client, message ):                        # m
         """Basic message to all users"""
         return locals()
 
     @staticmethod
-    def client_identity( from_client, nickname ):       # i
-        """Request to the client for there identity"""
+    def client_identity( from_client, nickname, reg_key ):       # i
+        """Request to the client for there identity
+        The server sends an empty client_identity for client to fill in and return back to the server
+        to complete registration.
+        :param from_client:     The client that sent the message (SERVER)
+        :param nickname:        the nickname of the client (set on the clients end)
+        :param reg_key:         The reg_key is only required to re-join
+        """
         return locals()
 
+    @staticmethod
+    def client_registered(from_client, ok, client_id, reg_key):
+        """Notifies the client that they have successfully registered"""
+        return locals()
+#-------------------------
     @staticmethod
     def status( from_client, status_type, ok, message ):        # s
         """Basic message for client connect/dissconnect
