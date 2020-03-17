@@ -192,8 +192,8 @@ if __name__ == "__main__":
 
             for i, g in enumerate(game):
                 if not g.is_valid():
-                    DEBUG.DEBUG.print("Game ["+i+"] invalid, starting new")
-                    game[i] = MainGame( "MG-"+i, send_message )
+                    DEBUG.DEBUG.print("Game ["+str(i)+"] invalid, starting new")
+                    game[i] = MainGame( "MG-"+str(i), send_message )
 
             try:
                 while not clients[k].received_queue.empty():

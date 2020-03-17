@@ -19,7 +19,7 @@ class Main:
         self._game_active = False
         self._valid = True
 
-        self.start_in = 30  # 300         # start in 5 min
+        self.start_in = 15  # 300         # start in 5 min
         self.starts_at = 0
 
         self.game = DefaultGame( game_name, send_message_func )
