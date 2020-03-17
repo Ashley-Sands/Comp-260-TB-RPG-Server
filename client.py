@@ -237,8 +237,8 @@ class Client:
 
     def close(self):
 
-        if self._closed :
-            return;
+        if self._closed:
+            return
 
         # mark the client as invalid so the threads can exit once the sockets are closed
         self.set_is_valid( False )
