@@ -1,7 +1,6 @@
 
 class MySqlHelpers:
     import mysql.connector as MYSQL
-    import mysql.connector.errorcode as MYSQL_ERROR
 
     @staticmethod
     def _connect( host, user, passwd ):

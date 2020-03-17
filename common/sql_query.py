@@ -1,8 +1,7 @@
 import sqlite3
-import mysql.connector
-import mysql_helpers
-from Globals import Global
-from Globals import GlobalConfig as Config
+import common.mysql_helpers as mysql_helpers
+from common.Globals import Global
+from common.Globals import GlobalConfig as Config
 import os, os.path
 import re  # regex
 import random
