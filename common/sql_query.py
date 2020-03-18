@@ -274,14 +274,16 @@ class sql_query():
 
         self.close_db()
 
-    def select_from_table(self, table_name, column_names, where_columns=[], where_data=[], order_data={}):
+    def select_from_table(self, table_name, column_names, where_columns=[], where_data=[], order_data={}, override_where_cols = False):
         """ Selects rows of data from table
 
-        :param table_name:      Name of table to select data from
-        :param column_names:    list of column names to get data rom (* = all)
-        :param where_columns:   list of where column names
-        :param where_data:      list of where data (must match where column order)
-        :param order_data:      dict of order data keys {"order_columns": list of strings, "sort_type": string (ASC || DESC)}
+        :param table_name:          Name of table to select data from
+        :param column_names:        list of column names to get data rom (* = all)
+        :param where_columns:       list of where column names
+        :param where_data:          list of where data (must match where column order)
+        :param order_data:          dict of order data keys {"order_columns": list of strings, "sort_type": string (ASC || DESC)}
+        :param override_where_cols: By default (False) where columns use '=' to compare, if another id need set to True to manuly add them.
+                                    It must be done for all columns include '='
         :return:
         """
         if not self.table_exist(table_name):
@@ -290,7 +292,7 @@ class sql_query():
 
         # turn the lists of column names into a usable sql string
         col_str = self.sql_string_builder( column_names, ",", False )
-        where_str = self.sql_string_builder(where_columns, "AND ")
+        where_str = self.sql_string_builder(where_columns, "AND ", not override_where_cols, True )
 
         # create the where string
         if len(where_columns) > 0:
@@ -345,8 +347,11 @@ class sql_query():
 
         self.close_db()
 
-    def sql_string_builder(self, column_names, join, add_equals=True):
-        """ build a list of column names in to sql query string for set and where ect... """
+    def sql_string_builder(self, column_names, join, add_equals=True, add_value=False):
+        """ build a list of column names in to sql query string for set and where ect...
+         if add equals is true then add_value is ignored.
+
+         """
 
         if self.using_mysql:
             str_val = "%s"
@@ -356,6 +361,8 @@ class sql_query():
         string = ""
         if add_equals is True:
             equals = "={0} ".format(str_val)
+        elif add_value:
+            equals = str_val
         else:
             equals = " "
 
