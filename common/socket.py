@@ -156,6 +156,9 @@ class SocketClient:
             message_obj = message.Message(self.socket, msg_type)
             message_obj.set_message(self.from_name(), json_str)
 
+            self._inbound_queue.put( message_obj )
+
+
 class SocketConnection:
 
     def __init__( self, ip, port, max_conn, socket_client_class ):

@@ -39,13 +39,13 @@ class Action_ClientIdentity( MessageAction ):   # i
 
     def run( self, message_obj ):
 
-        connection = self.get_client( message_obj.from_client_key )
+        connection = self.get_connection( message_obj.from_client_key )
 
         nickname = message_obj["nickname"]
         reg_key = message_obj["reg_key"]
 
         # make sure that the users has set a nick name
-        if not nickname.string():
+        if not nickname.strip():
             StaticActions.send_server_status( False, "No username", connection.client_key, SERVER_NAME,
                                               self.send_message )
             return
@@ -55,7 +55,9 @@ class Action_ClientIdentity( MessageAction ):   # i
             pass
         else:   # reg the user :)
             connection.client_key, reg_key = self.database.add_new_client(nickname)
-
+            registered = msg.Message(SERVER_NAME, 'r')
+            registered.message = registered.new_message( SERVER_NAME, True, connection.client_key, reg_key )
+            connection.send_message(registered)
 
         StaticActions.send_server_status(True, "", connection.client_key, SERVER_NAME,
                                          self.send_message)

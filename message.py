@@ -98,7 +98,6 @@ class Message:
         return self.message[item]
 
     def run_action( self ):
-
         if self.identity not in Message.ACTIONS:
             DEBUG.DEBUG.print("identity", self.identity, "has no action")
             return
