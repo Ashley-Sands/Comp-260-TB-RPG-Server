@@ -5,6 +5,8 @@ import constants
 import time
 import DEBUG
 
+MAX_FREE_LOBBIES = 3
+
 # The entry server is responsable for registering the player into the network
 # and send each client a list of available games every now and then
 
@@ -15,8 +17,12 @@ def accepted_client( connection ):
 
     connection.send_message(identity)
 
-def send_lobby_list( connection ):
-    pass
+def get_lobby_message( ):
+
+    if database.available_lobby_count() < MAX_FREE_LOBBIES:
+        database.add_new_lobby()
+
+    lobbies = database.select_all_available_lobbies()
 
 if __name__ == "__main__":
 
@@ -54,7 +60,8 @@ if __name__ == "__main__":
             # TODO: move to thread??
             if time.time() > next_lobby_update and active_socket.connections[sock].registered:
                 # send lobby update to all clients
-                message.Message(constants.SERVER_NAME, '')
+                # message.Message(constants.SERVER_NAME, 'g')
+                pass
 
         if time.time() > next_lobby_update:
             next_lobby_update = time.time() + update_lobby_list_intervals
