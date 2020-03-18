@@ -52,9 +52,9 @@ if __name__ == "__main__":
                 DEBUG.DEBUG.print("Can not process message", e, message_type=DEBUG.DEBUG.MESSAGE_TYPE_ERROR)
 
             # TODO: move to thread??
-            if time.time() > next_lobby_update:
+            if time.time() > next_lobby_update and active_socket.connections[sock].registered:
                 # send lobby update to all clients
-                pass
+                message.Message(constants.SERVER_NAME, '')
 
         if time.time() > next_lobby_update:
             next_lobby_update = time.time() + update_lobby_list_intervals

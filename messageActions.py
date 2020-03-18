@@ -54,10 +54,12 @@ class Action_ClientIdentity( MessageAction ):   # i
         if reg_key.strip():
             pass
         else:   # reg the user :)
+            #TODO: Move this to socket Client??
             connection.client_key, reg_key = self.database.add_new_client(nickname)
             registered = msg.Message(SERVER_NAME, 'r')
             registered.message = registered.new_message( SERVER_NAME, True, connection.client_key, reg_key )
             connection.send_message(registered)
+            connection.registered = True
 
         StaticActions.send_server_status(True, "", connection.client_key, SERVER_NAME,
                                          self.send_message)

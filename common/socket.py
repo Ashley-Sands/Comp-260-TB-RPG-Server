@@ -20,6 +20,7 @@ class SocketClient:
         self.client_key = ""    # this is the key that is stored in the DB!
 
         self.registration_timeout = time.time() + 30    # if the user fails to reg by this time they are kicked
+        self.registered = False
 
         self.thread_lock = threading.Lock()
         self.inbound_thread = threading.Thread( target=self.receive_thread, args=(self.socket,))
@@ -92,10 +93,11 @@ class SocketClient:
                 return False
 
             try:
-                print(msg_str, chr(ord( message_obj.identity )))
                 self.socket.send( msg_len )
                 self.socket.send( msg_type )
                 self.socket.send( msg_str.encode() )
+
+                DEBUG.DEBUG.print( "Message sent", msg_str, "len", len(msg_str), "identity", chr(ord( message_obj.identity )) )
             except Exception as e:
                 DEBUG.DEBUG.print( "Could not send data", e, message_type=DEBUG.DEBUG.MESSAGE_TYPE_ERROR )
                 self.valid(False)
