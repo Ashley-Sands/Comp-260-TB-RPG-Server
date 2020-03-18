@@ -1,4 +1,5 @@
 import DEBUG
+import traceback, sys
 import json
 from messageTypes import *
 from messageActions import *
@@ -79,6 +80,10 @@ class Message:
 
     def __init__(self, from_client_key, identity_char):
 
+        if identity_char not in Message.TYPES:
+            DEBUG.DEBUG.print("Type Not Found. Type:", identity_char, message_type=DEBUG.DEBUG.MESSAGE_TYPE_ERROR)
+            return
+
         if Message.init_actions:
             Message.initialize_actions()
 
@@ -92,6 +97,7 @@ class Message:
 
         # functions to get a new message dict for self.identity
         self.new_message = Message.TYPES[identity_char]
+
 
     """Shortcut to access message dict"""
     def __getitem__(self, item):
