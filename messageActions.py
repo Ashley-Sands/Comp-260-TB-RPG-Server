@@ -5,12 +5,12 @@ from constants import *
 
 class MessageAction:
 
-    def __init__( self, database, send_message_func, get_client_list_func, get_client_func, game_inst=None ):
+    def __init__( self, database, send_message_func, get_client_key_list_func, get_connection_func, game_inst=None ):
         # self.game_inst = game_inst
         self.database = database
         self.send_message = send_message_func
-        self.get_client_list = get_client_list_func
-        self.get_client = get_client_func
+        self.get_client_key_list = get_client_key_list_func
+        self.get_connection = get_connection_func
         self.game_inst = game_inst
 
 
@@ -46,7 +46,7 @@ class Action_ClientIdentity( MessageAction ):   # i
 
         # make sure that the users has set a nick name
         if not nickname.string():
-            StaticActions.send_server_status( False, "No username", client.key, SERVER_NAME,
+            StaticActions.send_server_status( False, "No username", connection.client_key, SERVER_NAME,
                                               self.send_message )
             return
 
@@ -57,7 +57,7 @@ class Action_ClientIdentity( MessageAction ):   # i
             connection.client_key, reg_key = self.database.add_new_client(nickname)
 
 
-        StaticActions.send_server_status(True, "", client.key, SERVER_NAME,
+        StaticActions.send_server_status(True, "", connection.client_key, SERVER_NAME,
                                          self.send_message)
 
 

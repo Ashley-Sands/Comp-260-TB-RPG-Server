@@ -41,7 +41,7 @@ class SocketClient:
         self.inbound_thread.start()
 
         if not self._outbound_queue.empty():
-            self.inbound_thread.start()
+            self.outbound_thread.start()
 
         self.started = True
 
@@ -84,22 +84,26 @@ class SocketClient:
 
             msg_str = message_obj.get_message()
             msg_len = len( msg_str ).to_bytes(self.MESSAGE_LEN_PACKET_SIZE, self.BYTE_ORDER)
-            msg_type = ord( message_obj.identity ).to_bytes(self.MESSAGE_LEN_PACKET_SIZE, self.BYTE_ORDER)
+            msg_type = ord( message_obj.identity ).to_bytes(self.MESSAGE_TYPE_PACKET_SIZE, self.BYTE_ORDER)
 
             # check that the message is within the max message size
-            if len( message ) > pow( 255, self.MESSAGE_LEN_PACKET_SIZE ):
+            if len( msg_str ) > pow( 255, self.MESSAGE_LEN_PACKET_SIZE ):
                 DEBUG.DEBUG.print( "Message has exceeded the max message length." )
                 return False
 
             try:
+                print(msg_str, chr(ord( message_obj.identity )))
                 self.socket.send( msg_len )
                 self.socket.send( msg_type )
-                self.socket.send( msg_str.decode() )
+                self.socket.send( msg_str.encode() )
             except Exception as e:
                 DEBUG.DEBUG.print( "Could not send data", e, message_type=DEBUG.DEBUG.MESSAGE_TYPE_ERROR )
                 self.valid(False)
 
         self.outbound_thread = None
+
+    def receive_message_pending( self ):
+        return not self._inbound_queue.empty()
 
     def receive_message( self ):
 
@@ -141,11 +145,13 @@ class SocketClient:
 
             # receive the json message of msg_type with length msg_length
             try:
-                json_str = self.socket.recv( msg_length ).msg_data.decode("utf-8")
+                json_str = self.socket.recv( msg_length ).decode("utf-8")
             except Exception as e:
                 DEBUG.DEBUG.print( "Could not receive data", e, message_type=DEBUG.DEBUG.MESSAGE_TYPE_ERROR )
                 self.valid(False)
                 break
+
+            DEBUG.DEBUG.print( "message ", json_str)
 
             message_obj = message.Message(self.socket, msg_type)
             message_obj.set_message(self.from_name(), json_str)
@@ -212,6 +218,7 @@ class SocketConnection:
                 continue
 
             self.connections[client_sock] = self.socket_client_class(client_sock)
+            self.connections[client_sock].start()
 
             self.invoke_accepted_callback( self.connections[client_sock] )
 
@@ -231,16 +238,12 @@ class SocketConnection:
             if self.connections[s].client_key in message.to_clients:
                 pass
 
-
-    def send_message_to_client_key( self, client_key, message ):
-
-        sock = self.get_socket_from_client_key(client_key)
-
-        if sock is not None:
-            self.send_message(sock, message)
-
     def socket_exist( self, sock ):
         return sock in self.connections
+
+    def get_client_keys( self, except_sockets=[] ):
+
+        return [ con.client_key for con in self.connections if con not in except_sockets ]
 
     def get_socket_from_client_key( self, client_key ):
         """Get the clients socket via the clients key.
