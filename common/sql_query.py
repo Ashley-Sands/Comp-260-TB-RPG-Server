@@ -228,7 +228,7 @@ class sql_query():
 
         self.close_db()
 
-        DEBUG.DEBUGprint(table_name, "Droped")
+        DEBUG.DEBUG.print(table_name, "Droped")
 
     def insert_row(self, table_name, value_columns, value_data):
         """Inserts rot into table"""
@@ -248,9 +248,9 @@ class sql_query():
         col_value_str = ', '.join([val_str] * len(value_data))
 
         query = "INSERT INTO " + table_name + " (" + col_name_str + ") VALUES (" + col_value_str + ") "
-        DEBUG.DEBUGprint(query, value_data)
+        DEBUG.DEBUG.print(query, value_data)
         if Global.DEBUG:
-            DEBUG.DEBUGprint("query: ", query, "Data", value_data)
+            DEBUG.DEBUG.print("query: ", query, "Data", value_data)
 
         self.cursor.execute(query, value_data)
 
