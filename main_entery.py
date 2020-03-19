@@ -41,20 +41,34 @@ def get_lobby_message( ):
     game_list.message = game_list.new_message(constants.SERVER_NAME, lobby_ids, level_names,
                                               min_players, max_players, current_players)
 
-    return game_list;
+    return game_list
+
+
+def send_lobby_list_to_client( to_client_socket ):
+
+    if cached_lobby_list_message is None:
+        return
+
+    active_socket.connections[ to_client_socket ].send_message( cached_lobby_list_message )
+
 
 if __name__ == "__main__":
 
     running = True
+
     update_lobby_list_intervals = 15
     next_lobby_update = 0
+    cached_lobby_list_message = None
 
     DEBUG.DEBUG.init()
+    DEBUG.DEBUG.set_log_to_file(message=True, warning=True, error=True)
+
     database = Database()   # TODO: Setup config.
 
     active_socket = SocketConnection("127.0.0.1", 8222, 20, SocketClient)
     active_socket.accepted_client_bind( accepted_client )
 
+    message.Message.action_bind( "i", send_lobby_list_to_client )
     message.Message.initialize_actions( database, active_socket.send_message,
                                         active_socket.get_client_keys, active_socket.get_connection )
 
@@ -63,7 +77,14 @@ if __name__ == "__main__":
     # Process each client
     while running:
         # check that all clients are valid
-        # and if its time update there lobby list
+        # update the catched lobby list if its time
+
+        if time.time() > next_lobby_update:
+            cached_lobby_list_message = get_lobby_message()
+            next_lobby_update = time.time() + update_lobby_list_intervals
+            update_lobby_list = True
+        else:
+            update_lobby_list = False
 
         # we must get the keys from the dict otherwise its get resized during iteration **crash** :D
         socks = list(active_socket.connections)
@@ -82,11 +103,6 @@ if __name__ == "__main__":
                 DEBUG.DEBUG.print("Can not process message", e, message_type=DEBUG.DEBUG.MESSAGE_TYPE_ERROR)
 
             # TODO: move to thread??
-            if time.time() > next_lobby_update and active_socket.connections[sock].registered:
+            if update_lobby_list and active_socket.connections[sock].registered:
                 # send lobby update to all clients
-                game_list = get_lobby_message()
-                active_socket.connections[sock].send_message(game_list)
-
-
-        if time.time() > next_lobby_update:
-            next_lobby_update = time.time() + update_lobby_list_intervals
+                send_lobby_list_to_client(sock)
