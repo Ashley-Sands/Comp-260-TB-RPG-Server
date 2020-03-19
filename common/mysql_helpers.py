@@ -1,3 +1,4 @@
+import DEBUG
 
 class MySqlHelpers:
     import mysql.connector as MYSQL
@@ -9,9 +10,9 @@ class MySqlHelpers:
         try:
             db_connection = MySqlHelpers.MYSQL.connect( host=host, user=user, passwd=passwd)
             db_cursor = db_connection.cursor()
-            print( "mysql: Connected" )
+            DEBUG.DEBUG.print( "mysql: Connected" )
         except Exception as err:
-            print("mysql ERROR: ", err)
+            DEBUG.DEBUG.print("mysql:", err, message_type=DEBUG.DEBUG.MESSAGE_TYPE_ERROR)
             return None, None
 
         return db_connection, db_cursor
@@ -34,11 +35,12 @@ class MySqlHelpers:
         try:
             db_cursor.execute("USE "+db_name)
         except:
-            print("mysql: Creating new database,", db_name)
+            DEBUG.DEBUG.print("mysql: Creating new database,", db_name,
+                              message_type=DEBUG.DEBUG.MESSAGE_TYPE_ERROR)
             db_cursor.execute( "CREATE DATABASE " + db_name )
             db_cursor.execute("USE "+db_name)
 
-        print("mysql: database", db_name, "selected")
+        DEBUG.DEBUG.print("mysql: database", db_name, "selected")
 
         return db_connection, db_cursor
 
@@ -56,6 +58,6 @@ class MySqlHelpers:
 
         try:
             db_cursor.execute( "DROP DATABASE "+db_name )
-            print("mysql: Database", db_name, "dropped successfully")
+            DEBUG.DEBUG.print("mysql: Database", db_name, "dropped successfully")
         except Exception as e:
-            print("mysql ERROR: ", e)
+            DEBUG.DEBUG.print("mysql", e, message_type=DEBUG.DEBUG.MESSAGE_TYPE_ERROR)

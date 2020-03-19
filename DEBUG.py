@@ -105,7 +105,5 @@ class DEBUG:
             else:
                 file_mode = 'w'
 
-            print(file_mode)
-
             with open(DEBUG.__log_path + DEBUG.__log_name, file_mode) as log:
                 log.write( "\n"+message )
