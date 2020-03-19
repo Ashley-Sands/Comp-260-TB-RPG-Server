@@ -49,6 +49,10 @@ class Message:
         'M': PlayerAction_Move
     }
 
+    # dict of lists Key: identity value list of functions (with a from_client_key (type socket) param)
+    # the key does not have to be in the action list but it must be a valid identity
+    action_callbacks = {}
+
     init_actions = True
 
     @staticmethod
@@ -103,12 +107,34 @@ class Message:
     def __getitem__(self, item):
         return self.message[item]
 
-    def run_action( self ):
-        if self.identity not in Message.ACTIONS:
-            DEBUG.DEBUG.print("identity", self.identity, "has no action")
+    @staticmethod
+    def action_bind( identity, func ):
+
+        if identity not in Message.TYPES:   # bad identity
+            DEBUG.DEBUG.print("Unable to bind function to identity:", identity, "identity is invalid", message_type=DEBUG.DEBUG.MESSAGE_TYPE_ERROR)
             return
 
-        Message.ACTIONS[ self.identity ].run( self )
+        if identity not in Message.action_callbacks:
+            Message.action_callbacks[identity] = [func]
+        else:
+            Message.action_callbacks[identity].append( func )
+    @staticmethod
+    def action_unbind( identity, func ):
+
+        if identity in Message.action_callbacks and func in Message.action_callbacks[identity]:
+            Message.action_callbacks[ identity ].remove( func )
+
+    def run_action( self ):
+        """Runs the action followed by the callback. if there no actions just the callbacks are triggered"""
+        if self.identity in Message.ACTIONS:
+            Message.ACTIONS[ self.identity ].run( self )
+        else:
+            DEBUG.DEBUG.print("identity", self.identity, "has no action")
+
+        # trigger the callbacks
+        if self.identity in Message.action_callbacks:
+            for cb in Message.action_callbacks[self.identity]:
+                cb(self.from_client_key)
 
     def set_message( self, from_client_name, json_str ):
         """Set message from json string"""
