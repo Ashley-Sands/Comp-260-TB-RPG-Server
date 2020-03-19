@@ -19,7 +19,7 @@ class MessageTypes:
         return locals()
 
     @staticmethod
-    def client_registered(from_client, ok, client_id, reg_key):     #r
+    def client_registered(from_client, ok, client_id, reg_key):     # r
         """Notifies the client that they have successfully registered"""
         return locals()
 
@@ -50,7 +50,7 @@ class MessageTypes:
         return locals()
 
     @staticmethod
-    def join_lobby_request( from_client, match_name ):
+    def join_lobby_request( from_client, lobby_id, host, port ):  # j
         """ a request to join a game
 
         :param match_name: name of game

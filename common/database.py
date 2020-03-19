@@ -41,6 +41,8 @@ class Database:
 
         DEBUG.DEBUG.print( "Database Inited Successfully!" )
 
+        self.join_lobby(1, 2)
+
 
     def add_new_client( self, nickname ):
         """Adds a new client
@@ -80,18 +82,27 @@ class Database:
         current_players = []
 
         for l in lobbies:
-            current_players.append( self.get_lobby_player_count( l[0] )[0][0] )
+            current_players.append( self.get_lobby_player_count( l[0] ) )
 
         return lobbies, current_players
-        # select_from_table("lobbies", ["*"], ["game_id<"], ["0"], override_where_cols=True)
 
     def get_lobby_player_count( self, lobby_id ):
 
-        return self.database.select_from_table("active_users", ["COUNT(lobby_id)"], ["lobby_id"], [lobby_id])
+        return self.database.select_from_table("active_users", ["COUNT(lobby_id)"], ["lobby_id"], [lobby_id])[0][0]
 
+    def join_lobby( self, client_id, lobby_id ):
 
+        # check that the user can join the lobby
+        query = "SELECT levels.max_players " \
+                "FROM lobbies JOIN levels ON lobbies.level_id = levels.uid " \
+                "WHERE lobbies.game_id < 0 AND lobbies.uid = %s"
 
+        lobby = self.database.execute( query, [lobby_id] )
+        current_players = self.get_lobby_player_count( lobby_id )
 
+        if len(lobby) != 1:  # error not found
+            return  # TODO: send error
 
-
+        if current_players < lobby[0][0]:
+            self.database.update_row( "active_users", ["lobby_id"], [lobby_id], ["uid"], [client_id] )
 

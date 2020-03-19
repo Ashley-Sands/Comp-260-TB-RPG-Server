@@ -37,11 +37,11 @@ class Message:
     # then we just have to call run and pass in the correct message data :)
     # Not all message types have actions :) ie.
     ACTIONS = {
-        'm': Action_SendMessage,
-        'i': Action_ClientIdentity,
+        'm': Action_SendMessage,                    # needs updateing
+        'i': Action_ClientIdentity,                 # up
         's': Action_status,
-        'g': Action_GamesRequest,
-        'j': Action_JoinLobbyRequest,
+        'g': Action_GamesRequest,                   # needs updateing.
+        'j': Action_JoinLobbyRequest,               # wip
 
         # in game
         'J': Action_JoinedGame,

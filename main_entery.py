@@ -77,17 +77,17 @@ if __name__ == "__main__":
     # Process each client
     while running:
         # check that all clients are valid
-        # update the catched lobby list if its time
 
-        if time.time() > next_lobby_update:
+        # we must get the keys from the dict otherwise its get resized during iteration **crash** :D
+        socks = list(active_socket.connections)
+
+        # update the cached lobby list if its time
+        if time.time() > next_lobby_update and len(socks) > 0:
             cached_lobby_list_message = get_lobby_message()
             next_lobby_update = time.time() + update_lobby_list_intervals
             update_lobby_list = True
         else:
             update_lobby_list = False
-
-        # we must get the keys from the dict otherwise its get resized during iteration **crash** :D
-        socks = list(active_socket.connections)
 
         for sock in socks:
             if not active_socket.connections[sock].valid():

@@ -95,39 +95,12 @@ class Action_GamesRequest( MessageAction ): # g
 
         self.send_message( message_obj )
 
-class Action_JoinLobbyRequest( MessageAction ): # j
+class Action_JoinLobbyRequest( MessageAction ):     # j
 
     def run( self, message_obj ):
 
-        games = self.get_games(False)
-        client = self.get_client( message_obj.from_client_key )
-        joined = False
+        conn = self.get_connection( message_obj.from_client_key )
 
-        for g in games:
-            if g.game.game_name == message_obj["match_name"]:
-                # attempt to join game
-                if g.can_join():
-                    joined = client.set_active_game(g)
-
-                if joined:
-                    # let the player knows every thing is ok
-                    StaticActions.send_game_status(True, "", message_obj.from_client_key,
-                                                   SERVER_NAME, self.send_message)
-                    # notify the other players that they have connected
-                    StaticActions.send_client_status( True, "", client.key, client.name,
-                                                      self.get_client_list, self.send_message, g )
-                    # send the initial game data to the client.
-                    StaticActions.send_game_info(g, message_obj.from_client_key,
-                                                 SERVER_NAME, self.send_message)
-                else:
-                    StaticActions.send_game_status( False, self.get_error_message(g, client),
-                                                    message_obj.from_client_key,
-                                                    SERVER_NAME, self.send_message )
-                return
-
-            # its not ok, the game is no longer exist!
-            StaticActions.send_game_status( False, "Game does not exist!", message_obj.from_client_key,
-                                            SERVER_NAME, self.send_message )
 
 
     def get_error_message( self, game, client ):
