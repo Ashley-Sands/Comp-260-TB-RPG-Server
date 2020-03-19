@@ -160,6 +160,18 @@ class SocketClient:
 
             self._inbound_queue.put( message_obj )
 
+    def close( self ):
+        """Close down the socket and any running threads"""
+
+        self.valid(False)
+        self.socket.close()
+
+        if self.inbound_thread.is_alive():
+            self.inbound_thread.join()
+
+        if self.outbound_thread is not None and self.outbound_thread.is_alive():
+            self.outbound_thread.join()
+
 
 class SocketConnection:
 
@@ -291,6 +303,8 @@ class SocketConnection:
     def remove_connection( self, sock ):
 
         self.thread_lock.acquire()
+
+        self.connections[sock].close()
 
         if sock in self.connections:
             del self.connections[sock]

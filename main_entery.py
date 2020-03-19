@@ -71,6 +71,7 @@ if __name__ == "__main__":
         for sock in socks:
             if not active_socket.connections[sock].valid():
                 # remove the client
+                active_socket.remove_connection( sock )
                 continue
 
             try:
@@ -85,7 +86,6 @@ if __name__ == "__main__":
                 # send lobby update to all clients
                 game_list = get_lobby_message()
                 active_socket.connections[sock].send_message(game_list)
-                active_socket.remove_connection( sock )
 
 
         if time.time() > next_lobby_update:
