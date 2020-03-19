@@ -36,12 +36,16 @@ class MessageTypes:
         return locals()
 
     @staticmethod
-    def game_request( from_client, available_games, available_slots ):      # g
-        """ list of games request
+    def current_lobby_request( from_client, lobby_ids, level_names, min_players, max_players, current_players ):      # g
+        """ sent from the server to the client contating the all the available games :)
+        if this is received by the server a new one will be sent back to the client  :D
 
-        :param from_client:
-        :param available_games: List of games available to play
-        :param available_slots: the amount of slots available in game
+        :param from_client:     SERVER
+        :param lobby_ids:       List of games available to play
+        :param level_names:     List of level names
+        :param min_players:     List of min players
+        :param max_players:     List of max players
+        :param current_players: List of current_players
         """
         return locals()
 

@@ -314,7 +314,6 @@ class sql_query():
         self.connect_db()
         self.cursor.execute( query, where_data )
         data = self.cursor.fetchall()
-
         self.close_db()
 
         return data
@@ -376,3 +375,11 @@ class sql_query():
 
         return string
 
+    def execute( self, query, where_data ):
+
+        self.connect_db()
+        self.cursor.execute( query, where_data )
+        data = self.cursor.fetchall()
+        self.close_db()
+
+        return data

@@ -19,10 +19,29 @@ def accepted_client( connection ):
 
 def get_lobby_message( ):
 
-    if database.available_lobby_count() < MAX_FREE_LOBBIES:
+    if database.available_lobby_count() <= MAX_FREE_LOBBIES:
         database.add_new_lobby()
 
-    lobbies = database.select_all_available_lobbies()
+    lobbies, current_players = database.select_all_available_lobbies()
+
+    # sort the data into individual list
+
+    lobby_ids = []
+    level_names = []
+    min_players = []
+    max_players = []
+
+    for l in lobbies:
+        lobby_ids.append(l[0])
+        level_names.append(l[2])
+        min_players.append(l[3])
+        max_players.append(l[4])
+
+    game_list = message.Message(constants.SERVER_NAME, 'g')
+    game_list.message = game_list.new_message(constants.SERVER_NAME, lobby_ids, level_names,
+                                              min_players, max_players, current_players)
+
+    return game_list;
 
 if __name__ == "__main__":
 
@@ -45,7 +64,11 @@ if __name__ == "__main__":
     while running:
         # check that all clients are valid
         # and if its time update there lobby list
-        for sock in active_socket.connections:
+
+        # we must get the keys from the dict otherwise its get resized during iteration **crash** :D
+        socks = list(active_socket.connections)
+
+        for sock in socks:
             if not active_socket.connections[sock].valid():
                 # remove the client
                 continue
@@ -60,8 +83,10 @@ if __name__ == "__main__":
             # TODO: move to thread??
             if time.time() > next_lobby_update and active_socket.connections[sock].registered:
                 # send lobby update to all clients
-                # message.Message(constants.SERVER_NAME, 'g')
-                pass
+                game_list = get_lobby_message()
+                active_socket.connections[sock].send_message(game_list)
+                active_socket.remove_connection( sock )
+
 
         if time.time() > next_lobby_update:
             next_lobby_update = time.time() + update_lobby_list_intervals

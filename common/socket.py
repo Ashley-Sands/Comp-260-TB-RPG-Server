@@ -235,6 +235,8 @@ class SocketConnection:
 
     def send_message( self, message ):
 
+        self.thread_lock.acquire()
+
         for s in self.connections:
 
             if self.connections[s].client_key == "":    # skip un registered clients
@@ -243,12 +245,24 @@ class SocketConnection:
             if self.connections[s].client_key in message.to_clients:
                 pass
 
+        self.thread_lock.release()
+
     def socket_exist( self, sock ):
-        return sock in self.connections
+
+        self.thread_lock.acquire()
+        exist = sock in self.connections
+        self.thread_lock.release()
+
+        return exist
 
     def get_client_keys( self, except_sockets=[] ):
 
-        return [ con.client_key for con in self.connections if con not in except_sockets ]
+        self.thread_lock.acquire()
+
+        keys = [ con.client_key for con in self.connections if con not in except_sockets ]
+
+        self.thread_lock.release()
+        return keys
 
     def get_socket_from_client_key( self, client_key ):
         """Get the clients socket via the clients key.
@@ -265,6 +279,20 @@ class SocketConnection:
     def get_connection( self, sock ):
         """Get connections, if the connection does not exist returns None"""
         if sock in self.connections:
-            return self.connections[sock]
+
+            self.thread_lock.acquire()
+            conn = self.connections[sock]
+            self.thread_lock.release()
+
+            return conn
         else:
             return None
+
+    def remove_connection( self, sock ):
+
+        self.thread_lock.acquire()
+
+        if sock in self.connections:
+            del self.connections[sock]
+
+        self.thread_lock.release()

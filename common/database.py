@@ -32,7 +32,7 @@ class Database:
                                    "INT NOT NULL DEFAULT '-1'"]
                                  )
 
-        self.database.add_table( "levels", ["uid", "level_name", "min_players", "max_players"],
+        self.database.add_table( "levels", ["uid", "name", "min_players", "max_players"],
                                  [ "INT UNSIGNED NULL AUTO_INCREMENT KEY",
                                    "VARCHAR(255) NOT NULL",
                                    "INT NOT NULL DEFAULT '1'",
@@ -66,11 +66,28 @@ class Database:
         return self.database.select_from_table("lobbies", ["COUNT(game_id)"], ["game_id<"], ["0"], override_where_cols=True)[0][0]
 
     def select_all_available_lobbies( self ):
+        """
 
-        return self.database.select_from_table("lobbies", ["*"], ["game_id<"], ["0"], override_where_cols=True)
+        :return: (tuple) (list (a row) of tuples (the columns), list of current players)
+                        [(lobby id, level name, min players, max players), ...],
+                        [current_players]...
+        """
+        query = "SELECT lobbies.uid, levels.uid, levels.name, levels.min_players, levels.max_players" \
+                " FROM lobbies JOIN levels ON lobbies.level_id=levels.uid WHERE lobbies.game_id < 0"
 
+        # stitch the current_players count
+        lobbies = self.database.execute(query, [])
+        current_players = []
 
+        for l in lobbies:
+            current_players.append( self.get_lobby_player_count( l[0] )[0][0] )
 
+        return lobbies, current_players
+        # select_from_table("lobbies", ["*"], ["game_id<"], ["0"], override_where_cols=True)
+
+    def get_lobby_player_count( self, lobby_id ):
+
+        return self.database.select_from_table("active_users", ["COUNT(lobby_id)"], ["lobby_id"], [lobby_id])
 
 
 

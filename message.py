@@ -17,7 +17,7 @@ class Message:
         'r': MessageTypes.client_registered,
         # ----------
         's': MessageTypes.status,
-        'g': MessageTypes.game_request,
+        'g': MessageTypes.current_lobby_request,
         'j': MessageTypes.join_lobby_request,
         'd': MessageTypes.game_info,  # TODO: add action. if the client sends this to use we need to fill in the missing data and return it
 
