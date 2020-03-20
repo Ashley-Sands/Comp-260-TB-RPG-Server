@@ -1,5 +1,10 @@
+# this should be run once to setup the database,
+# or whenever the database needs changing.
 import Common.DEBUG as DEBUG
 import Common.sql_query as sql
+
+RUN_SQL_TEST = False
+
 
 def setup():
     database = sql.sql_query( "tb_rpg", True )
@@ -33,5 +38,14 @@ def setup():
 
     DEBUG.LOGS.print( "Database Setup Finished!" )
 
+
 def mysql_test():
     pass
+
+
+if __name__ == "__main__":
+
+    setup()
+
+    if RUN_SQL_TEST:
+        mysql_test()
