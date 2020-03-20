@@ -1,4 +1,3 @@
-
 class Global:
 
     DEBUG = False
@@ -22,3 +21,12 @@ class GlobalConfig:
     @staticmethod
     def is_set(config_name):
         return config_name in GlobalConfig.__CONFIG__
+
+def setup():
+
+    Global.set("host", "192.168.0.1")
+    Global.set("port", 8222)
+
+    Global.set("mysql_host", "192.168.0.1")
+    Global.set("mysql_user", "root")
+    Global.set("mysql_pass", "")
