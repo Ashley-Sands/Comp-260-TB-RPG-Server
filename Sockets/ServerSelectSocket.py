@@ -163,3 +163,8 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
 
         super().close_socket()
         self.passthrough_socket.close()
+
+    def close( self ):
+
+        self.passthrough_mode(False)
+        super().close()
