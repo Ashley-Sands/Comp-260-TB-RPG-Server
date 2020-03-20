@@ -13,9 +13,10 @@ class LOGS:
     MSG_TYPE_ERROR   = 3
 
     debug_mode = True
+    que_pre_init_msg = True
     inited = False
     active = False
-    print_que = None    # Queue of tuples (type, message)
+    print_que = q.Queue()    # Queue of tuples (type, message)
     debug_thread = None
     print_debug_intervals = 1
 
@@ -35,8 +36,6 @@ class LOGS:
         if LOGS.inited or not LOGS.debug_mode:
             return
 
-        LOGS.print_que = q.Queue()
-
         LOGS.debug_thread = threading.Thread(target=LOGS.debug_print_thread)
 
         LOGS.inited = True
@@ -46,7 +45,7 @@ class LOGS:
     @staticmethod
     def print( *argv, message_type=1, sept=' ' ):
 
-        if not LOGS.debug_mode or not LOGS.inited:
+        if not LOGS.debug_mode or (not LOGS.que_pre_init_msg and not LOGS.inited):
             return
 
         now = datetime.datetime.utcnow()
