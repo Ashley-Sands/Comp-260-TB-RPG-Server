@@ -1,3 +1,5 @@
+# The has been taken from my comp-280 project and adapted for this project
+# GitHub Repo: https://github.com/Ashley-Sands/Comp-280-PythonServer
 import sqlite3
 import Common.mysql_helpers as mysql_helpers
 from Common.Globals import Global
