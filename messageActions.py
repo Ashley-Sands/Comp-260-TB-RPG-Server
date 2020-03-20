@@ -71,6 +71,7 @@ class Action_status( MessageAction ):
     TYPE_SERVER = 0
     TYPE_CLIENT = 1
     TYPE_GAME   = 2
+    TYPE_LOBBY  = 3
 
     def run ( self, messageObj ):
         pass
@@ -100,7 +101,16 @@ class Action_JoinLobbyRequest( MessageAction ):     # j
     def run( self, message_obj ):
 
         conn = self.get_connection( message_obj.from_client_key )
+        lobby_id = message_obj["lobby_id"]
 
+        joined = self.database.join_lobby( conn.client_key, lobby_id )
+
+        if joined:
+            message_obj.message = message_obj.new_message( SERVER_NAME, lobby_id, "192.0.0.1", "8223" )
+            conn = message_obj
+        else:
+            err_msg = msg.Message( message_obj.from_client_key, "s")
+            err_msg.message = err_msg.new_message( Action_status.TYPE_LOBBY, False, "Lobby Unavailable" )
 
 
     def get_error_message( self, game, client ):

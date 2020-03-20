@@ -41,9 +41,6 @@ class Database:
 
         DEBUG.DEBUG.print( "Database Inited Successfully!" )
 
-        self.join_lobby(1, 2)
-
-
     def add_new_client( self, nickname ):
         """Adds a new client
 
@@ -91,6 +88,10 @@ class Database:
         return self.database.select_from_table("active_users", ["COUNT(lobby_id)"], ["lobby_id"], [lobby_id])[0][0]
 
     def join_lobby( self, client_id, lobby_id ):
+        """ Joins game lobby
+
+        :return: True if successful otherwise False
+        """
 
         # check that the user can join the lobby
         query = "SELECT levels.max_players " \
