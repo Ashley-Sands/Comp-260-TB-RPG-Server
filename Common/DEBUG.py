@@ -4,6 +4,7 @@ import datetime
 import time
 import os.path
 
+
 # treat as if static :)
 class LOGS:
 
@@ -98,9 +99,9 @@ class LOGS:
             LOGS.MSG_TYPE_ERROR: "\033[1;31m ",
         }
 
-        return print(msg[:start_col+1] + cols[ msg_type ]+
-                     msg[start_col+1:end_col] +"\033[0;37m "+
-                     msg[end_col:])
+        return msg[:start_col+1] + cols[ msg_type ] + \
+            msg[start_col+1:end_col] + "\033[0;37m " + \
+            msg[end_col:]
 
     @staticmethod
     def set_log_to_file( message=False, warning=False, error=True ):
@@ -111,9 +112,9 @@ class LOGS:
     @staticmethod
     def add_to_logs( msg_type, message ):
 
-        update_log = msg_type == LOGS.MESSAGE_TYPE_DEFAULT and LOGS.__log_messages_to_file or \
-                     msg_type == LOGS.MESSAGE_TYPE_WARNING and LOGS.__log_warning_to_file or \
-                     msg_type == LOGS.MESSAGE_TYPE_ERROR and LOGS.__log_errors_to_file
+        update_log = msg_type == LOGS.MSG_TYPE_DEFAULT and LOGS.__log_messages_to_file or \
+                     msg_type == LOGS.MSG_TYPE_WARNING and LOGS.__log_warning_to_file or \
+                     msg_type == LOGS.MSG_TYPE_ERROR and LOGS.__log_errors_to_file
 
         if update_log:
             if os.path.exists(LOGS.__log_path + LOGS.__log_name):
