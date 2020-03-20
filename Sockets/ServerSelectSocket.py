@@ -158,7 +158,6 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
             if not self.send_data( client_socket, data, "passthrough" ):
                 self.valid( False )
 
-
     def close_socket( self ):
 
         super().close_socket()
