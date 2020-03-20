@@ -1,6 +1,7 @@
 import Common.DEBUG as DEBUG
-import Common.constants as constants
 import threading
+import Common.constants as constants
+
 
 class BaseSocketClient:
     """Socket clients are used handle the clients inbound/outbound messages."""
