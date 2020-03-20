@@ -2,7 +2,6 @@ import socket
 import threading
 import DEBUG
 
-
 class SocketConnection:
 
     def __init__( self, ip, port, max_conn, socket_client_class ):

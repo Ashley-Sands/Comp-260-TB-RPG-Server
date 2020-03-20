@@ -1,4 +1,5 @@
-from common.socket import SocketConnection, SocketClient
+from SocketClient import SocketClient
+from common.socket import SocketConnection
 from common.database import Database
 import message
 import constants
