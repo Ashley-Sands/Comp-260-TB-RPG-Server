@@ -1,4 +1,4 @@
-import DEBUG
+import Common.DEBUG as DEBUG
 
 class MySqlHelpers:
     import mysql.connector as MYSQL

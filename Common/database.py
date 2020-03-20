@@ -1,7 +1,7 @@
-import common.sql_query as sql
+import Common.sql_query as sql
 import hashlib
 import time
-import DEBUG
+import Common.DEBUG as DEBUG
 
 class Database:
 

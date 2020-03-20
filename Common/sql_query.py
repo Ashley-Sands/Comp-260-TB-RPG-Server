@@ -1,11 +1,11 @@
 import sqlite3
-import common.mysql_helpers as mysql_helpers
-from common.Globals import Global
-from common.Globals import GlobalConfig as Config
+import Common.mysql_helpers as mysql_helpers
+from Common.Globals import Global
+from Common.Globals import GlobalConfig as Config
 import os, os.path
 import re  # regex
 import random
-import DEBUG
+import Common.DEBUG as DEBUG
 
 class sql_query():
 
