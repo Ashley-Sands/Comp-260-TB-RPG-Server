@@ -56,9 +56,9 @@ class LOGS:
         argv = [ str( a ) for a in argv ]
 
 
-        if message_type == LOGS.MESSAGE_TYPE_WARNING:
+        if message_type == LOGS.MSG_TYPE_WARNING:
             message_type_name = "WARNING"
-        elif message_type == LOGS.MESSAGE_TYPE_ERROR:
+        elif message_type == LOGS.MSG_TYPE_ERROR:
             message_type_name = "ERROR  "
         else:
             message_type_name = "MESSAGE"
