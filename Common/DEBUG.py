@@ -7,9 +7,9 @@ import os.path
 # treat as if static :)
 class LOGS:
 
-    MESSAGE_TYPE_DEFAULT = 1
-    MESSAGE_TYPE_WARNING = 2
-    MESSAGE_TYPE_ERROR   = 3
+    MSG_TYPE_DEFAULT = 1
+    MSG_TYPE_WARNING = 2
+    MSG_TYPE_ERROR   = 3
 
     debug_mode = True
     inited = False
@@ -77,13 +77,30 @@ class LOGS:
         while LOGS.active:
             while not LOGS.print_que.empty():
                 msg_type, message = LOGS.print_que.get(block=True, timeout=None)
-                print( message )
+
+                print( LOGS.__get_console_color(message, msg_type) )
                 LOGS.add_to_logs(msg_type, message)
 
             time.sleep(LOGS.print_debug_intervals)   # theres no need to
 
         LOGS.active = False
         print("dead debug thread")
+
+    @staticmethod
+    def __get_console_color( msg, msg_type ):
+
+        start_col = msg.find( "[" )
+        end_col = msg.find( "]" )
+
+        cols = {
+            LOGS.MSG_TYPE_DEFAULT: "\033[1;32m ",
+            LOGS.MSG_TYPE_WARNING: "\033[1;33m ",
+            LOGS.MSG_TYPE_ERROR: "\033[1;31m ",
+        }
+
+        return print(msg[:start_col+1] + cols[ msg_type ]+
+                     msg[start_col+1:end_col] +"\033[0;37m "+
+                     msg[end_col:])
 
     @staticmethod
     def set_log_to_file( message=False, warning=False, error=True ):
