@@ -5,12 +5,11 @@ import time
 import os.path
 
 # treat as if static :)
-class DEBUG:
+class LOGS:
 
     MESSAGE_TYPE_DEFAULT = 1
     MESSAGE_TYPE_WARNING = 2
     MESSAGE_TYPE_ERROR   = 3
-
 
     debug_mode = True
     inited = False
@@ -32,21 +31,21 @@ class DEBUG:
         """This must be called to start the debug thread
         The thread wll not start unless debug_mode is set to True
         """
-        if DEBUG.inited or not DEBUG.debug_mode:
+        if LOGS.inited or not LOGS.debug_mode:
             return
 
-        DEBUG.print_que = q.Queue()
+        LOGS.print_que = q.Queue()
 
-        DEBUG.debug_thread = threading.Thread(target=DEBUG.debug_print_thread)
+        LOGS.debug_thread = threading.Thread(target=LOGS.debug_print_thread)
 
-        DEBUG.inited = True
-        DEBUG.print("DEBUG Inited Successfully")
-        DEBUG.debug_thread.start()
+        LOGS.inited = True
+        LOGS.print("DEBUG Inited Successfully")
+        LOGS.debug_thread.start()
 
     @staticmethod
     def print( *argv, message_type=1, sept=' ' ):
 
-        if not DEBUG.debug_mode or not DEBUG.inited:
+        if not LOGS.debug_mode or not LOGS.inited:
             return
 
         now = datetime.datetime.utcnow()
@@ -56,54 +55,54 @@ class DEBUG:
         argv = [ str( a ) for a in argv ]
 
 
-        if message_type == DEBUG.MESSAGE_TYPE_WARNING:
+        if message_type == LOGS.MESSAGE_TYPE_WARNING:
             message_type_name = "WARNING"
-        elif message_type == DEBUG.MESSAGE_TYPE_ERROR:
+        elif message_type == LOGS.MESSAGE_TYPE_ERROR:
             message_type_name = "ERROR  "
         else:
             message_type_name = "MESSAGE"
 
-        DEBUG.print_que.put( (message_type, "{0} | {1} | {2}".format(time_str, message_type_name, sept.join(argv))) )
+        LOGS.print_que.put( (message_type, "{0} | {1} | {2}".format(time_str, message_type_name, sept.join(argv))) )
 
     @staticmethod
     def debug_print_thread( ):
 
-        if not DEBUG.inited or not DEBUG.debug_mode:
+        if not LOGS.inited or not LOGS.debug_mode:
             return
 
         print("started debug thread")
 
-        DEBUG.active = True
+        LOGS.active = True
 
-        while DEBUG.active:
-            while not DEBUG.print_que.empty():
-                msg_type, message = DEBUG.print_que.get(block=True, timeout=None)
+        while LOGS.active:
+            while not LOGS.print_que.empty():
+                msg_type, message = LOGS.print_que.get(block=True, timeout=None)
                 print( message )
-                DEBUG.add_to_logs(msg_type, message)
+                LOGS.add_to_logs(msg_type, message)
 
-            time.sleep(DEBUG.print_debug_intervals)   # theres no need to
+            time.sleep(LOGS.print_debug_intervals)   # theres no need to
 
-        DEBUG.active = False
+        LOGS.active = False
         print("dead debug thread")
 
     @staticmethod
     def set_log_to_file( message=False, warning=False, error=True ):
-        DEBUG.__log_messages_to_file = message
-        DEBUG.__log_warning_to_file = warning
-        DEBUG.__log_error_to_file = error
+        LOGS.__log_messages_to_file = message
+        LOGS.__log_warning_to_file = warning
+        LOGS.__log_error_to_file = error
 
     @staticmethod
     def add_to_logs( msg_type, message ):
 
-        update_log = msg_type == DEBUG.MESSAGE_TYPE_DEFAULT and DEBUG.__log_messages_to_file or \
-                     msg_type == DEBUG.MESSAGE_TYPE_WARNING and DEBUG.__log_warning_to_file or \
-                     msg_type == DEBUG.MESSAGE_TYPE_ERROR and DEBUG.__log_errors_to_file
+        update_log = msg_type == LOGS.MESSAGE_TYPE_DEFAULT and LOGS.__log_messages_to_file or \
+                     msg_type == LOGS.MESSAGE_TYPE_WARNING and LOGS.__log_warning_to_file or \
+                     msg_type == LOGS.MESSAGE_TYPE_ERROR and LOGS.__log_errors_to_file
 
         if update_log:
-            if os.path.exists(DEBUG.__log_path + DEBUG.__log_name):
+            if os.path.exists(LOGS.__log_path + LOGS.__log_name):
                 file_mode = 'a'
             else:
                 file_mode = 'w'
 
-            with open(DEBUG.__log_path + DEBUG.__log_name, file_mode) as log:
+            with open(LOGS.__log_path + LOGS.__log_name, file_mode) as log:
                 log.write( "\n"+message )
