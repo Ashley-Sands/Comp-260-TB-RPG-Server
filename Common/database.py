@@ -10,35 +10,6 @@ class Database:
         # make sure that the database has been set up
         self.database = sql.sql_query("tb_rpg", True)
 
-        # todo this should be moved into a setup script
-
-        self.database.add_table( "active_users", ["uid", "nickname", "lobby_id", "reg_key"],
-                                 ["INT UNSIGNED NULL AUTO_INCREMENT KEY",
-                                  "VARCHAR(255) NOT NULL",
-                                  "INT NOT NULL DEFAULT '-1'",
-                                  "VARCHAR(64) NOT NULL DEFAULT 'None'"]
-                                 )
-
-        self.database.add_table( "lobbies", ["uid", "level_id", "game_id"],
-                                 ["INT UNSIGNED NULL AUTO_INCREMENT KEY",
-                                  "INT NOT NULL DEFAULT '-1'",
-                                  "INT NOT NULL DEFAULT '-1'"]
-                                 )
-
-        self.database.add_table( "games", ["uid", "available", "ip", "port"],
-                                 [ "INT UNSIGNED NULL AUTO_INCREMENT KEY",
-                                   "BOOL NOT NULL DEFAULT TRUE",
-                                   "VARCHAR(16) NOT NULL DEFAULT '0.0.0.0'",
-                                   "INT NOT NULL DEFAULT '-1'"]
-                                 )
-
-        self.database.add_table( "levels", ["uid", "name", "min_players", "max_players"],
-                                 [ "INT UNSIGNED NULL AUTO_INCREMENT KEY",
-                                   "VARCHAR(255) NOT NULL",
-                                   "INT NOT NULL DEFAULT '1'",
-                                   "INT NOT NULL DEFAULT '2'" ]
-                                 )
-
         DEBUG.DEBUG.print( "Database Inited Successfully!" )
 
     def add_new_client( self, nickname ):
