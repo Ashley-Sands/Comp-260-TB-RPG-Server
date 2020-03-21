@@ -112,6 +112,6 @@ class SocketHandler:
             if self.connections[s].valid():
                 self.connections[s].close() # make sure that all sockets are closed and thread has stopped.
                 del self.connections[s]
+                DEBUG.LOGS.print("Zombie client Remove")
 
         self.thread_lock.acquire()
-

@@ -2,9 +2,9 @@ import Common.DEBUG as DEBUG
 import socket
 import Sockets.BaseSocket as BaseSocket
 import threading
+import Common.database as Database
 import Common.constants as constants
 
-import time
 
 class ServerSelectSocket( BaseSocket.BaseSocketClient ):
     """ServerSelectSocket re-directs the clients to the correct location within the network"""
@@ -16,6 +16,17 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
         self._passthrough_mode = False
         self.passthrough_socket = None
 
+    def get_host ( self ):
+
+        db = Database.Database()
+        ip = db.database.select_from_table( "games", ["ip"] )
+        print( ">>>>>>>>>>>>>> MY IP Resluts", ip )
+        if len( ip ) > 0:
+            print(ip[0][0])
+            return ip[0][0]
+        else:
+            return ""
+
     def connect_passthrough( self, ip, port  ):
         """
             Connect the passthrough
@@ -23,7 +34,10 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
         :param port:    the port            (int)
         :return:        None
         """
+        ip = self.gethost()
+
         DEBUG.LOGS.print("Connecting passthrough to server @ ", (ip, port) )
+
         if not self.passthrough_mode():  # can only create new socket when not in passthrough
             self.passthrough_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
@@ -128,15 +142,10 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
         # i might need to make a dupe of the socket in the thread.
         # we'll see how it goes.
 
-        print( "pf recv sock ------------>", self.passthrough_socket )
-        print( "c recv sock ------------>", client_socket )
-
         while self.valid():
 
             # receive all the data from the client sending it directly back out the other server
             data = self.receive_passthrough_data( client_socket, "client recv")
-
-            print(data)
 
             if data is None:
                 self.valid( False )
@@ -159,9 +168,6 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
         # as it is possible for the thread to begin before the connection is made.
         # i might need to make a dupe of the socket in the thread.
         # we'll see how it goes.
-
-        print( "pf snd sock ------------>", self.passthrough_socket )
-        print( "c snd sock ------------>", client_socket )
 
         while self.valid() and self.passthrough_mode():
 
