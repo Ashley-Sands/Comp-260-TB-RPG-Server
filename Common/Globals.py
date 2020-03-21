@@ -1,3 +1,5 @@
+import socket
+
 class Global:
 
     DEBUG = False
@@ -24,7 +26,7 @@ class GlobalConfig:
 
 def setup():
 
-    GlobalConfig.set("host", "192.168.0.1")
+    GlobalConfig.set("host", socket.gethostname())
     GlobalConfig.set("port", 8222)
 
     GlobalConfig.set("mysql_host", "192.168.0.1")

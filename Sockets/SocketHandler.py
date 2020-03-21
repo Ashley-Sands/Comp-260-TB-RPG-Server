@@ -26,6 +26,7 @@ class SocketHandler:
         """Starts allowing connections via the socket"""
 
         self.socket_inst = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        print(self.ip, self.port)
         self.socket_inst.bind( (self.ip, self.port) )
         self.socket_inst.listen( self.max_conn )
 
@@ -50,7 +51,7 @@ class SocketHandler:
 
     def accept_connection( self, active_socket ):
 
-        DEBUG.DEBUG.print("starting to accept connections")
+        DEBUG.LOGS.print("starting to accept connections")
         # we must allways accept the connection
         # even if we not accepting connections anymore,
         # other wise they build up and connect/disconnect

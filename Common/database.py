@@ -10,7 +10,7 @@ class Database:
         # make sure that the database has been set up
         self.database = sql.sql_query("tb_rpg", True)
 
-        DEBUG.DEBUG.print( "Database Inited Successfully!" )
+        DEBUG.LOGS.print( "Database Inited Successfully!" )
 
     def add_new_client( self, nickname ):
         """Adds a new client

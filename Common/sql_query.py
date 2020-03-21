@@ -34,7 +34,7 @@ class sql_query():
             if not Config.is_set( "mysql_pass" ):
                 Config.set("mysql_pass", "")  # please set a password in some other file (that is not synced with public version control)
 
-            DEBUG.DEBUG.print( "mysql details:", Config.get("mysql_host"), Config.get("mysql_user"), "*" * random.randint( 6, 16 ), db_name )
+            DEBUG.LOGS.print( "mysql details:", Config.get("mysql_host"), Config.get("mysql_user"), "*" * random.randint( 6, 16 ), db_name )
 
     def connect_db(self):
         """ Connect to the SQLite DB, creates new if not exist """

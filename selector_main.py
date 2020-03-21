@@ -1,5 +1,6 @@
 import Common.DEBUG as DEBUG
 import Common.database as db
+import Sockets.ServerSelectSocket as ServerSelectSocket
 import Sockets.SocketHandler as SocketHandler
 
 import Common.Globals as Global
@@ -16,7 +17,8 @@ if __name__ == "__main__":
 
     database = db.Database()
 
-    socket_handler = SocketHandler.SocketHandler( config.get("host"), config.get("port"))
+    socket_handler = SocketHandler.SocketHandler( config.get("host"), config.get("port"),
+                                                  15, ServerSelectSocket.ServerSelectSocket)
 
     socket_handler.start()
 

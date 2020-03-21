@@ -89,18 +89,15 @@ class LOGS:
     @staticmethod
     def __get_console_color( msg, msg_type ):
 
-        start_col = msg.find( "[" )
-        end_col = msg.find( "]" )
+        msg = msg.split( "|" )
 
         cols = {
-            LOGS.MSG_TYPE_DEFAULT: "\033[1;32m ",
-            LOGS.MSG_TYPE_WARNING: "\033[1;33m ",
-            LOGS.MSG_TYPE_ERROR: "\033[1;31m ",
+            LOGS.MSG_TYPE_DEFAULT: "\033[1;32m",
+            LOGS.MSG_TYPE_WARNING: "\033[1;33m",
+            LOGS.MSG_TYPE_ERROR: "\033[1;31m",
         }
 
-        return msg[:start_col+1] + cols[ msg_type ] + \
-            msg[start_col+1:end_col] + "\033[0;37m " + \
-            msg[end_col:]
+        return msg[ 0 ] + "|"+ cols[msg_type] + msg[ 1 ] + "\033[0;37m|" + '|'.join( msg[ 2: ] )
 
     @staticmethod
     def set_log_to_file( message=False, warning=False, error=True ):
