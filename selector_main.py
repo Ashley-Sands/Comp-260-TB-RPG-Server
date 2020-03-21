@@ -2,11 +2,13 @@ import Common.DEBUG as DEBUG
 import Common.database as db
 import Sockets.ServerSelectSocket as ServerSelectSocket
 import Sockets.SocketHandler as SocketHandler
+import time
 
 import Common.Globals as Global
 config = Global.GlobalConfig
 
 if __name__ == "__main__":
+    import mysql_setup
 
     running = True
 
@@ -17,8 +19,16 @@ if __name__ == "__main__":
 
     database = db.Database()
 
+    # wait for db to connection
+    while not database.database.test_connection():
+        time.sleep(10) # try every 10 seconds
+
+    mysql_setup.setup() # check that the sql is all set up correctly.
+
     socket_handler = SocketHandler.SocketHandler( config.get("host"), config.get("port"),
                                                   15, ServerSelectSocket.ServerSelectSocket)
+
+    DEBUG.LOGS.print("Welcome",config.get("host"), ":", config.get("port") )
 
     socket_handler.start()
 
