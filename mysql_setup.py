@@ -1,6 +1,5 @@
 # this should be run once to setup the database,
 # or whenever the database needs changing.
-import Common.DEBUG as DEBUG
 import Common.sql_query as sql
 
 RUN_SQL_TEST = False
@@ -36,7 +35,7 @@ def setup():
                                "INT NOT NULL DEFAULT '2'" ]
                              )
 
-    DEBUG.LOGS.print( "Database Setup Finished!" )
+    print( "Database Setup Finished!" )
 
 
 def mysql_test():
