@@ -120,3 +120,8 @@ class LOGS:
 
             with open(LOGS.__log_path + LOGS.__log_name, file_mode) as log:
                 log.write( "\n"+message )
+
+    @staticmethod
+    def close():
+
+        LOGS.active = False

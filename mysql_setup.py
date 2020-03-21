@@ -3,6 +3,7 @@
 import time
 import Common.DEBUG as DEBUG
 import Common.sql_query as sql
+import Common.Globals as Global
 
 RUN_SQL_TEST = False
 
@@ -10,7 +11,8 @@ RUN_SQL_TEST = False
 def setup():
     database = sql.sql_query( "tb_rpg", True )
 
-    while not database.database.test_connection():
+    while not database.test_connection():
+
         time.sleep( 1 )  # try every second
 
     database.drop_table("games")    #   // quick fix while we only support 1 host // TODO: fix
@@ -52,7 +54,11 @@ def mysql_test():
 
 if __name__ == "__main__":
 
+    DEBUG.LOGS.init()
+    Global.setup()
+
     setup()
     mysql_test()
 
     DEBUG.LOGS.print("SQL Setup complete")
+    DEBUG.LOGS.close()
