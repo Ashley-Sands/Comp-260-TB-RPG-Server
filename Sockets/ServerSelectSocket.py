@@ -4,6 +4,7 @@ import Sockets.BaseSocket as BaseSocket
 import threading
 import Common.constants as constants
 
+import time
 
 class ServerSelectSocket( BaseSocket.BaseSocketClient ):
     """ServerSelectSocket re-directs the clients to the correct location within the network"""
@@ -22,19 +23,19 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
         :param port:    the port            (int)
         :return:        None
         """
-
+        DEBUG.LOGS.print("Connecting passthrough to server @ ", (ip, port) )
         if not self.passthrough_mode():  # can only create new socket when not in passthrough
             self.passthrough_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
-                self.passthrough_socket = socket.socket.connect( (ip, port) )
+                self.passthrough_socket.connect( (ip, port) )
                 self.passthrough_mode(True)
             except Exception as e:
-                DEBUG.LOGS.print("Could not connect passthrough (", ip, port,")", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
+                DEBUG.LOGS.print("Could not connect passthrough", (ip, port), e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
                 return
 
             # start the outbound thread now we have connected to the server.
             self.outbound_thread = threading.Thread( target=self.passthrough_send_thread,
-                                                     args=(self.socket, self.passthrough_socket) )
+                                                     args=(self.socket, ) )
             self.outbound_thread.start()
 
     def start( self ):
@@ -43,7 +44,7 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
         # the outbound can be started when passthrough connects to the server
 
         self.inbound_thread = threading.Thread( target=self.passthrough_receive_thread,
-                                                args=(self.socket, self.passthrough_socket) )
+                                                args=(self.socket, ) )
 
         self.inbound_thread.start()
 
@@ -115,17 +116,27 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
 
             return False
 
-    def passthrough_receive_thread( self, client_socket, passthrough_socket ):
+    def passthrough_receive_thread( self, client_socket ):
         """
             Inbound to the server /
             Outbound from the client
             Receives data from the client sending the data back out through the passthrough socket.
         """
 
+        # TODO: Issue: we can NOT send the pass through socket into thread function
+        # as it is possible for the thread to begin before the connection is made.
+        # i might need to make a dupe of the socket in the thread.
+        # we'll see how it goes.
+
+        print( "pf recv sock ------------>", self.passthrough_socket )
+        print( "c recv sock ------------>", client_socket )
+
         while self.valid():
 
             # receive all the data from the client sending it directly back out the other server
-            data = self.receive_passthrough_data( client_socket, "client")
+            data = self.receive_passthrough_data( client_socket, "client recv")
+
+            print(data)
 
             if data is None:
                 self.valid( False )
@@ -135,27 +146,34 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
                 continue    # discard the data as theres no where to send it.
 
             # send the data onto the server
-            if not self.send_data( passthrough_socket, data, "passthrough") :
+            if not self.send_data( self.passthrough_socket, data, "passthrough recv") :
                 self.passthrough_mode( False )
 
-    def passthrough_send_thread( self, client_socket, passthrough_socket ):
+    def passthrough_send_thread( self, client_socket ):
         """
             Outbound from the server /
             Inbound to the client
             Receives data from the passthrough sending the data back out to the client socket
         """
+        # TODO: Issue: we can NOT send the pass through socket into thread function
+        # as it is possible for the thread to begin before the connection is made.
+        # i might need to make a dupe of the socket in the thread.
+        # we'll see how it goes.
+
+        print( "pf snd sock ------------>", self.passthrough_socket )
+        print( "c snd sock ------------>", client_socket )
 
         while self.valid() and self.passthrough_mode():
 
             # receive all the data from the server sending it directly back out to the client
-            data = self.receive_passthrough_data( passthrough_socket, "client" )
+            data = self.receive_passthrough_data( self.passthrough_socket, "client snd" )
 
             if data is None:
                 self.passthrough_mode( False )
                 break
 
             # send the data onto the client
-            if not self.send_data( client_socket, data, "passthrough" ):
+            if not self.send_data( client_socket, data, "passthrough snd" ):
                 self.valid( False )
 
     def close_socket( self ):

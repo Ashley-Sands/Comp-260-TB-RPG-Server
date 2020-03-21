@@ -39,28 +39,26 @@ class SocketHandler:
     def accepted_client_bind( self, ac_callback ):
         """ binds to the accepted client function
 
-        :param ac_callback:     function with param connection
+        :param ac_callback:     function with param connection and address
         """
 
         self._accepted_client_callback.append( ac_callback )
 
-    def invoke_accepted_callback( self, con_data ):
+    def invoke_accepted_callback( self, con_data, address_data ):
 
         for f in self._accepted_client_callback:
-            f(con_data)
-
-
+            f(con_data, address_data)
 
     def accept_connection( self, active_socket ):
 
         DEBUG.LOGS.print("starting to accept connections")
-        # we must allways accept the connection
+        # we must always accept the connection
         # even if we not accepting connections anymore,
         # other wise they build up and connect/disconnect
         # as soon as we start accepting connection again.
         while True:
 
-            client_sock = active_socket.accept()[0]
+            client_sock, addr = active_socket.accept()
 
             if not self.accepting_connections:
                 continue
@@ -68,7 +66,7 @@ class SocketHandler:
             self.connections[client_sock] = self.socket_client_class(client_sock)
             self.connections[client_sock].start()
 
-            self.invoke_accepted_callback( self.connections[client_sock] )
+            self.invoke_accepted_callback( self.connections[client_sock], addr )
 
         DEBUG.LOGS.print("Not accepting connections anymore")
 

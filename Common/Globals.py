@@ -1,4 +1,5 @@
 import socket
+import os
 
 class Global:
 
@@ -26,9 +27,19 @@ class GlobalConfig:
 
 def setup():
 
-    GlobalConfig.set("host", socket.gethostname())
+    # global connections
+    if os.name == 'nt':  # local testing
+        GlobalConfig.set("host", "localhost_0")
+    else:  # docker production setup
+        GlobalConfig.set("host", "0.0.0.0")         # allow connections from the outside world
+
     GlobalConfig.set("port", 8222)
 
+    # local connections
+    GlobalConfig.set("internal_host", socket.gethostname())     # internal host address
+    GlobalConfig.set("internal_port", 8223)                     # internal port
+
+    # MYSQL connection (local)
     GlobalConfig.set("mysql_host", "localhost_sql")
     GlobalConfig.set("mysql_user", "root")
     GlobalConfig.set("mysql_pass", "password!2E")
