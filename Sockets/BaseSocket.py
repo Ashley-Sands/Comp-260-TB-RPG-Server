@@ -47,18 +47,15 @@ class BaseSocketClient:
 
         return is_valid
 
-    def from_name ():
+    def from_name( self ):
         """ What should be displayed as from name when sending message from this socket.
             By default this is 'SERVER' (constants.SERVER_NAME)
         """
         return constants.SERVER_NAME
 
-    ## ...
-
     def close_socket( self ):
 
         self.socket.close()
-
 
     def join_threads( self ):
         """
