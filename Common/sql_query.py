@@ -36,6 +36,27 @@ class sql_query():
 
             DEBUG.LOGS.print( "mysql details:", Config.get("mysql_host"), Config.get("mysql_user"), "*" * random.randint( 6, 16 ), db_name )
 
+        self.connect_db()
+        self.close_db(commit=False)
+
+    def test_connection( self ):
+
+        if not self.using_mysql:
+            DEBUG.LOGS.print("No support to test sqlite connection, use database exist instead", message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
+            return
+
+        connection = mysql_helpers.MySqlHelpers._connect( Config.get( "mysql_host" ),
+                                                          Config.get( "mysql_user" ),
+                                                          Config.get( "mysql_pass" ) )[0]
+
+        if connection is not None:
+            connection.close()
+            return True
+
+        return False
+
+
+
     def connect_db(self):
         """ Connect to the SQLite DB, creates new if not exist """
 
@@ -129,7 +150,7 @@ class sql_query():
             self.cursor.execute(query)
             data = self.cursor.fetchall()
         except Exception as e:
-            DEBUG.DEBUG.print(e, message_type=DEBUG.DEBUG.MESSAGE_TYPE_ERROR)
+            DEBUG.LOGS.print(e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
             data = []
 
         self.close_db()
@@ -169,8 +190,8 @@ class sql_query():
         table_name = re.sub("\s", "_", table_name)  # replace white space with underscores
 
         if self.table_exist( table_name ):
-            DEBUG.DEBUG.print("can not create table(", table_name, "), already exist",
-                              message_type=DEBUG.DEBUG.MESSAGE_TYPE_WARNING)
+            DEBUG.LOGS.print("can not create table(", table_name, "), already exist",
+                              message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
             return 404, "table already exist"
 
         query = "CREATE TABLE "+table_name
@@ -208,19 +229,19 @@ class sql_query():
         self.connect_db()
 
         query += " ("+columns+")"
-        DEBUG.DEBUG.print("SQL Query", query)
+        DEBUG.LOGS.print("SQL Query", query)
         self.cursor.execute(query)
 
         self.close_db()
 
-        DEBUG.DEBUG.print("Table Created")
+        DEBUG.LOGS.print("Table Created")
         return None
 
     def drop_table(self, table_name):
         """drops table from database"""
         if not self.table_exist( table_name ):
-            DEBUG.DEBUG.print("can not drop", table_name,"table, does not already exist",
-                              message_type=DEBUG.DEBUG.MESSAGE_TYPE_WARNING)
+            DEBUG.LOGS.print("can not drop", table_name,"table, does not already exist",
+                              message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
             return
 
         self.connect_db()
@@ -230,13 +251,13 @@ class sql_query():
 
         self.close_db()
 
-        DEBUG.DEBUG.print(table_name, "Droped")
+        DEBUG.LOGS.print(table_name, "Droped")
 
     def insert_row(self, table_name, value_columns, value_data):
         """Inserts rot into table"""
         if not self.table_exist(table_name):
-            DEBUG.DEBUG.print("Error: can not insert row into table, table does not exist",
-                              message_type=DEBUG.DEBUG.MESSAGE_TYPE_ERROR)
+            DEBUG.LOGS.print("Error: can not insert row into table, table does not exist",
+                              message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
             return
 
         self.connect_db()
@@ -250,20 +271,20 @@ class sql_query():
         col_value_str = ', '.join([val_str] * len(value_data))
 
         query = "INSERT INTO " + table_name + " (" + col_name_str + ") VALUES (" + col_value_str + ") "
-        DEBUG.DEBUG.print(query, value_data)
+        DEBUG.LOGS.print(query, value_data)
         if Global.DEBUG:
-            DEBUG.DEBUG.print("query: ", query, "Data", value_data)
+            DEBUG.LOGS.print("query: ", query, "Data", value_data)
 
         self.cursor.execute(query, value_data)
 
         self.close_db()
 
-        DEBUG.DEBUG.print("data Inserted to table")
+        DEBUG.LOGS.print("data Inserted to table")
 
     def remove_row(self, table_name, where_columns, where_data):
         """remove row from table"""
         if not self.table_exist(table_name):
-            DEBUG.DEBUG.print("Error: can not delete row from table, table does not exist")
+            DEBUG.LOGS.print("Error: can not delete row from table, table does not exist")
             return
 
         where_str = self.sql_string_builder( where_columns, "AND " )
@@ -273,7 +294,7 @@ class sql_query():
         query = " DELETE FROM "+table_name+" WHERE "+where_str
 
         if Global.DEBUG:
-            DEBUG.DEBUG.print(query, where_data)
+            DEBUG.LOGS.print(query, where_data)
 
         self.cursor.execute( query, where_data )
 
@@ -292,8 +313,8 @@ class sql_query():
         :return:
         """
         if not self.table_exist(table_name):
-            DEBUG.DEBUG.print("Error: can not select from table, table does not exist",
-                              message_type=DEBUG.DEBUG.MESSAGE_TYPE_ERROR)
+            DEBUG.LOGS.print("Error: can not select from table, table does not exist",
+                              message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
             return
 
         # turn the lists of column names into a usable sql string
@@ -316,7 +337,7 @@ class sql_query():
 
         query = "SELECT " + col_str + " FROM " + table_name + where_str + order_str
 
-        DEBUG.DEBUG.print (query)
+        DEBUG.LOGS.print (query)
         self.connect_db()
         self.cursor.execute( query, where_data )
         data = self.cursor.fetchall()
@@ -335,8 +356,8 @@ class sql_query():
         :return:
         """
         if not self.table_exist(table_name):
-            DEBUG.DEBUG.print("can not update row in table, table does not exist",
-                              message_type=DEBUG.DEBUG.MESSAGE_TYPE_ERROR)
+            DEBUG.LOGS.print("can not update row in table, table does not exist",
+                              message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
             return
 
         set_str = self.sql_string_builder(set_columns, ",")
@@ -347,7 +368,7 @@ class sql_query():
 
         query = "UPDATE "+table_name+" SET "+set_str+" WHERE "+where_str
 
-        DEBUG.DEBUG.print( query )
+        DEBUG.LOGS.print( query )
 
         self.cursor.execute(query, data)
 
