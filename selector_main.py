@@ -7,6 +7,15 @@ import time
 import Common.Globals as Global
 config = Global.GlobalConfig
 
+
+def client_connection_accepted ( conn ):
+    DEBUG.LOGS.print( "Client joined" )
+
+
+def passthrough_connection_accepted( host, port ):
+    pass
+
+
 if __name__ == "__main__":
     import mysql_setup
 
@@ -28,6 +37,10 @@ if __name__ == "__main__":
     socket_handler = SocketHandler.SocketHandler( config.get("host"), config.get("port"),
                                                   15, ServerSelectSocket.ServerSelectSocket)
 
+    # bind our actions onto the connection / protocol callbacks
+    socket_handler.accepted_client_bind( client_connection_accepted )
+
+    # Welcome the server
     DEBUG.LOGS.print("Welcome",config.get("host"), ":", config.get("port") )
 
     socket_handler.start()
