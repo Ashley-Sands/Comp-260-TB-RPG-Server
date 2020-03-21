@@ -32,8 +32,6 @@ if __name__ == "__main__":
     while not database.database.test_connection():
         time.sleep(10) # try every 10 seconds
 
-    mysql_setup.setup() # check that the sql is all set up correctly.
-
     socket_handler = SocketHandler.SocketHandler( config.get("host"), config.get("port"),
                                                   15, ServerSelectSocket.ServerSelectSocket)
 

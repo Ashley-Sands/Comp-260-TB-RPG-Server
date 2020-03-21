@@ -22,15 +22,13 @@ db = database.Database()
 
 # what for sql to come online
 while not db.database.test_connection():
-    time.sleep( 10 )  # try every 10 seconds
+    time.sleep( 3 )  # try every 10 seconds
 
-time.sleep( 3 )  # we'll just wait a lil longer befor adding to the db
-                 # As the db setup is not in the correct place atm
-                 # and we can tell if we insert befor or affter the
-                 # table is droped
+time.sleep( 1.1 )  # we'll just wait a lil longer befor adding to the db
 
-db.database.insert_row("games", ["available", "ip"], [True, host])
-print (">-----", db.database.select_from_table( "games", ["ip"] ) )
+
+db.database.insert_row("games", ["available", "host"], [True, host])
+print (">-----", db.database.select_from_table( "games", ["host"] ) )
 
 active_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 active_socket.bind( (host, port) )

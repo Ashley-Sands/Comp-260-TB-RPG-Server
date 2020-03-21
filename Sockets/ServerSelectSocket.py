@@ -19,7 +19,7 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
     def get_host ( self ):
 
         db = Database.Database()
-        ip = db.database.select_from_table( "games", ["ip"] )
+        ip = db.database.select_from_table( "games", ["host"] )
         print( ">>>>>>>>>>>>>> MY IP Resluts", ip )
         if len( ip ) > 0:
             print(ip[0][0])
