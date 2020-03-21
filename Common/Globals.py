@@ -24,9 +24,9 @@ class GlobalConfig:
 
 def setup():
 
-    Global.set("host", "192.168.0.1")
-    Global.set("port", 8222)
+    GlobalConfig.set("host", "192.168.0.1")
+    GlobalConfig.set("port", 8222)
 
-    Global.set("mysql_host", "192.168.0.1")
-    Global.set("mysql_user", "root")
-    Global.set("mysql_pass", "")
+    GlobalConfig.set("mysql_host", "192.168.0.1")
+    GlobalConfig.set("mysql_user", "root")
+    GlobalConfig.set("mysql_pass", "")
