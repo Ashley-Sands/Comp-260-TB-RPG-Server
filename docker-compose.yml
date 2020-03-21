@@ -11,7 +11,15 @@ services:
     networks:
       - front-tier
       - back-tier
-  
+
+  test_server:
+    image: test_server:0.1.1
+    working_dir: /services
+    volumes:
+      - ./:/services
+    networks:
+      - back-tier
+      
   sql:
     container_name: localhost_sql
     image: mariadb:10.4.12-bionic

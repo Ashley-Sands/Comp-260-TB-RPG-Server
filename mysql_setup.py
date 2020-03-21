@@ -9,6 +9,8 @@ RUN_SQL_TEST = False
 def setup():
     database = sql.sql_query( "tb_rpg", True )
 
+    database.drop_table("games")    #   // quick fix while we only support 1 host // TODO: fix
+
     database.add_table( "active_users", [ "uid", "nickname", "lobby_id", "reg_key" ],
                              [ "INT UNSIGNED NULL AUTO_INCREMENT KEY",
                                "VARCHAR(255) NOT NULL",
@@ -22,7 +24,7 @@ def setup():
                                "INT NOT NULL DEFAULT '-1'" ]
                              )
 
-    database.add_table( "games", [ "uid", "available", "ip", "port" ],
+    database.add_table( "games", [ "uid", "available", "ip", "port" ],  # TODO: change ip to host and remove port
                              [ "INT UNSIGNED NULL AUTO_INCREMENT KEY",
                                "BOOL NOT NULL DEFAULT TRUE",
                                "VARCHAR(16) NOT NULL DEFAULT '0.0.0.0'",
