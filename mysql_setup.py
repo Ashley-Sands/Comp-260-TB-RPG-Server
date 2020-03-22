@@ -61,4 +61,7 @@ if __name__ == "__main__":
     mysql_test()
 
     DEBUG.LOGS.print("SQL Setup complete")
+    time.sleep(2)
+
     DEBUG.LOGS.close()
+    print("Bey bey!")
