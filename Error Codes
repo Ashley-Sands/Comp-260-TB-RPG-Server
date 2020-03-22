@@ -1,0 +1,3 @@
+Error Codes that can be sent to client rather then the expected message
+
+-E001       Data could not be converted to json string.
