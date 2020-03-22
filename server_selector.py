@@ -12,7 +12,6 @@ def client_connection_accepted ( conn, addr ):
     conn.connect_passthrough( 8223 )
 
 if __name__ == "__main__":
-    import mysql_setup
 
     running = True
 
