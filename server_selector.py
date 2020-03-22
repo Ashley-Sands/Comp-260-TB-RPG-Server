@@ -7,14 +7,9 @@ import time
 import Common.Globals as Global
 config = Global.GlobalConfig
 
-
 def client_connection_accepted ( conn, addr ):
     DEBUG.LOGS.print( "Client joined", addr )
     conn.connect_passthrough( "DESKTOP-S8CVUEK", 8223 )
-
-def passthrough_connection_accepted( host, port ):
-    pass
-
 
 if __name__ == "__main__":
     import mysql_setup

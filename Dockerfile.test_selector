@@ -1,4 +1,4 @@
-# TEST SELECTOR
+# SERVER SELECTOR 0.1.5
 ######################
 
 FROM python:3.7.7-alpine3.11
@@ -12,6 +12,8 @@ EXPOSE 8222
 COPY py_requirements.txt ./
 RUN pip install --no-cache-dir -r py_requirements.txt
 
-COPY . .
+COPY ./server_selector.py ./
+COPY ./Common/ ./Common/
+COPY ./Sockets/ ./Sockets/
 
-CMD [ "python", "-u", "./selector_main.py" ]
+CMD [ "python", "-u", "./server_selector.py" ]
