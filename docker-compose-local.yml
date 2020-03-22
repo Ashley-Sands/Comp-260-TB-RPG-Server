@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   sql_setup:
-    image: gizzmo123456/game_server:sql_setup.0.1.3
+    image: sql_setup:0.1.3
     working_dir: /services
     volumes:
       - ./:/services
@@ -10,7 +10,7 @@ services:
       - back-tier
       
   selector:
-    image: gizzmo123456/game_server:server_selector.0.1.5
+    image: server_selector:0.1.5
     ports: 
       - 8222:8222
     working_dir: /services
@@ -21,7 +21,7 @@ services:
       - back-tier
 
   test_server:
-    image: gizzmo123456/game_server:test_server.0.1.4
+    image: test_server:0.1.4
     working_dir: /services
     volumes:
       - ./:/services
