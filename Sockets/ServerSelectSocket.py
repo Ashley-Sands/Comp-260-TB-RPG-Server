@@ -27,7 +27,7 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
         else:
             return ""
 
-    def connect_passthrough( self, ip, port  ):
+    def connect_passthrough( self, port  ):
         """
             Connect the passthrough
         :param ip:      the ip or host name (string)

@@ -9,7 +9,7 @@ config = Global.GlobalConfig
 
 def client_connection_accepted ( conn, addr ):
     DEBUG.LOGS.print( "Client joined", addr )
-    conn.connect_passthrough( "DESKTOP-S8CVUEK", 8223 )
+    conn.connect_passthrough( 8223 )
 
 if __name__ == "__main__":
     import mysql_setup
