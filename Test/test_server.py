@@ -40,10 +40,11 @@ while not connected:
     print( "client accepted @ ", addr )
     connected = True
 
+print("waiting to receive")
 while True:
-    print("waiting to recive")
     try:
         data = client_sock.recv(100)
         print (data)
+        client_sock.send(data)
     except Exception as e:
         print ("failed", e)

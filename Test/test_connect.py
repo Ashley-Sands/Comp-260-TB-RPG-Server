@@ -6,7 +6,7 @@ port = 8222
 
 connected = False
 sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-
+print(time.time())
 while not connected:
     try:
         sock.connect( (host, port) )
@@ -20,8 +20,11 @@ while True:
     time.sleep(3)
     print("pre send")
     try:
-        sock.send(b'helloo Wolrd')
-        print("message sent...")
+        send_time = time.time()
+        sock.send(b'ping')
+        data = sock.recv(100)
+        receive_time = time.time()
+        print("Ping:", (receive_time-send_time)*1000.0, "ms")
     except:
         print("failed")
         pass
