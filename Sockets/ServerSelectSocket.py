@@ -34,7 +34,7 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
         :param port:    the port            (int)
         :return:        None
         """
-        ip = self.gethost()
+        ip = self.get_host()
 
         DEBUG.LOGS.print("Connecting passthrough to server @ ", (ip, port) )
 
