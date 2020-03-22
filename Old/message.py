@@ -6,7 +6,7 @@ from messageActions import *
 from playerMessageTypes import *
 from playerMessageActions import *
 
-class Message:
+class Message_OLD:
 
     # dict of all new message functions
     # use self.new_message to create the correct type for that message class

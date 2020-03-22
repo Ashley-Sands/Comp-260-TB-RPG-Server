@@ -1,7 +1,7 @@
 # Fake Client...
 import socket
 import time
-host = "localhost_0"  # "DESKTOP-S8CVUEK"
+host = "159.65.80.187" # localhost_0"  # "DESKTOP-S8CVUEK"
 port = 8222
 
 connected = False

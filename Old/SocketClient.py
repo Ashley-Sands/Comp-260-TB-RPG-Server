@@ -138,7 +138,7 @@ class SocketClient:
 
             except Exception as e:
                 DEBUG.DEBUG.print( "Could not receive data", DEBUG.DEBUG.MESSAGE_TYPE_ERROR )
-                self.valid(False)
+                self.valid( False )
                 break
 
             DEBUG.DEBUG.print("Received message from ", self.client_key, "Len:",

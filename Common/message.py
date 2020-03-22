@@ -71,12 +71,14 @@ class Message:
         """
         self.message = Message.TYPES[self.identity](*params)
 
-    def set_from_json( self, from_connection, json_str ):
+    def set_from_json( self, json_str ):
         """set self.message with json string"""
         try:
             self.message = json.loads(json_str)
         except Exception as e:
             DEBUG.LOGS.print("Could not convert from json: ", json_str, message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
+
+        self.message["from_client_name"] = self.from_connection.client_nickname
 
     def get_json( self ):
         """get self.message as a json string"""
