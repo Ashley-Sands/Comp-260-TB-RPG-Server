@@ -11,6 +11,7 @@ class LOGS:
     MSG_TYPE_DEFAULT = 1
     MSG_TYPE_WARNING = 2
     MSG_TYPE_ERROR   = 3
+    MSG_TYPE_FATAL   = 4
 
     debug_mode = True
     que_pre_init_msg = True
@@ -59,6 +60,8 @@ class LOGS:
             message_type_name = "WARNING"
         elif message_type == LOGS.MSG_TYPE_ERROR:
             message_type_name = "ERROR  "
+        elif message_type == LOGS.MSG_TYPE_FATAL:
+            message_type_name = "FATAL"
         else:
             message_type_name = "MESSAGE"
 
@@ -95,6 +98,7 @@ class LOGS:
             LOGS.MSG_TYPE_DEFAULT: "\033[1;32m",
             LOGS.MSG_TYPE_WARNING: "\033[1;33m",
             LOGS.MSG_TYPE_ERROR: "\033[1;31m",
+            LOGS.MSG_TYPE_FATAL: "\033[1;31;40m",
         }
 
         return msg[ 0 ] + "|"+ cols[msg_type] + msg[ 1 ] + "\033[0;37m|" + '|'.join( msg[ 2: ] )
