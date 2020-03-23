@@ -3,6 +3,7 @@ import Common.DEBUG as DEBUG
 import Sockets.BaseSocket as BaseSocket
 import queue
 import threading
+import time
 
 class ServerModuleSocket( BaseSocket.BaseSocketClient ):
 
@@ -27,11 +28,16 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
     def send_message( self, message_obj ):
 
         # cue the message and if the send thread is not running start it :)
+        # discard if its marked with ERR
+        if message_obj.ERR:
+            return
+
         self._send_queue.put( message_obj )
 
         if self.outbound_thread is None:
-            self.outbound_thread = threading.Thread( target=self.send_message, args=(self.socket, ) )
+            self.outbound_thread = threading.Thread( target=self.send_thread, args=(self.socket, ) )
             self.outbound_thread.start()
+
 
     def send_thread( self, socket ):
 
@@ -55,7 +61,7 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
 
             # attempt to receive message
             try:
-                self.socket.send( msg_len + msg_type + msg_str.encode() )
+                socket.send( msg_len + msg_type + msg_str.encode() )
 
                 DEBUG.LOGS.print( "Message sent", msg_str, "len", len( msg_str ),
                                   "identity", chr( ord( message_obj.identity ) ) )
@@ -66,6 +72,7 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
                 self.valid( False )
 
         self.outbound_thread = None
+        DEBUG.LOGS.print("Exiting outbound")
 
     def receive_message_pending( self ):
         return not self._receive_queue.empty()
@@ -94,7 +101,7 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
 
                 msg_identity_data = socket.recv( self.MESSAGE_TYPE_PACKET_SIZE )
             except Exception as e:
-                DEBUG.LOGS.print( "Could not receive data", DEBUG.LOGS.MSG_TYPE_ERROR )
+                DEBUG.LOGS.print( "Could not receive data", e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
                 self.valid( False )
                 return
 
@@ -116,6 +123,17 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
             DEBUG.LOGS.print( "message ", json_str)
 
             message_obj = message.Message(msg_identity, self)
-            message_obj.set_from_json( json_str )
+            message_obj.set_from_json( "Client", json_str )
 
-            self._inbound_queue.put( message_obj )
+            self._receive_queue.put( message_obj )
+
+    def safe_close( self ):
+        """
+            Closes the connection once the send que is empty
+            Blocks until connection can close
+        """
+        DEBUG.LOGS.print(not self._send_queue.empty(), self.outbound_thread is not None)
+        while not self._send_queue.empty() or self.outbound_thread is not None:
+            pass # wait until the outbound thread stops
+
+        self.close()

@@ -54,7 +54,7 @@ class BaseSocketClient:
         return constants.SERVER_NAME
 
     def close_socket( self ):
-
+        self.socket.shutdown()
         self.socket.close()
 
     def join_threads( self ):
@@ -70,7 +70,7 @@ class BaseSocketClient:
 
     def close( self ):
         """
-            Closes the sockets and joins the threads
+            Closes the sockets and joins the threads asap (ignoring any queued tasks)
             Override close_socket and join_threads to extend
         """
         self.valid( False )

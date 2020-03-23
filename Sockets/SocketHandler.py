@@ -44,10 +44,10 @@ class SocketHandler:
 
         self._accepted_client_callback.append( ac_callback )
 
-    def invoke_accepted_callback( self, con_data, address_data ):
+    def invoke_accepted_callback( self, connection, address_data ):
 
         for f in self._accepted_client_callback:
-            f(con_data, address_data)
+            f(connection, address_data)
 
     def accept_connection( self, active_socket ):
 
@@ -59,6 +59,7 @@ class SocketHandler:
         while True:
 
             client_sock, addr = active_socket.accept()
+            DEBUG.LOGS.print( "Client Accepted" )
 
             if not self.accepting_connections:
                 continue
@@ -92,26 +93,30 @@ class SocketHandler:
 
     def remove_connection( self, sock ):
 
+        removed = False
         self.thread_lock.acquire()
 
         self.connections[sock].close()
 
         if sock in self.connections:
             del self.connections[sock]
-
+            removed = True
         self.thread_lock.release()
 
-    def clean_up( self ):
-        """Cleans up any invalid connections"""
+        return removed
 
-        self.thread_lock.acquire()
-
+    def process_connections( self, process_func=None ):
+        """
+            Cleans any zombie clients and pass the connection to the process func if available
+        :param process_func:    function with connection param
+        :return:
+        """
         # get all the keys from the connection so we can remove any invalid connections
         socks = list( self.connections )
         for s in socks:
-            if self.connections[s].valid():
-                self.connections[s].close() # make sure that all sockets are closed and thread has stopped.
-                del self.connections[s]
-                DEBUG.LOGS.print("Zombie client Remove")
+            if not self.connections[ s ].valid():
+                if self.remove_connection(s):
+                    continue
 
-        self.thread_lock.acquire()
+            if process_func is not None:
+                process_func( self.connections[s] )

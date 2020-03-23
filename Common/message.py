@@ -1,5 +1,6 @@
 import json
 import Common.DEBUG as DEBUG
+from Common.Protocols import request_types
 
 
 class Message:
@@ -7,7 +8,8 @@ class Message:
     # a list of all message types, there not all necessarily used in all modules but
     # for a easier life and reference
     TYPES = {
-
+        'i': request_types.identity_request,
+        'I': request_types.identity_status
     }
 
     # Action functions need to be bound onto there TYPE 'char'
@@ -61,24 +63,29 @@ class Message:
 
     def run_action( self ):
         """Run all the actions bound to this messages identity"""
-        for func in Message.ACTION[self.identity]:
-            func( self )
+        print("run action")
+        if not self.ERR:
+            for func in Message.ACTION[self.identity]:
+                func( self )
 
     def new_message( self, *params ):
         """
             Sets a new message
             See Message identity char TYPE of params!
         """
-        self.message = Message.TYPES[self.identity](*params)
 
-    def set_from_json( self, json_str ):
+        if not self.ERR:
+            self.message = Message.TYPES[self.identity](*params)
+
+
+    def set_from_json( self, from_name, json_str ):
         """set self.message with json string"""
         try:
             self.message = json.loads(json_str)
         except Exception as e:
             DEBUG.LOGS.print("Could not convert from json: ", json_str, message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
 
-        self.message["from_client_name"] = self.from_connection.client_nickname
+        self.message["from_client_name"] = from_name
 
     def get_json( self ):
         """get self.message as a json string"""

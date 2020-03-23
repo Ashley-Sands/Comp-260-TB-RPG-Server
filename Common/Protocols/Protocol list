@@ -1,0 +1,51 @@
+# definisons for all protocols python and c#
+
+# Template
+Protocol name       : Template
+Protocol identity   : [identity char]
+Message Origin      : [Client/Server]
+Services            : [serves(S/R)]
+Message Action      :
+    Server          :
+    Client          :
+Other Details       :
+Data
+    - string        from_client_name         nickname of origin
+    - [Type]        [name]
+    - [Type]        [name]
+
+===
+
+Protocol name       : identity request
+Protocol identity   : i
+Message Origin      : Server
+services            : Auth(S/R), Lobby(R), Game(R)
+Message Action      : The request from the auth server for the players id
+    Server          : Auth sends an empty request to the client for there identity
+                      when received by,
+                        Auth : Registers the client into the network
+                        Other: Checks that the client has arrived at the correct location
+                      Once the clients identity has been receive they are send a identity status update
+    Client          : When received fills in the required data and returns it to the server.
+Other Details       : Once the user has registered the passthrough will auth the client.
+Data
+    - string        from_client_name         nickname of origin
+    - string        client_id                the unique client id in the server
+    - string        nickname                 the nick name of the client
+    - string        reg_key                  clients reg key for if they get disconnected
+
+===
+
+Protocol name       : identity status
+Protocol identity   : I
+Message Origin      : Server
+Services            : Auth(S)
+Message Action      :
+    Server          : gives the client a status update on there identity
+    Client          :
+Other Details       :
+Data
+    - string        from_client_name        SERVER
+    - string        client_id               the id of the client in the db
+    - string        reg_key                 the clients reg key
+    - bool          ok                      status

@@ -13,8 +13,8 @@ class Database:
         DEBUG.LOGS.print( "Database Inited Successfully!" )
 
     def add_new_client( self, nickname ):
-        """Adds a new client
-
+        """
+            Adds a new client
         :return:    tuple of the client id and reg_id tuple(cid, rid)
         """
 
@@ -26,6 +26,32 @@ class Database:
         client_id = "client-{0}".format(uid)
 
         return client_id, reg_key
+
+    def select_client( self, reg_key ):
+        """
+            Selects users by there reg key
+        :param reg_key: the users reg key
+        :return:        if found the clients id and nickname otherwise None
+        """
+
+        user_data = self.database.select_from_table("active_users", ["uid", "nickname"], ["reg_key"], [reg_key])
+
+        # if theres more than one result somethings gone wrong
+        # remove both from the active users list
+        if len(user_data) > 1:
+            self.database.remove_row("active_users", ["reg_key"], [reg_key])
+            DEBUG.LOGS.print("Multiple reg keys found", user_data, message_type=DEBUG.LOGS.MSG_TYPE_FATAL)
+            return None
+        elif len(user_data) == 0:
+            return None
+
+        return user_data[0]
+
+    def update_client_nickname( self, reg_key, nickname ):
+
+        self.database.update_row("active_users",
+                                 ["nickname"], [nickname],
+                                 ["reg_key"],  [reg_key] )
 
     def add_new_lobby( self ):
 

@@ -27,6 +27,7 @@ class LOGS:
     __log_messages_to_file = False
     __log_warning_to_file = False
     __log_errors_to_file = True
+    __log_fatal_to_file = True
 
 
     @staticmethod
@@ -104,17 +105,19 @@ class LOGS:
         return msg[ 0 ] + "|"+ cols[msg_type] + msg[ 1 ] + "\033[0;37m|" + '|'.join( msg[ 2: ] )
 
     @staticmethod
-    def set_log_to_file( message=False, warning=False, error=True ):
+    def set_log_to_file( message=False, warning=False, error=True, fatal=True ):
         LOGS.__log_messages_to_file = message
         LOGS.__log_warning_to_file = warning
         LOGS.__log_error_to_file = error
+        LOGS.__log_fatal_to_file = fatal
 
     @staticmethod
     def add_to_logs( msg_type, message ):
 
         update_log = msg_type == LOGS.MSG_TYPE_DEFAULT and LOGS.__log_messages_to_file or \
                      msg_type == LOGS.MSG_TYPE_WARNING and LOGS.__log_warning_to_file or \
-                     msg_type == LOGS.MSG_TYPE_ERROR and LOGS.__log_errors_to_file
+                     msg_type == LOGS.MSG_TYPE_ERROR and LOGS.__log_errors_to_file or \
+                     msg_type == LOGS.MSG_TYPE_FATAL and LOGS.__log_fatal_to_file
 
         if update_log:
             if os.path.exists(LOGS.__log_path + LOGS.__log_name):

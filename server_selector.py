@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     # wait for db to connection
     while not database.database.test_connection():
-        time.sleep(10) # try every 10 seconds
+        time.sleep(5) # try every 5 seconds
 
     socket_handler = SocketHandler.SocketHandler( config.get("host"), config.get("port"),
                                                   15, ServerSelectSocket.ServerSelectSocket)
@@ -40,7 +40,8 @@ if __name__ == "__main__":
     while running:
 
         # clean up any zombie sockets
-        socket_handler.clean_up()
+        socket_handler.process_connections()
+        time.sleep(0.5)
 
         # reconnect any passthrough sockets that have become disconnected
         # this usually happens when the client is no longer welcome on the server
