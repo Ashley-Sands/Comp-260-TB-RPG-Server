@@ -1,7 +1,7 @@
 import Common.DEBUG as DEBUG
 import threading
 import Common.constants as constants
-
+import socket
 
 class BaseSocketClient:
     """Socket clients are used handle the clients inbound/outbound messages."""
@@ -54,7 +54,7 @@ class BaseSocketClient:
         return constants.SERVER_NAME
 
     def close_socket( self ):
-        self.socket.shutdown()
+        self.socket.shutdown( socket.SHUT_RDWR )
         self.socket.close()
 
     def join_threads( self ):
