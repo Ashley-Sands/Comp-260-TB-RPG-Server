@@ -27,7 +27,7 @@ class GlobalConfig:
 
 def setup():
 
-    # global connections
+    # global connections (ie online)
     if os.name == 'nt':  # local testing
         GlobalConfig.set("host", "localhost_0")
     else:  # docker production setup
@@ -35,9 +35,12 @@ def setup():
 
     GlobalConfig.set("port", 8222)
 
-    # local connections
-    GlobalConfig.set("internal_host", "127.0.0.1")#socket.gethostname())     # internal host address
-    GlobalConfig.set("internal_port", 8222)                     # internal port
+    # fixed local connections (all use the internal port, 8223)
+    GlobalConfig.set( "internal_host_auth", "localhost_auth" )
+
+    # dynamic local connections
+    GlobalConfig.set("internal_host", socket.gethostname())     # internal host address
+    GlobalConfig.set("internal_port", 8223)                     # internal port
 
     # MYSQL connection (local)
     GlobalConfig.set("mysql_host", "localhost_sql")

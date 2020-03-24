@@ -1,3 +1,4 @@
+import os
 import Common.DEBUG as DEBUG
 import Common.database as db
 import Sockets.ServerModuleSocket as ServerModuleSocket
@@ -77,7 +78,7 @@ if __name__ == "__main__":
     message.Message.bind_action("i", process_client_identity)
 
     # setup socket and bind to accept client socket
-    socket_handler = SocketHandler.SocketHandler( config.get( "internal_host" ), config.get( "internal_port" ),
+    socket_handler = SocketHandler.SocketHandler( config.get( "internal_host_auth" ), config.get( "internal_port" ),
                                                   15, ServerModuleSocket.ServerModuleSocket )
 
     socket_handler.accepted_client_bind( accept_client )
