@@ -30,7 +30,7 @@ Message Action      : The request from the auth server for the players id
 Other Details       : Once the user has registered the passthrough will auth the client.
 Data
     - string        from_client_name         nickname of origin
-    - string        client_id                the unique client id in the server
+    - int           client_id                the unique client id in the server
     - string        nickname                 the nick name of the client
     - string        reg_key                  clients reg key for if they get disconnected
 

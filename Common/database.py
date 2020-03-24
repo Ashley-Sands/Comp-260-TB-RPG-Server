@@ -23,7 +23,7 @@ class Database:
         self.database.insert_row("active_users", ["nickname", "reg_key"], [nickname, reg_key])
         uid = self.database.select_from_table( "active_users", ["uid, reg_key"], ["reg_key"], [reg_key] )[0][0]
 
-        client_id = "client-{0}".format(uid)
+        client_id = uid
 
         return client_id, reg_key
 
