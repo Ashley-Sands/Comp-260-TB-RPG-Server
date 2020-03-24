@@ -49,3 +49,20 @@ Data
     - string        client_id               the id of the client in the db
     - string        reg_key                 the clients reg key
     - bool          ok                      status
+
+==
+
+Protocol name       : lobby list
+Protocol identity   : 'l'               (lower L)
+Message Origin      : Server
+Services            : lobby(S)
+Message Action      : sent from server to the client every 30 odd seconds while the client is connected
+    Server          :
+    Client          :
+Other Details       :
+Data
+    - string        from_client_name         nickname of origin
+    - string[]      lobby names
+    - int[]         lobby ids
+    - int[]         current clients count
+    - int[]         max clients
