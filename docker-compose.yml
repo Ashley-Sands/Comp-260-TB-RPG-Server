@@ -18,7 +18,7 @@ services:
     networks:
       - back-tier
   
-  server_lobby:
+  server_lobbies:
     container_name: localhost_lobbies
     image: gizzmo123456/game_server:server_lobbies.0.1.0
     working_dir: /services

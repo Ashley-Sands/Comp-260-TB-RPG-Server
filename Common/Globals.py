@@ -37,7 +37,7 @@ def setup():
 
     # fixed local connections (all use the internal port, 8223)
     GlobalConfig.set( "internal_host_auth", "localhost_auth" )
-    GlobalConfig.set( "internal_host_lobbies", "localhost_lobby" )
+    GlobalConfig.set( "internal_host_lobbies", "localhost_lobbies" )
 
     # dynamic local connections
     GlobalConfig.set("internal_host", socket.gethostname())     # internal host address

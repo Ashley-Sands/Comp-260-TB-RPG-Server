@@ -16,7 +16,7 @@ MIN_LOBBY_COUNT = 2
 def procrcess_connection( conn ):
 
     if not conn.get_client_key()[1].strip():
-        DEBUG.LOGS.print( "Unable to process client, not set up", message_type=DEBUG.LOGS.MSG_TYPE_WARNING )
+        DEBUG.LOGS.print( "Unable to process client, not set up", conn.get_client_key(), message_type=DEBUG.LOGS.MSG_TYPE_WARNING )
         return
 
     if time.time() > conn.next_update_time:
@@ -48,6 +48,7 @@ def procrcess_connection( conn ):
 
 def process_client_identity( message_obj ):
 
+    DEBUG.LOGS.print("Recivedd id", message_obj["client_id"], message_obj["reg_key"] )
     from_conn = message_obj.from_connection
     # add the clients data to the connection
     from_conn.set_client_key( message_obj["client_id"], message_obj["reg_key"] )
@@ -71,13 +72,13 @@ if __name__ == "__main__":
     port = config.get( "internal_port" )
 
     # setup socket and bind to accept client socket
-    socket_handler = SocketHandler.SocketHandler( config.get( "internal_host_lobby" ), port,
+    socket_handler = SocketHandler.SocketHandler( config.get( "internal_host_lobbies" ), port,
                                                   15, ServerLobbySocket.ServerLobbySocket )
+
+    socket_handler.start()
 
     # Welcome the server
     DEBUG.LOGS.print("Welcome",config.get("internal_host_lobbies"), ":", config.get("internal_port") )
-
-    socket_handler.start()
 
     while running:
         # lets keep it clean :)

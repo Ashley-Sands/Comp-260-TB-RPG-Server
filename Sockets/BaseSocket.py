@@ -14,6 +14,7 @@ class BaseSocketClient:
 
         self.socket = socket
         # might be worth putting theses in the base class :)
+
         self._client_db_id = ""
         self._reg_key = ""
 

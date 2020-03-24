@@ -30,7 +30,7 @@ def get_host( conn ):
             return -1, None
         else:
             # TODO: tell the client where to go.
-            return conn.CONN_TYPE_DEFAULT, config.get( "internal_host_lobby" )
+            return conn.CONN_TYPE_DEFAULT, config.get( "internal_host_lobbies" )
 
 def client_connection_accepted ( conn, addr ):
     DEBUG.LOGS.print( "Client joined", addr )

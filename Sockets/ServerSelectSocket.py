@@ -76,10 +76,14 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
             self.passthrough_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
                 self.passthrough_socket.connect( (host, port) )
-                self.passthrough_mode(True)
+                # the auth server will request the data once it ready
+                if conn_mode != self.CONN_TYPE_AUTH:
+                    self.send_client_data_to_server()
 
+                self.passthrough_mode(True)
             except Exception as e:
                 DEBUG.LOGS.print("Could not connect passthrough", (host, port), e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
+                self.passthrough_mode( False )
                 return
 
             # start the outbound thread now we have connected to the server.
@@ -89,6 +93,18 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
             self.conn_mode( conn_mode )
 
         self.connect_passthrough_thread = None
+
+    def send_client_data_to_server( self, pass_sock ):
+        """Send the clients data to the server we have just connected to"""
+
+        identity_msg = message.Message("i")
+        identity_msg.new_message( self.get_client_key()[0], "", self.get_client_key()[1] )
+
+        msg = identity_msg.get_json()
+        len_data = len(msg).to_bytes(self.MESSAGE_LEN_PACKET_SIZE, self.BYTE_ORDER)
+        chr_data = ord('i').to_bytes(self.MESSAGE_TYPE_PACKET_SIZE, self.BYTE_ORDER)
+
+        return self.send_data( pass_sock, len_data + chr_data + msg.encode(), "id sender" )
 
     def start( self ):
 
