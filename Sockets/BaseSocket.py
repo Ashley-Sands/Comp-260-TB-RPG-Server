@@ -54,8 +54,15 @@ class BaseSocketClient:
         return constants.SERVER_NAME
 
     def close_socket( self ):
-        self.socket.shutdown( socket.SHUT_RDWR )
-        self.socket.close()
+        try:
+            self.socket.shutdown( socket.SHUT_RDWR )
+        except:
+            pass
+
+        try:
+            self.socket.close()
+        except Exception as e:
+            DEBUG.LOGS.print("Bad socket: ", e, DEBUG.LOGS.MSG_TYPE_WARNING)
 
     def join_threads( self ):
         """
@@ -77,3 +84,4 @@ class BaseSocketClient:
 
         self.close_socket()
         self.join_threads()
+        DEBUG.LOGS.print( "Client Socket Closed" )
