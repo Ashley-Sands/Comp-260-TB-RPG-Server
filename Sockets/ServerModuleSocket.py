@@ -12,6 +12,7 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
         super().__init__( socket )
 
         self.client_nickname = "None"
+
         self._receive_queue = queue.Queue()
         self._send_queue = queue.Queue()
 

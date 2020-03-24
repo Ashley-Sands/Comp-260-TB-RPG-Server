@@ -13,7 +13,9 @@ class BaseSocketClient:
     def __init__( self, socket ):
 
         self.socket = socket
-        self.db_client_key = -1
+        # might be worth putting theses in the base class :)
+        self._client_db_id = ""
+        self._reg_key = ""
 
         self.thread_lock = threading.Lock()
         self.inbound_thread = None
@@ -52,6 +54,28 @@ class BaseSocketClient:
             By default this is 'SERVER' (constants.SERVER_NAME)
         """
         return constants.SERVER_NAME
+
+    def set_client_key( self, client_db_id, reg_key ):  # TODO: Move into the Base Class??
+        """Thread safe method to set the client id and reg key"""
+
+        self.thread_lock.acquire()
+        self._client_db_id = client_db_id
+        self._reg_key = reg_key
+        self.thread_lock.release()
+
+    def get_client_key( self ):
+        """Thread safe method to get the clients db id and reg key
+        :return: tuple ((int)id, (string)key)
+        """
+
+        self.thread_lock.acquire()
+
+        cid = self._client_db_id
+        rkey = self._reg_key
+
+        self.thread_lock.release()
+
+        return cid, rkey
 
     def close_socket( self ):
         try:

@@ -28,10 +28,6 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
         self.outbound_thread = None
         self._outbound_queue = queue.Queue()
 
-        # might be worth putting theses in the base class :)
-        self._client_db_id = ""
-        self._reg_key = ""
-
         self._passthrough_mode = False
         self.passthrough_socket = None
 
@@ -48,28 +44,6 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
         self.thread_lock.release()
 
         return mode
-
-    def set_client_key( self, client_db_id, reg_key ):  # TODO: Move into the Base Class??
-        """Thread safe method to set the client id and reg key"""
-
-        self.thread_lock.acquire()
-        self._client_db_id = client_db_id
-        self._reg_key = reg_key
-        self.thread_lock.release()
-
-    def get_client_key( self ):
-        """Thread safe method to get the clients db id and reg key
-        :return: tuple ((int)id, (string)key)
-        """
-
-        self.thread_lock.acquire()
-
-        cid = self._client_db_id
-        rkey = self._reg_key
-
-        self.thread_lock.release()
-
-        return cid, rkey
 
     def connect_passthrough( self, conn_mode, host, port ):
         """
