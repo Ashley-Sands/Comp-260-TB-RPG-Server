@@ -68,11 +68,11 @@ class Database:
 
     def get_client_lobby( self, reg_key ):
 
-        user_data = self.database.select_from_table("active_users", ["uid"], ["reg_key"], [reg_key])
+        user_data = self.database.select_from_table("active_users", ["lobby_id"], ["reg_key"], [reg_key])
 
         if not self.valid_user_response( user_data, reg_key ):
             return None
-
+        print(user_data)
         return user_data[0][0]
 
 

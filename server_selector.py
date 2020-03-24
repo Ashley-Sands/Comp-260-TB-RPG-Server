@@ -25,12 +25,12 @@ def get_host( conn ):
         # get the clients data.
         reg_key = conn.get_client_key()[1]
         current_lobby = database.get_client_lobby( reg_key )
-
+        print(current_lobby)
         if current_lobby > -1:
-            pass
+            return -1, None
         else:
             # TODO: tell the client where to go.
-            return conn.CONN_TYPE_DEFAULT, config.get( "internal_host_lobbies" )
+            return conn.CONN_TYPE_DEFAULT, config.get( "internal_host_lobby" )
 
 def client_connection_accepted ( conn, addr ):
     DEBUG.LOGS.print( "Client joined", addr )

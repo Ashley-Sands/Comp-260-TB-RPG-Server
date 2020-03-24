@@ -19,7 +19,7 @@ services:
       - back-tier
   
   server_lobby:
-    container_name: localhost_lobby
+    container_name: localhost_lobbies
     image: gizzmo123456/game_server:server_lobbies.0.1.0
     working_dir: /services
     volumes:

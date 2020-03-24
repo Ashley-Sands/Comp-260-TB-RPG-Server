@@ -5,6 +5,7 @@ import Sockets.SocketHandler as SocketHandler
 import Common.constants as const
 import Common.message as message
 import time
+import os
 import Common.Globals as Global
 config = Global.GlobalConfig
 
@@ -14,7 +15,7 @@ MIN_LOBBY_COUNT = 2
 
 def procrcess_connection( conn ):
 
-    if not conn.reg_key.strip():
+    if not conn.get_client_key()[1].strip():
         DEBUG.LOGS.print( "Unable to process client, not set up", message_type=DEBUG.LOGS.MSG_TYPE_WARNING )
         return
 
@@ -67,8 +68,10 @@ if __name__ == "__main__":
     # bind message functions
     message.Message.bind_action( "i", process_client_identity )
 
+    port = config.get( "internal_port" )
+
     # setup socket and bind to accept client socket
-    socket_handler = SocketHandler.SocketHandler( config.get( "internal_host_lobbies" ), config.get( "internal_port" ),
+    socket_handler = SocketHandler.SocketHandler( config.get( "internal_host_lobby" ), port,
                                                   15, ServerLobbySocket.ServerLobbySocket )
 
     # Welcome the server
