@@ -7,13 +7,30 @@ import time
 import Common.Globals as Global
 config = Global.GlobalConfig
 
+
+def get_host( conn ):
+    """
+        Gets the host and connect type
+    :param conn:    the connection of the target host that we want
+    :return:        tuple ( connection type, host )
+    """
+
+    # find the players current state
+    if not conn.get_client_key()[ 1 ].strip():
+        # if there is no reg key the user needs to be authed into the system
+        # so we can determin what to do with them
+        conn.conn_mode( conn.CONN_TYPE_AUTH )
+        return conn.CONN_TYPE_AUTH, config.get( "internal_host_auth" )
+    else:
+        return -1, ""
+
 def client_connection_accepted ( conn, addr ):
     DEBUG.LOGS.print( "Client joined", addr )
-    conn.connect_passthrough( *conn.get_host(), 8223 )
+    conn.connect_passthrough( *get_host( conn ), 8223 )
 
 def process_connections( conn ):
     if not conn.passthrough_mode():
-        conn.connect_passthrough( *conn.get_host(), 8223 )
+        conn.connect_passthrough( *get_host( conn ), 8223 )
         pass
 
 if __name__ == "__main__":

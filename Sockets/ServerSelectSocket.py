@@ -53,8 +53,8 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
         """Thread safe method to set the client id and reg key"""
 
         self.thread_lock.acquire()
-        _client_db_id = client_db_id
-        _reg_key = reg_key
+        self._client_db_id = client_db_id
+        self._reg_key = reg_key
         self.thread_lock.release()
 
     def get_client_key( self ):
@@ -70,21 +70,6 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
         self.thread_lock.release()
 
         return cid, rkey
-
-    def get_host ( self ):
-        """Gets the host and connect type
-        :return:    tuple ( connection type, host )
-        """
-        db = Database.Database()
-
-        # find the players current state
-        if not self.get_client_key()[1].strip():
-            # if there is no reg key the user needs to be authed into the system
-            # so we can determin what to do with them
-            self.conn_mode( self.CONN_TYPE_AUTH )
-            return self.CONN_TYPE_AUTH, config.get("internal_host_auth")
-        else:
-            return -1, ""
 
     def connect_passthrough( self, conn_mode, host, port ):
         """
