@@ -13,6 +13,19 @@ class Database:
 
         DEBUG.LOGS.print( "Database Inited Successfully!" )
 
+    def valid_user_response( self, user_data, reg_key ):
+        """Makes sure there was only 1 responce, removes dups (both copys)"""
+        # if theres more than one result somethings gone wrong
+        # remove both from the active users list
+        if len(user_data) > 1:
+            self.database.remove_row("active_users", ["reg_key"], [reg_key])
+            DEBUG.LOGS.print("Multiple reg keys found", user_data, message_type=DEBUG.LOGS.MSG_TYPE_FATAL)
+            return False
+        elif len(user_data) == 0:
+            return False
+
+        return True
+
     def add_new_client( self, nickname ):
         """
             Adds a new client
@@ -43,21 +56,25 @@ class Database:
         """
             Selects users by there reg key
         :param reg_key: the users reg key
-        :return:        if found the clients id and nickname otherwise None
+        :return:        if found the clients id nickname otherwise None
         """
 
         user_data = self.database.select_from_table("active_users", ["uid", "nickname"], ["reg_key"], [reg_key])
 
-        # if theres more than one result somethings gone wrong
-        # remove both from the active users list
-        if len(user_data) > 1:
-            self.database.remove_row("active_users", ["reg_key"], [reg_key])
-            DEBUG.LOGS.print("Multiple reg keys found", user_data, message_type=DEBUG.LOGS.MSG_TYPE_FATAL)
-            return None
-        elif len(user_data) == 0:
+        if not self.valid_user_response( user_data, reg_key ):
             return None
 
         return user_data[0]
+
+    def get_client_lobby( self, reg_key ):
+
+        user_data = self.database.select_from_table("active_users", ["uid"], ["reg_key"], [reg_key])
+
+        if not self.valid_user_response( user_data, reg_key ):
+            return None
+
+        return user_data[0][0]
+
 
     def update_client_nickname( self, reg_key, nickname ):
 
