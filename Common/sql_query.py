@@ -235,7 +235,7 @@ class sql_query():
         self.close_db()
 
         DEBUG.LOGS.print("Table Created")
-        return None
+        return None, None
 
     def drop_table(self, table_name):
         """drops table from database"""
@@ -276,6 +276,41 @@ class sql_query():
             DEBUG.LOGS.print("query: ", query, "Data", value_data)
 
         self.cursor.execute(query, value_data)
+
+        self.close_db()
+
+        DEBUG.LOGS.print("data Inserted to table")
+
+    def insert_rows(self, table_name, value_columns, value_data):
+        """Inserts rots into table
+        :param table_name:  name of table to insert data into
+        :param value_columns: List of columns
+        :param value_data:  list of list [[v1 col1, v1 col2...], [v2 col1, v2 col2...], ...]
+        """
+        if not self.table_exist(table_name):
+            DEBUG.LOGS.print("Error: can not insert row into table, table does not exist",
+                              message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
+            return
+
+        self.connect_db()
+
+        if self.using_mysql:
+            val_str = "%s"
+        else:
+            val_str = "?"
+
+        val_len = len(value_columns)
+
+        for val in value_data:
+            col_name_str = ', '.join(value_columns)
+            col_value_str = ', '.join([val_str] * val_len)
+
+            query = "INSERT INTO " + table_name + " (" + col_name_str + ") VALUES (" + col_value_str + ") "
+            DEBUG.LOGS.print(query, val)
+            if Global.DEBUG:
+                DEBUG.LOGS.print("query: ", query, "Data", val)
+
+            self.cursor.execute(query, val)
 
         self.close_db()
 

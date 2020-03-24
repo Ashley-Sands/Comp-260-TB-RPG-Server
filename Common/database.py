@@ -2,6 +2,7 @@ import Common.sql_query as sql
 import hashlib
 import time
 import Common.DEBUG as DEBUG
+import random
 
 class Database:
 
@@ -26,6 +27,17 @@ class Database:
         client_id = uid
 
         return client_id, reg_key
+
+    def get_random_name( self ):
+
+        rand = random.random()
+        query = "SELECT word FROM {0} WHERE id >= {1} * (SELECT MAX(id) FROM {0})"
+        adj = self.database.execute( query.format( "names_list_adjective", rand ), [] )[0][0]
+
+        rand = random.random()
+        noun = self.database.execute( query.format( "names_list_nouns", rand ), [] )[0][0]
+
+        return adj[0:1].upper() + adj[1:].lower() + " " + noun[0:1].upper() + noun[1:]
 
     def select_client( self, reg_key ):
         """

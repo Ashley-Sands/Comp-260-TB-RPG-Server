@@ -13,8 +13,9 @@ def accept_client( connection, address ):
 
 def request_client_identity( connection ):
 
+    nickname = database.get_random_name()
     identity_request = message.Message( 'i' )
-    identity_request.new_message( const.SERVER_NAME, "", "", "" )
+    identity_request.new_message( const.SERVER_NAME, "", nickname, "" )
 
     connection.send_message( identity_request )
 
@@ -41,7 +42,7 @@ def process_client_identity( message_obj ):
 
     # if the reg key is empty assign a new one.
     if len(reg_key) == 0:
-        # assign new reg key
+        # assign new reg key and nickname
         client_id, reg_key = database.add_new_client( nickname )
 
     status_message = message.Message( 'I' )

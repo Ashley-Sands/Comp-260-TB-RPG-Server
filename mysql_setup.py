@@ -4,7 +4,7 @@ import time
 import Common.DEBUG as DEBUG
 import Common.sql_query as sql
 import Common.Globals as Global
-
+import mysql_setup_randomNames as randomNames
 RUN_SQL_TEST = False
 
 
@@ -42,6 +42,23 @@ def setup():
                                "INT NOT NULL DEFAULT '1'",
                                "INT NOT NULL DEFAULT '2'" ]
                              )
+
+    # set up the random name Database
+    exist = database.add_table( "names_list_nouns", ["id", "word"],
+                        ["INT UNSIGNED NULL AUTO_INCREMENT KEY",
+                         "VARCHAR(255) NOT NULL"]
+                        )[0] == 404
+
+    if not exist:
+        randomNames.add_nouns_to_database(database)
+
+    exist = database.add_table( "names_list_adjective", [ "id", "word" ],
+                        [ "INT UNSIGNED NULL AUTO_INCREMENT KEY",
+                          "VARCHAR(255) NOT NULL" ]
+                        )[0] == 404
+
+    if not exist:
+        randomNames.add_adjective_to_database(database)
 
     DEBUG.LOGS.print( "Database Setup Finished!" )
 
