@@ -55,7 +55,7 @@ class BaseSocketClient:
         """
         return constants.SERVER_NAME
 
-    def set_client_key( self, client_db_id, reg_key ):  # TODO: Move into the Base Class??
+    def set_client_key( self, client_db_id, reg_key ):
         """Thread safe method to set the client id and reg key"""
 
         self.thread_lock.acquire()
