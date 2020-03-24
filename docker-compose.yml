@@ -8,7 +8,25 @@ services:
       - ./:/services
     networks:
       - back-tier
-      
+  
+  server_auth:
+    container_name: localhost_auth
+    image: gizzmo123456/game_server:server_auth.0.1.0
+    working_dir: /services
+    volumes:
+      - ./:/services
+    networks:
+      - back-tier
+  
+  server_lobby:
+    container_name: localhost_lobby
+    image: gizzmo123456/game_server:server_lobbies.0.1.0
+    working_dir: /services
+    volumes:
+      - ./:/services
+    networks:
+      - back-tier
+  
   selector:
     image: gizzmo123456/game_server:server_selector.0.1.5
     ports: 
@@ -18,14 +36,6 @@ services:
       - ./:/services
     networks:
       - front-tier
-      - back-tier
-
-  test_server:
-    image: gizzmo123456/game_server:test_server.0.1.4
-    working_dir: /services
-    volumes:
-      - ./:/services
-    networks:
       - back-tier
       
   sql:
