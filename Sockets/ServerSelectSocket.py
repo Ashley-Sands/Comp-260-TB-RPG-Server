@@ -78,7 +78,7 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
                 self.passthrough_socket.connect( (host, port) )
                 # the auth server will request the data once it ready
                 if conn_mode != self.CONN_TYPE_AUTH:
-                    self.send_client_data_to_server()
+                    self.send_client_data_to_server( self.passthrough_socket )
 
                 self.passthrough_mode(True)
             except Exception as e:
@@ -98,7 +98,7 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
         """Send the clients data to the server we have just connected to"""
 
         identity_msg = message.Message("i")
-        identity_msg.new_message( self.get_client_key()[0], "", self.get_client_key()[1] )
+        identity_msg.new_message( constants.SERVER_NAME, self.get_client_key()[0], "", self.get_client_key()[1] )
 
         msg = identity_msg.get_json()
         len_data = len(msg).to_bytes(self.MESSAGE_LEN_PACKET_SIZE, self.BYTE_ORDER)

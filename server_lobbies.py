@@ -15,6 +15,10 @@ MIN_LOBBY_COUNT = 2
 
 def procrcess_connection( conn ):
 
+    # process any messages from the client
+    while conn.receive_message_pending():
+        conn.receive_message().run_action()
+
     if not conn.get_client_key()[1].strip():
         DEBUG.LOGS.print( "Unable to process client, not set up", conn.get_client_key(), message_type=DEBUG.LOGS.MSG_TYPE_WARNING )
         return
@@ -67,7 +71,7 @@ if __name__ == "__main__":
     database = db.Database()
 
     # bind message functions
-    message.Message.bind_action( "i", process_client_identity )
+    message.Message.bind_action( 'i', process_client_identity )
 
     port = config.get( "internal_port" )
 

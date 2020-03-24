@@ -1,6 +1,6 @@
 import json
 import Common.DEBUG as DEBUG
-from Common.Protocols import request_types
+from Common.Protocols import request_types, info_types
 
 
 class Message:
@@ -9,7 +9,8 @@ class Message:
     # for a easier life and reference
     TYPES = {
         'i': request_types.identity_request,
-        'I': request_types.identity_status
+        'I': request_types.identity_status,
+        'l': info_types.lobby_list
     }
 
     # Action functions need to be bound onto there TYPE 'char'
