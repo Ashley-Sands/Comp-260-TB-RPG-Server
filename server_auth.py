@@ -84,7 +84,7 @@ if __name__ == "__main__":
     socket_handler.accepted_client_bind( accept_client )
 
     # Welcome the server
-    DEBUG.LOGS.print("Welcome",config.get("internal_host"), ":", config.get("internal_port") )
+    DEBUG.LOGS.print("Welcome",config.get("internal_host_auth"), ":", config.get("internal_port") )
 
     socket_handler.start()
 

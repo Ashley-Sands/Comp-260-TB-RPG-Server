@@ -9,7 +9,12 @@ config = Global.GlobalConfig
 
 def client_connection_accepted ( conn, addr ):
     DEBUG.LOGS.print( "Client joined", addr )
-    conn.connect_passthrough( 8223 )
+    conn.connect_passthrough( *conn.get_host(), 8223 )
+
+def process_connections( conn ):
+    if not conn.passthrough_mode():
+        conn.connect_passthrough( *conn.get_host(), 8223 )
+        pass
 
 if __name__ == "__main__":
 
@@ -40,7 +45,7 @@ if __name__ == "__main__":
     while running:
 
         # clean up any zombie sockets
-        socket_handler.process_connections()
+        socket_handler.process_connections( process_connections )
         time.sleep(0.5)
 
         # reconnect any passthrough sockets that have become disconnected

@@ -4,53 +4,132 @@ import Sockets.BaseSocket as BaseSocket
 import threading
 import Common.database as Database
 import Common.constants as constants
+import queue
+import Common.message as message
+import Common.Globals
+config = Common.Globals.GlobalConfig
 
 
 class ServerSelectSocket( BaseSocket.BaseSocketClient ):
     """ServerSelectSocket re-directs the clients to the correct location within the network"""
 
+    CONN_TYPE_DEFAULT   = 0     # default passthrough mode
+    CONN_TYPE_AUTH      = 1     # auth mode intersects messages from the passthrough connection
+    CONN_TYPE_OUTBOUND  = 2     # sends messages to the client only (get send when internal server disconnects)
+
     def __init__(self, client_socket):
 
         super().__init__( client_socket )
 
+        self._conn_mode = ServerSelectSocket.CONN_TYPE_OUTBOUND
+
+        # waits until all outgoing messages have been sent to connect the passthrough
+        self.connect_passthrough_thread = None
+        self.outbound_thread = None
+        self._outbound_queue = queue.Queue()
+
+        # might be worth putting theses in the base class :)
+        self._client_db_id = ""
+        self._reg_key = ""
+
         self._passthrough_mode = False
         self.passthrough_socket = None
 
-    def get_host ( self ):
+    def conn_mode( self, mode=None ):
+        """thread safe mode to gets and set conn mode"""
 
-        db = Database.Database()
-        ip = db.database.select_from_table( "games", ["host"] )
-        print( ">>>>>>>>>>>>>> MY IP Resluts", ip )
-        if len( ip ) > 0:
-            print(ip[0][0])
-            return ip[0][0]
+        self.thread_lock.acquire()
+
+        if mode is None:
+            mode = self._conn_mode
         else:
-            return ""
+            self._conn_mode = mode
 
-    def connect_passthrough( self, port  ):
+        self.thread_lock.release()
+
+        return mode
+
+    def set_client_key( self, client_db_id, reg_key ):  # TODO: Move into the Base Class??
+        """Thread safe method to set the client id and reg key"""
+
+        self.thread_lock.acquire()
+        _client_db_id = client_db_id
+        _reg_key = reg_key
+        self.thread_lock.release()
+
+    def get_client_key( self ):
+        """Thread safe method to get the clients db id and reg key
+        :return: tuple ((int)id, (string)key)
+        """
+
+        self.thread_lock.acquire()
+
+        cid = self._client_db_id
+        rkey = self._reg_key
+
+        self.thread_lock.release()
+
+        return cid, rkey
+
+    def get_host ( self ):
+        """Gets the host and connect type
+        :return:    tuple ( connection type, host )
+        """
+        db = Database.Database()
+
+        # find the players current state
+        if not self.get_client_key()[1].strip():
+            # if there is no reg key the user needs to be authed into the system
+            # so we can determin what to do with them
+            self.conn_mode( self.CONN_TYPE_AUTH )
+            return self.CONN_TYPE_AUTH, config.get("internal_host_auth")
+        else:
+            return -1, ""
+
+    def connect_passthrough( self, conn_mode, host, port ):
         """
             Connect the passthrough
-        :param ip:      the ip or host name (string)
-        :param port:    the port            (int)
-        :return:        None
+        :param conn_mode:   the mode to change to. (ignores outbound mode.)
+        :param host:        the ip or host name (string)
+        :param port:        the port            (int)
+        :return:            None
         """
-        ip = self.get_host()
 
-        DEBUG.LOGS.print("Connecting passthrough to server @ ", (ip, port) )
+        # can not que type outbound.
+        # the outbound mode is set when the internal server disconnects
+        if conn_mode == self.CONN_TYPE_OUTBOUND:
+            return
+
+        if self.connect_passthrough_thread is None:
+            self.connect_passthrough_thread = threading.Thread( target=self.que_connect_passthrough_thread,
+                                                                args=( conn_mode, host, port) )
+            self.connect_passthrough_thread.start()
+
+    def que_connect_passthrough_thread( self, conn_mode, host, port ):
+
+        DEBUG.LOGS.print("Connecting passthrough to server @ ", (host, port) )
+
+        # wait until all messages have been sent while in outbound mode
+        while self.CONN_TYPE_OUTBOUND and not self._outbound_queue.empty():
+            pass    # should sleep.
 
         if not self.passthrough_mode():  # can only create new socket when not in passthrough
             self.passthrough_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
-                self.passthrough_socket.connect( (ip, port) )
+                self.passthrough_socket.connect( (host, port) )
                 self.passthrough_mode(True)
+
             except Exception as e:
-                DEBUG.LOGS.print("Could not connect passthrough", (ip, port), e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
+                DEBUG.LOGS.print("Could not connect passthrough", (host, port), e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
                 return
 
             # start the outbound thread now we have connected to the server.
             self.outbound_thread = threading.Thread( target=self.passthrough_send_thread,
                                                      args=(self.socket, ) )
             self.outbound_thread.start()
+            self.conn_mode( conn_mode )
+
+        self.connect_passthrough_thread = None
 
     def start( self ):
 
@@ -70,14 +149,17 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
         If is_valid is None, it is not set
         """
 
-        self.thread_lock.acquire()
 
         if active is not None:
+            self.thread_lock.acquire()
             self._passthrough_mode = active
+            self.thread_lock.release()
 
         active = self._passthrough_mode
 
-        self.thread_lock.release()
+        if not active:
+            self.conn_mode(self.CONN_TYPE_OUTBOUND)
+
 
         return active
 
@@ -104,12 +186,30 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
             # get identity char and message body
             message_data = sock.recv( message_length )
 
+            if self.conn_mode() == self.CONN_TYPE_AUTH:
+                self.intersect_data( message_data[0], message_data[1:] )
+
             return message_length_data + message_data
 
         except Exception as e:
             DEBUG.LOGS.print( socket_name, "socket has died (", e, ")",
                               message_type=DEBUG.LOGS.MSG_TYPE_WARNING )
             return None
+
+    def intersect_data( self, id_byte, json_bytes ):
+        """
+
+        :param id_byte:     the identity char byte
+        :param json_bytes:  json bytes
+        :return:
+        """
+
+        identity = chr( id_byte )
+        if identity == 'I':
+            msg = message.Message( identity )
+            msg.set_from_json( constants.SERVER_NAME, json_bytes.decode() )
+            self.set_client_key( msg["client_id"], msg["reg_key"] )
+            DEBUG.LOGS.print("Client Idenity Set. id", msg["client_id"], "reg key", msg["reg_key"])
 
     def send_data ( self, sock, data, socket_name ):
         """
@@ -181,6 +281,42 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
             # send the data onto the client
             if not self.send_data( client_socket, data, "passthrough snd" ):
                 self.valid( False )
+
+    def send_message( self, message_obj ):
+        """ques messages to be send if in outbound mode."""
+
+        if self.conn_mode() == self.CONN_TYPE_OUTBOUND:
+
+            self._outbound_queue.put( message_obj )
+
+            if self.outbound_thread is None:
+                self.outbound_thread = threading.Thread( target=self.send_thread, args=(self.socket, ) )
+                self.outbound_thread.start()
+
+    def send_thread( self, client_socket ):
+        """Send thread when not in pass through mode"""
+
+        # send for as long as we are vaild, in outbound mode and have messages to senf.
+        while self.valid() and self.conn_mode() == self.CONN_TYPE_OUTBOUND and not self._outbound_queue.empty():
+
+            message_obj = self._outbound_queue.get()
+            msg_str = message_obj.get_json()
+
+            # convert the message len and identity char to bytes
+            msg_len = len( msg_str ).to_bytes( self.MESSAGE_LEN_PACKET_SIZE, self.BYTE_ORDER )
+            msg_type = ord( message_obj.identity ).to_bytes( self.MESSAGE_TYPE_PACKET_SIZE, self.BYTE_ORDER )
+
+            # check that the message is within the max message size
+            if len( msg_str ) > pow( 255, self.MESSAGE_LEN_PACKET_SIZE ):
+                DEBUG.LOGS.print( "Message has exceeded the max message length.",
+                                  message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
+                return
+
+            if not self.send_data( client_socket, (msg_len + msg_type + msg_str.encode()) , "socket outbound" ):
+                self.valid( False )
+
+        self.outbound_thread = None
+
 
     def close_socket( self ):
 
