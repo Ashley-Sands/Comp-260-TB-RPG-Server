@@ -14,7 +14,29 @@ Data
     - [Type]        [name]
     - [Type]        [name]
 
-===
+================================================================================
+
+Protocol name       : server status
+Protocol identity   : !
+Message Origin      : server
+Services            : ALL (S)
+Message Action      :
+    Server          : Sent from the server to the client with the current status
+                      of the users request.
+    Client          :
+Other Details       : This will be mostly used for errors.
+Status types        :
+                (add 'SS_' to start in python)
+                - SERVER            = 0
+                - LOBBY_REQUEST     = 1
+                -
+Data
+    - string        from_client_name         nickname of origin
+    - int           status_type
+    - bool          ok
+    - string        message
+
+================================================================================
 
 Protocol name       : identity request
 Protocol identity   : i
@@ -34,7 +56,7 @@ Data
     - string        nickname                 the nick name of the client
     - string        reg_key                  clients reg key for if they get disconnected
 
-===
+================================================================================
 
 Protocol name       : identity status
 Protocol identity   : I
@@ -50,7 +72,7 @@ Data
     - string        reg_key                 the clients reg key
     - bool          ok                      status
 
-==
+================================================================================
 
 Protocol name       : lobby list
 Protocol identity   : 'l'               (lower L)
@@ -67,7 +89,8 @@ Data
     - int[]         current_clients
     - int[]         max_clients
 
-==
+================================================================================
+
 Protocol name       : SceneRequest
 Protocol identity   : s
 Message Origin      : Server
@@ -79,3 +102,20 @@ Other Details       :
 Data
     - string        from_client_name         nickname of origin
     - string        scene_name
+
+================================================================================
+
+Protocol name       : Joint lobby Request
+Protocol identity   : L
+Message Origin      : Client
+Services            : Lobbies (R)
+Message Action      :
+    Client          : Sent from the client to the server to request joining the server
+    Server          : Received from client returns a change scene request if ok otherwise
+                      returns STATUS message with type lobbyJoin (not ok)
+Other Details       :
+Data
+    - string        from_client_name         nickname of origin
+    - int           lobby_id
+
+================================================================================

@@ -5,6 +5,7 @@ import Sockets.SocketHandler as SocketHandler
 import Common.constants as const
 import Common.message as message
 import time
+import Common.Protocols.status as statusProtocols
 import os
 import Common.Globals as Global
 config = Global.GlobalConfig
@@ -58,6 +59,30 @@ def process_client_identity( message_obj ):
     # add the clients data to the connection
     from_conn.set_client_key( message_obj["client_id"], message_obj["reg_key"] )
     from_conn.client_nickname = message_obj["nickname"]
+
+def process_join_lobby( message_obj ):
+
+    from_conn = message_obj.from_connection
+
+    # check there is space for the client in the lobby
+    # if so register them in :)
+    status, err_msg = database.join_lobby( from_conn.get_client_key[0], message_obj["lobby_id"] )
+
+    if status:
+        # change scene
+        response_message = message.Message('s')
+        response_message.new_message(const.SERVER_NAME, const.SCENE_NAMES["Lobby"])
+    else:
+        # send error status
+        response_message = message.Message('!')
+        response_message.new_message(const.SERVER_NAME, statusProtocols.SS_LOBBY_REQUEST, False, err_msg)
+        pass
+
+    # send the response and disconnect if we have joined
+    from_conn.send_message( response_message )
+
+    if status:
+        from_conn.safe_close()
 
 if __name__ == "__main__":
 

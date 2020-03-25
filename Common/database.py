@@ -128,8 +128,10 @@ class Database:
         current_players = self.get_lobby_player_count( lobby_id )
 
         if len(lobby) != 1:  # error not found
-            return  # TODO: send error
+            return False, "Lobby Not Found"
 
         if current_players < lobby[0][0]:
             self.database.update_row( "active_users", ["lobby_id"], [lobby_id], ["uid"], [client_id] )
+            return True, ""
 
+        return False, "Server is full"
