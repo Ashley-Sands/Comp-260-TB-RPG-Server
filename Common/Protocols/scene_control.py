@@ -1,7 +1,7 @@
 # the functions used to enforce the message types
-# info types are things like lobby and player list ect...
+# controls the scene in the gamesect...
 # every think must contain a from client name
 
 # See Protocol list for details
-def lobby_list( from_client_name, lobby_names, lobby_ids, current_clients, max_clients ):
+def scene_request( from_client_name, scene_name):   # s
     return locals()

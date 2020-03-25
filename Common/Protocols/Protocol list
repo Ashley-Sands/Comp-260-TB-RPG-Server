@@ -62,7 +62,20 @@ Message Action      : sent from server to the client every 30 odd seconds while 
 Other Details       :
 Data
     - string        from_client_name         nickname of origin
-    - string[]      lobby names
-    - int[]         lobby ids
-    - int[]         current clients count
-    - int[]         max clients
+    - string[]      lobby_names
+    - int[]         lobby_ids
+    - int[]         current_clients
+    - int[]         max_clients
+
+==
+Protocol name       : SceneRequest
+Protocol identity   : s
+Message Origin      : Server
+Services            : Selector(S), Lobbies(S), Lobby(S), Game(G)
+Message Action      : Sent from the sever to signle a new level to load
+    Server          :
+    Client          : loads the requested level
+Other Details       :
+Data
+    - string        from_client_name         nickname of origin
+    - string        scene_name

@@ -31,11 +31,9 @@ def procrcess_connection( conn ):
             database.add_new_lobby()
 
         lobbies, lobb_curr_players = database.select_all_available_lobbies()
-        DEBUG.LOGS.print(lobbies, message_type=DEBUG.LOGS.MSG_TYPE_FATAL)
 
         lobb_names = []
         lobb_id = []
-        lobb_min_clients = []
         lobb_max_clients = []
 
         # organize the lobby data
