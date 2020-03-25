@@ -288,15 +288,21 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
             if not self.send_data( client_socket, (msg_len + msg_type + msg_str.encode()) , "socket outbound" ):
                 self.valid( False )
 
-        self.outbound_thread = None
+        self.non_passthrough_outbound_thread = None
 
 
     def close_socket( self ):
-
         super().close_socket()
+        self.passthrough_socket.shutdown( socket.SHUT_RDWR )
         self.passthrough_socket.close()
+
+    def join_threads( self ):
+
+        super().join_threads()
+        if self.non_passthrough_outbound_thread is not None and self.non_passthrough_outbound_thread.is_alive():
+            self.non_passthrough_outbound_thread.join()
 
     def close( self ):
 
-        self.passthrough_mode(False)
         super().close()
+        self.passthrough_mode(False)

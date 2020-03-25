@@ -94,11 +94,13 @@ class BaseSocketClient:
             joins both inbound and outbound threads back onto the main if needed.
             Be sure to of called closed_socket, to allow the sockets to exit.
         """
+
         if self.inbound_thread.is_alive():
             self.inbound_thread.join()
 
         if self.outbound_thread is not None and self.outbound_thread.is_alive():
             self.outbound_thread.join()
+
 
     def close( self ):
         """
@@ -109,4 +111,5 @@ class BaseSocketClient:
 
         self.close_socket()
         self.join_threads()
+
         DEBUG.LOGS.print( "Client Socket Closed" )

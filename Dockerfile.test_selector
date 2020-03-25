@@ -1,5 +1,5 @@
 # SERVER SELECTOR
-# server_selector.0.1.6
+# server_selector.0.1.7
 ######################
 
 FROM python:3.7.7-alpine3.11
