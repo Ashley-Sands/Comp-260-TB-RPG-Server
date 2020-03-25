@@ -20,7 +20,7 @@ services:
   
   server_lobbies:
     container_name: localhost_lobbies
-    image: gizzmo123456/game_server:server_lobbies.0.1.0
+    image: gizzmo123456/game_server:server_lobbies.0.1.1
     working_dir: /services
     volumes:
       - ./:/services

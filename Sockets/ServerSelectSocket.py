@@ -293,8 +293,15 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
 
     def close_socket( self ):
         super().close_socket()
-        self.passthrough_socket.shutdown( socket.SHUT_RDWR )
-        self.passthrough_socket.close()
+        try:
+            self.passthrough_socket.shutdown( socket.SHUT_RDWR )
+        except:
+            pass
+
+        try:
+            self.passthrough_socket.close()
+        except Exception as e:
+            DEBUG.LOGS.print("can not close passthrough socket", e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
 
     def join_threads( self ):
 
