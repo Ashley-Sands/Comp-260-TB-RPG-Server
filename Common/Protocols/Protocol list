@@ -71,7 +71,7 @@ Data
 Protocol name       : SceneRequest
 Protocol identity   : s
 Message Origin      : Server
-Services            : Selector(S), Lobbies(S), Lobby(S), Game(G)
+Services            : Selector(S)
 Message Action      : Sent from the sever to signle a new level to load
     Server          :
     Client          : loads the requested level
