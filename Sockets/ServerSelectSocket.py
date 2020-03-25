@@ -25,7 +25,7 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
 
         # waits until all outgoing messages have been sent to connect the passthrough
         self.connect_passthrough_thread = None
-        self.outbound_thread = None
+        self.non_passthrough_outbound_thread = None
         self._outbound_queue = queue.Queue()
 
         self._passthrough_mode = False
@@ -263,17 +263,15 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
         if self.conn_mode() == self.CONN_TYPE_OUTBOUND:
 
             self._outbound_queue.put( message_obj )
-
-            if self.outbound_thread is None:
-                self.outbound_thread = threading.Thread( target=self.send_thread, args=(self.socket, ) )
-                self.outbound_thread.start()
+            if self.non_passthrough_outbound_thread is None:
+                self.non_passthrough_outbound_thread = threading.Thread( target=self.send_thread, args=(self.socket, ) )
+                self.non_passthrough_outbound_thread.start()
 
     def send_thread( self, client_socket ):
         """Send thread when not in pass through mode"""
 
         # send for as long as we are vaild, in outbound mode and have messages to senf.
         while self.valid() and self.conn_mode() == self.CONN_TYPE_OUTBOUND and not self._outbound_queue.empty():
-
             message_obj = self._outbound_queue.get()
             msg_str = message_obj.get_json()
 
