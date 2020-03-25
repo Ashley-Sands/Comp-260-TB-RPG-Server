@@ -47,6 +47,7 @@ def client_connection_accepted ( conn, addr ):
     conn.connect_passthrough( *get_host( conn, True ), 8223 )
 
 def process_connections( conn ):
+
     if not conn.passthrough_mode():
         conn.connect_passthrough( *get_host( conn, True ), 8223 )
         pass
