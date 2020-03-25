@@ -66,7 +66,7 @@ def process_join_lobby( message_obj ):
 
     # check there is space for the client in the lobby
     # if so register them in :)
-    status, err_msg = database.join_lobby( from_conn.get_client_key[0], message_obj["lobby_id"] )
+    status, err_msg = database.join_lobby( from_conn.get_client_key()[0], message_obj["lobby_id"] )
 
     if status:
         # change scene
@@ -98,6 +98,7 @@ if __name__ == "__main__":
 
     # bind message functions
     message.Message.bind_action( 'i', process_client_identity )
+    message.Message.bind_action( 'L', process_join_lobby )
 
     port = config.get( "internal_port" )
 
