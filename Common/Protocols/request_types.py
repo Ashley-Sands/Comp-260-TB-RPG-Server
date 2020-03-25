@@ -13,3 +13,8 @@ def identity_request( from_client_name, client_id, nickname, reg_key ):
 # I
 def identity_status( from_client_name, client_id, reg_key, ok ):
     return locals()
+
+
+# L
+def joint_lobby_request( from_client_name, scene_id ):
+    return locals()

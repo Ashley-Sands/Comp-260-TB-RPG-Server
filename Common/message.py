@@ -1,6 +1,6 @@
 import json
 import Common.DEBUG as DEBUG
-from Common.Protocols import request_types, info_types, scene_control
+from Common.Protocols import request_types, info_types, scene_control, status
 
 
 class Message:
@@ -8,9 +8,11 @@ class Message:
     # a list of all message types, there not all necessarily used in all modules but
     # for a easier life and reference
     TYPES = {
+        '!': status.server_status,
         'i': request_types.identity_request,
         'I': request_types.identity_status,
         'l': info_types.lobby_list,
+        'L': request_types.joint_lobby_request,
         's': scene_control.scene_request
     }
 
