@@ -94,7 +94,7 @@ class Database:
         """
 
         :return: (tuple) (list (a row) of tuples (the columns), list of current players)
-                        [(lobby id, level name, min players, max players), ...],
+                        [(lobby id, level id, level name, min players, max players), ...],
                         [current_players]...
         """
         query = "SELECT lobbies.uid, levels.uid, levels.name, levels.min_players, levels.max_players" \

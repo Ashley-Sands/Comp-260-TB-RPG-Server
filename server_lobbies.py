@@ -31,15 +31,18 @@ def procrcess_connection( conn ):
             database.add_new_lobby()
 
         lobbies, lobb_curr_players = database.select_all_available_lobbies()
+        DEBUG.LOGS.print(lobbies, message_type=DEBUG.LOGS.MSG_TYPE_FATAL)
+
         lobb_names = []
         lobb_id = []
+        lobb_min_clients = []
         lobb_max_clients = []
 
         # organize the lobby data
         for lobb in lobbies:
             lobb_id.append( lobb[0] )
-            lobb_names.append( lobb[1] )
-            lobb_max_clients.append( lobb[3] )
+            lobb_names.append( lobb[2] )
+            lobb_max_clients.append( lobb[4] )
 
         conn.next_update_time = time.time() + LOBBY_UPDATE_CLIENT_INTERVALS
 

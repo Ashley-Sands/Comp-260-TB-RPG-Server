@@ -16,6 +16,7 @@ def setup():
         time.sleep( 1 )  # try every second
 
     database.drop_table("games")    #   // quick fix while we only support 1 host // TODO: fix
+    database.drop_table("levels")
 
     database.add_table( "active_users", [ "uid", "nickname", "lobby_id", "reg_key" ],
                              [ "INT UNSIGNED NULL AUTO_INCREMENT KEY",
@@ -42,6 +43,11 @@ def setup():
                                "INT NOT NULL DEFAULT '1'",
                                "INT NOT NULL DEFAULT '2'" ]
                              )
+
+    database.insert_row("levels",
+                        ["name", "min_players", "max_players"],
+                        ["default", 2, 4]
+                        )
 
     # set up the random name Database
     exist = database.add_table( "names_list_nouns", ["id", "word"],
