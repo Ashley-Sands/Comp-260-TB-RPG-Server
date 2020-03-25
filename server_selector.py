@@ -1,18 +1,20 @@
 import Common.DEBUG as DEBUG
 import Common.database as db
+import Common.message as message
 import Sockets.ServerSelectSocket as ServerSelectSocket
 import Sockets.SocketHandler as SocketHandler
 import time
-
+import Common.constants as const
 import Common.Globals as Global
 config = Global.GlobalConfig
 
 
-def get_host( conn ):
+def get_host( conn, send_scene_change=False ):
     """
-        Gets the host and connect type
-    :param conn:    the connection of the target host that we want
-    :return:        tuple ( connection type, host )
+        Gets the host and connection type
+    :param conn:                the connection of the target host that we want
+    :param send_scene_change:   if theres a scene change should we send the message
+    :return:                    tuple ( connection type, host )
     """
 
     # find the players current state
@@ -25,20 +27,28 @@ def get_host( conn ):
         # get the clients data.
         reg_key = conn.get_client_key()[1]
         current_lobby = database.get_client_lobby( reg_key )
-        print(current_lobby)
+
         if current_lobby > -1:
             return -1, None
         else:
-            # TODO: tell the client where to go.
+            send_scene_change_message( send_scene_change, conn, const.SCENE_NAMES["LobbyList"] )
             return conn.CONN_TYPE_DEFAULT, config.get( "internal_host_lobbies" )
+
+def send_scene_change_message( send_message, conn, scene_name ):
+
+    if send_message:
+        scene_message = message.Message('s')
+        scene_message.new_message(const.SERVER_NAME, scene_name)
+        conn.send_message(scene_message)
+
 
 def client_connection_accepted ( conn, addr ):
     DEBUG.LOGS.print( "Client joined", addr )
-    conn.connect_passthrough( *get_host( conn ), 8223 )
+    conn.connect_passthrough( *get_host( conn, True ), 8223 )
 
 def process_connections( conn ):
     if not conn.passthrough_mode():
-        conn.connect_passthrough( *get_host( conn ), 8223 )
+        conn.connect_passthrough( *get_host( conn, True ), 8223 )
         pass
 
 if __name__ == "__main__":
