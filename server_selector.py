@@ -88,7 +88,6 @@ if __name__ == "__main__":
 
         # clean up any zombie sockets
         socket_handler.process_connections( process_connections )
-        time.sleep(0.5)
 
         # reconnect any passthrough sockets that have become disconnected
         # this usually happens when the client is no longer welcome on the server
