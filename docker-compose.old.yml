@@ -1,0 +1,64 @@
+version: "3.7"
+
+services:
+  sql_setup:
+    image: gizzmo123456/game_server:sql_setup.0.1.3
+    working_dir: /services
+    volumes:
+      - ./:/services
+    networks:
+      - back-tier
+  
+  server_auth:
+    container_name: localhost_auth
+    image: gizzmo123456/game_server:server_auth.0.1.0
+    working_dir: /services
+    volumes:
+      - ./:/services
+    networks:
+      - back-tier
+  
+  server_lobbies:
+    container_name: localhost_lobbies
+    image: gizzmo123456/game_server:server_lobbies.0.1.1
+    working_dir: /services
+    volumes:
+      - ./:/services
+    networks:
+      - back-tier
+  
+  server_lobby:
+    image: gizzmo123456/game_server:server_lobby.0.1.0
+    working_dir: /services
+    volumes:
+      - ./:/services
+    networks:
+      - back-tier
+
+  selector:
+    image: gizzmo123456/game_server:server_selector.0.1.8
+    ports: 
+      - 8222:8222
+    working_dir: /services
+    volumes:
+      - ./:/services
+    networks:
+      - front-tier
+      - back-tier
+      
+  sql:
+    container_name: localhost_sql
+    image: mariadb:10.4.12-bionic
+    volumes:
+      - mysql_db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password!2E
+    networks:
+      - back-tier
+         
+volumes:
+  mysql_db:
+    
+networks:
+  front-tier:
+  back-tier:
