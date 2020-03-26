@@ -2,6 +2,7 @@ import DEBUG
 from StaticActions import StaticActions
 import message as msg
 from constants import *
+import datetime
 
 class MessageAction:
 
@@ -146,3 +147,14 @@ class Action_StartGame( MessageAction ):
         game = from_client.get_active_game()
 
         game.ready_player( message_obj.from_client_key, message_obj["ok"])
+
+class Action_Ping( MessageAction ):
+
+    def run( self, message_obj ):
+
+        # send the messsage back to the client.
+        now = datetime.datetime.now()
+        to_client_key = message_obj.from_client_key
+        message_obj.message["server_receive_time"] = now.microsecond
+
+        self.send_message( message_obj )

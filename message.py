@@ -26,7 +26,10 @@ class Message:
         'S': MessageTypes.start_game,
         # in game
         'C': PlayerMessageTypes.change_player,
-        'M': PlayerMessageTypes.move_player
+        'M': PlayerMessageTypes.move_player,
+
+        # testing
+        '&': MessageTypes.ping
 
     }
 
@@ -43,7 +46,10 @@ class Message:
         # in game
         'J': Action_JoinedGame,
         'S': Action_StartGame,
-        'M': PlayerAction_Move
+        'M': PlayerAction_Move,
+
+        # testing
+        '&': Action_Ping
     }
 
     init_actions = True
