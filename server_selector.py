@@ -29,7 +29,13 @@ def get_host( conn, send_scene_change=False ):
         current_lobby = database.get_client_lobby( reg_key )
 
         if current_lobby > -1:
-            return -1, None
+            send_scene_change_message( send_scene_change, conn, const.SCENE_NAMES[ "Lobby" ] )
+            host = database.get_lobby_host( current_lobby )
+            if host is None:
+                DEBUG.LOGS.print( "Could not find host", message_type=DEBUG.LOGS.MSG_TYPE_FATAL )
+                return -1, None
+            else:
+                return conn.CONN_TYPE_DEFAULT, host
         else:
             send_scene_change_message( send_scene_change, conn, const.SCENE_NAMES["LobbyList"] )
             return conn.CONN_TYPE_DEFAULT, config.get( "internal_host_lobbies" )

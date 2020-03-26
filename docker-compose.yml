@@ -27,8 +27,16 @@ services:
     networks:
       - back-tier
   
+  server_lobby:
+    image: gizzmo123456/game_server:server_lobby.0.1.0
+    working_dir: /services
+    volumes:
+      - ./:/services
+    networks:
+      - back-tier
+
   selector:
-    image: gizzmo123456/game_server:server_selector.0.1.5
+    image: gizzmo123456/game_server:server_selector.0.1.8
     ports: 
       - 8222:8222
     working_dir: /services
@@ -47,7 +55,7 @@ services:
       MYSQL_ROOT_PASSWORD: password!2E
     networks:
       - back-tier
-    
+         
 volumes:
   mysql_db:
     

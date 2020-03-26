@@ -75,6 +75,16 @@ class Database:
         print(user_data)
         return user_data[0][0]
 
+    def get_lobby_host( self, lobby_host_id ):
+
+        host = self.database.select_from_table("lobby_host", ["host"], ["uid"], [lobby_host_id])
+
+        if len(host) != 1:
+            host = None
+        else:
+            host = host[0][0]
+
+        return host
 
     def update_client_nickname( self, reg_key, nickname ):
 
@@ -84,7 +94,24 @@ class Database:
 
     def add_new_lobby( self ):
 
-        self.database.insert_row("lobbies", ["level_id"], ["1"])    # TODO: this should just select a level at random.
+        # find the lobby host with the least active lobbies
+        query = "SELECT lobby_host.uid, COUNT(lobby_host.uid) " \
+                "FROM lobbies " \
+                "JOIN lobby_host ON lobbies.lobby_host_id=lobby_host.uid " \
+                "WHERE lobbies.game_id < 0 " \
+                "GROUP BY lobby_host.uid "
+
+        # return (host id, lobby count)
+        rows = self.database.execute(query, [])
+        min_host = (-1, 9999)
+
+        # find the host with the list lobbies
+        for r in rows:
+            if r[1] < min_host[1]:
+                min_host = r
+
+
+        self.database.insert_row("lobbies", ["level_id", "lobby_host_id"], ["1", min_host[0]])    # TODO: this should just select a level at random.
 
     def available_lobby_count( self ):
 
@@ -135,3 +162,12 @@ class Database:
             return True, ""
 
         return False, "Server is full"
+
+    def add_lobby_host( self, host ):
+
+        self.database.insert_row( "lobby_host", ["host"], [host] )
+
+    def remove_lobby_host( self, host ):
+
+        self.database.remove_row( "lobb_host", ["host"], [host])
+

@@ -6,11 +6,12 @@ import Common.constants as const
 import Common.message as message
 import time
 import Common.Protocols.status as statusProtocols
+import Common.actions as actions
 import os
 import Common.Globals as Global
 config = Global.GlobalConfig
 
-LOBBY_UPDATE_CLIENT_INTERVALS = 30  # seconds
+LOBBY_UPDATE_CLIENT_INTERVALS = 5  # seconds
 LOBBY_UPDATE_INTERVALS = 1  # seconds
 MIN_LOBBY_COUNT = 2
 

@@ -54,6 +54,10 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
         :return:            None
         """
 
+        if host is None:
+            DEBUG.LOGS.print( "Unable to connect pass-through, no host", message_type=DEBUG.LOGS.MSG_TYPE_WARNING )
+            return
+
         # can not que type outbound.
         # the outbound mode is set when the internal server disconnects
         if conn_mode == self.CONN_TYPE_OUTBOUND:
