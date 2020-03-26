@@ -117,3 +117,4 @@ if __name__ == "__main__":
     while running:
         # lets keep it clean :)
         socket_handler.process_connections( procrcess_connection )
+        time.sleep(0.5)

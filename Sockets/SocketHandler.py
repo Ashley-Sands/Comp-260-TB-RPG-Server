@@ -67,7 +67,8 @@ class SocketHandler:
             self.connections[client_sock] = self.socket_client_class(client_sock)
             self.connections[client_sock].start()
 
-            self.invoke_accepted_callback( self.connections[client_sock], addr )
+            if client_sock in self.connections:
+                self.invoke_accepted_callback( self.connections[client_sock], addr )
 
         DEBUG.LOGS.print("Not accepting connections anymore")
 
