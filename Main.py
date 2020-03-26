@@ -13,7 +13,7 @@ from constants import *
 
 clients = {}        # ref to all clients within all games :)
 client_count = 0
-clients_max = 12
+clients_max = 50
 
 accepting_conn_thread = None
 accepting_connections = True
@@ -147,7 +147,7 @@ def send_client_message( message, client_key ):
 if __name__ == "__main__":
 
     DEBUG.DEBUG.init()
-    game = [MainGame( "MG-0", send_message ), MainGame( "MG-1", send_message ), MainGame( "MG-2", send_message )]
+    game = [MainGame( "MG-0", send_message )] # , MainGame( "MG-1", send_message ), MainGame( "MG-2", send_message )]
 
     # Spin up the socket
     socket_inst = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -203,4 +203,4 @@ if __name__ == "__main__":
             except Exception as e:
                 DEBUG.DEBUG.print(e, "\nMain Line ~183", message_type=DEBUG.DEBUG.MESSAGE_TYPE_ERROR)
 
-        time.sleep(0.5)
+        # time.sleep(0.5)

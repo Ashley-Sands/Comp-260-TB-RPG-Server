@@ -27,6 +27,7 @@ class Client:
         # socket
         self.started = False
         self.socket = socket
+
         self._valid = self.socket is not None   # unsafe, use set and is valid functions
         self._closed = False
 
@@ -142,7 +143,7 @@ class Client:
         while self.is_valid():
             if not self.receive():
                 return
-            time.sleep(0.5)
+            # time.sleep(0.5)
 
     def receive(self):
         """ Receives message putting it on top of the recived queue
