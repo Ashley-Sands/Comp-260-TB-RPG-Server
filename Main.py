@@ -129,6 +129,7 @@ def get_games(available_only=True):
 
 def send_message(message_obj):
 
+    DEBUG.DEBUG.print( "Sending to", message_obj.to_clients, "type:", message_obj.identity )
     for c in message_obj.to_clients:
         DEBUG.DEBUG.print("Sending to", c, "type:", message_obj.identity)
         clients[c].que_message(message_obj)
