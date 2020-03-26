@@ -81,8 +81,8 @@ class BaseSocketClient:
     def close_socket( self ):
         try:
             self.socket.shutdown( socket.SHUT_RDWR )
-        except:
-            pass
+        except Exception as e:
+            DEBUG.LOGS.print("Bad socket: ", e, DEBUG.LOGS.MSG_TYPE_WARNING)
 
         try:
             self.socket.close()

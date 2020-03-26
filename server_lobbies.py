@@ -17,13 +17,14 @@ MIN_LOBBY_COUNT = 2
 
 def procrcess_connection( conn ):
 
-    print("procrcess_connection: processing")
+
     # process any messages from the client
     while conn.receive_message_pending():
         conn.receive_message().run_action()
 
     if not conn.get_client_key()[1].strip():
         DEBUG.LOGS.print( "Unable to process client, not set up", conn.get_client_key(), message_type=DEBUG.LOGS.MSG_TYPE_WARNING )
+        conn.safe_close()
         return
 
     if time.time() > conn.next_update_time:
@@ -116,4 +117,3 @@ if __name__ == "__main__":
     while running:
         # lets keep it clean :)
         socket_handler.process_connections( procrcess_connection )
-        time.sleep(0.5)

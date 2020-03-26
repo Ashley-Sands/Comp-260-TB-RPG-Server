@@ -135,8 +135,8 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
         """
 
         DEBUG.LOGS.print("### Pre safe close", self.valid(), not self._send_queue.empty(), self.outbound_thread is not None)
-        while not self._send_queue.empty() or self.outbound_thread is not None:
+        while ( self.valid() and not self._send_queue.empty() ) or self.outbound_thread is not None:
             pass # wait until the outbound thread stops
 
         self.close()
-        print("########## Safely Closed")
+        DEBUG.LOGS.print("########## Safely Closed")
