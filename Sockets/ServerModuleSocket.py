@@ -133,8 +133,10 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
             Closes the connection once the send que is empty
             Blocks until connection can close
         """
-        DEBUG.LOGS.print(not self._send_queue.empty(), self.outbound_thread is not None)
+
+        DEBUG.LOGS.print("### Pre safe close", self.valid(), not self._send_queue.empty(), self.outbound_thread is not None)
         while not self._send_queue.empty() or self.outbound_thread is not None:
             pass # wait until the outbound thread stops
 
         self.close()
+        print("########## Safely Closed")

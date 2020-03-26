@@ -32,7 +32,7 @@ def get_host( conn, send_scene_change=False ):
             send_scene_change_message( send_scene_change, conn, const.SCENE_NAMES[ "Lobby" ] )
             host = database.get_lobby_host( current_lobby )
             if host is None:
-                DEBUG.LOGS.print( "Could not find host", message_type=DEBUG.LOGS.MSG_TYPE_FATAL )
+                DEBUG.LOGS.print( "Could not find host", host, "curr lobby", current_lobby, message_type=DEBUG.LOGS.MSG_TYPE_FATAL )
                 return -1, None
             else:
                 return conn.CONN_TYPE_DEFAULT, host

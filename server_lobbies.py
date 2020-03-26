@@ -17,6 +17,7 @@ MIN_LOBBY_COUNT = 2
 
 def procrcess_connection( conn ):
 
+    print("procrcess_connection: processing")
     # process any messages from the client
     while conn.receive_message_pending():
         conn.receive_message().run_action()

@@ -75,10 +75,16 @@ class Database:
         print(user_data)
         return user_data[0][0]
 
-    def get_lobby_host( self, lobby_host_id ):
+    def get_lobby_host( self, lobby_id ):
 
-        host = self.database.select_from_table("lobby_host", ["host"], ["uid"], [lobby_host_id])
+        query = "SELECT lobby_host.host " \
+                "FROM lobbies " \
+                "JOIN lobby_host " \
+                "ON lobbies.lobby_host_id=lobby_host.uid " \
+                "WHERE lobbies.uid=%s"
 
+        host = self.database.execute(query, [lobby_id]) # self.database.select_from_table("lobby_host", ["host"], ["uid"], [lobby_host_id])
+        print(host)
         if len(host) != 1:
             host = None
         else:
@@ -95,23 +101,30 @@ class Database:
     def add_new_lobby( self ):
 
         # find the lobby host with the least active lobbies
-        query = "SELECT lobby_host.uid, COUNT(lobby_host.uid) " \
+        used_host = "SELECT lobby_host.uid, COUNT(lobby_host.uid) " \
                 "FROM lobbies " \
                 "JOIN lobby_host ON lobbies.lobby_host_id=lobby_host.uid " \
-                "WHERE lobbies.game_id < 0 " \
-                "GROUP BY lobby_host.uid "
+                "GROUP BY lobby_host.uid " \
+                "WHERE lobbies.game_id < 0 "
+
+        all_lobby_host = "SELECT * FROM lobby_host"
 
         # return (host id, lobby count)
-        rows = self.database.execute(query, [])
-        min_host = (-1, 9999)
+        # if theres more ahost than uhost then theres host without lobbies
+        # uhost_rows = self.database.execute(used_host, []) # TODO: make dynamic
+        ahost_rows = self.database.execute(all_lobby_host, [])
+
+        min_host = ahost_rows[0] # (-1, 9999)
+        DEBUG.LOGS.print( "--------------->>>", ahost_rows )
 
         # find the host with the list lobbies
-        for r in rows:
-            if r[1] < min_host[1]:
-                min_host = r
-
+        # for uh in uhost_rows :
+        #    if r[1] < min_host[1]:
+        #        min_host = r
 
         self.database.insert_row("lobbies", ["level_id", "lobby_host_id"], ["1", min_host[0]])    # TODO: this should just select a level at random.
+        DEBUG.LOGS.print( "---------------<<<", self.database.select_from_table("lobbies", ["*"]) )
+        DEBUG.LOGS.print( "---------------<<<", self.database.select_from_table("lobby_host", ["*"]) )
 
     def available_lobby_count( self ):
 
