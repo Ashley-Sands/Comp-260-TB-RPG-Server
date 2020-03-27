@@ -4,6 +4,7 @@ import Sockets.ServerLobbiesSocket as ServerLobbiesSocket
 import Sockets.SocketHandler as SocketHandler
 import Common.constants as const
 import Common.message as message
+import Common.actions
 import time
 import Common.Protocols.status as statusProtocols
 import Common.actions as actions
@@ -99,6 +100,7 @@ if __name__ == "__main__":
     database = db.Database()
 
     # bind message functions
+    message.Message.bind_action( '&', Common.actions.processes_ping )
     message.Message.bind_action( 'i', process_client_identity )
     message.Message.bind_action( 'L', process_join_lobby )
 
@@ -116,4 +118,3 @@ if __name__ == "__main__":
     while running:
         # lets keep it clean :)
         socket_handler.process_connections( procrcess_connection )
-        time.sleep(0.5)
