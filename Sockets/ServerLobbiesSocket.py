@@ -1,6 +1,7 @@
 import Sockets.ServerModuleSocket as ServerModuleSocket
 
-class ServerLobbySocket( ServerModuleSocket.ServerModuleSocket ):
+
+class ServerLobbiesSocket( ServerModuleSocket.ServerModuleSocket ):
 
     def __init__(self, socket):
 

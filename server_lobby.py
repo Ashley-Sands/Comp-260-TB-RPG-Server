@@ -1,6 +1,6 @@
 import Common.DEBUG as DEBUG
 import Common.database as db
-import Sockets.ServerLobbySocket as ServerLobbySocket   #####
+import Sockets.ServerLobbiesSocket as ServerLobbiesSocket   #####
 import Sockets.SocketHandler as SocketHandler
 import Common.constants as const
 import Common.message as message
