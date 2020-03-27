@@ -11,8 +11,10 @@ import Common.Globals as Global
 config = Global.GlobalConfig
 
 
-def process_connections( connection ):
-    pass
+def process_connections( conn ):
+    # process any messages from the client
+    while conn.receive_message_pending():
+        conn.receive_message().run_action()
 
 
 def clean_lobby( connection ):

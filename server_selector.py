@@ -8,6 +8,10 @@ import Common.constants as const
 import Common.Globals as Global
 config = Global.GlobalConfig
 
+def cleanup_connections( conn ):
+
+    # remove the client from the database
+    database.remove_client( conn.get_client_key()[1] )
 
 def get_host( conn, send_scene_change=False ):
     """
@@ -71,7 +75,7 @@ if __name__ == "__main__":
 
     # wait for db to connection
     while not database.database.test_connection():
-        time.sleep(10) # try every 5 seconds
+        time.sleep(10) # seconds
 
     socket_handler = SocketHandler.SocketHandler( config.get("host"), config.get("port"),
                                                   15, ServerSelectSocket.ServerSelectSocket)
@@ -87,7 +91,7 @@ if __name__ == "__main__":
     while running:
 
         # clean up any zombie sockets
-        socket_handler.process_connections( process_connections )
+        socket_handler.process_connections( process_func=process_connections, extend_remove_connection_func=cleanup_connections )
 
         # reconnect any passthrough sockets that have become disconnected
         # this usually happens when the client is no longer welcome on the server

@@ -41,6 +41,11 @@ class Database:
 
         return client_id, reg_key
 
+    def remove_client( self, reg_key ):
+        """removes a client from the database"""
+
+        self.database.remove_row("active_users", ["reg_key"], [reg_key])
+
     def get_random_name( self ):
 
         rand = random.random()
