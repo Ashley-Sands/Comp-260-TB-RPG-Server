@@ -106,18 +106,25 @@ class SocketHandler:
 
         return removed
 
-    def process_connections( self, process_func=None ):
+    def process_connections( self, process_func=None, extend_remove_connection_func=None ):
         """
             Cleans any zombie clients and pass the connection to the process func if available
-        :param process_func:    function with connection param
+        :param process_func:                    function with connection param
+        :param extend_remove_connection_func:   extends the clean up functionality. requires connection param.
+                                                this is call just before the connection is removed if supplied.
         :return:
         """
         # get all the keys from the connection so we can remove any invalid connections
         socks = list( self.connections )
         for s in socks:
+
             if not self.connections[ s ].valid():
-                if self.remove_connection(s):
-                    continue
+
+                if extend_remove_connection_func is not None:
+                    extend_remove_connection_func( self.connections[ s ] )
+
+                self.remove_connection(s)
+                continue    # even if it fails to remove the connection skip any invalid
 
             if process_func is not None:
                 process_func( self.connections[s] )
