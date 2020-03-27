@@ -67,8 +67,22 @@ def process_client_identity( message_obj ):
     connected_clients.to_connections = get_lobby_connections( client_lobby_id )
     connected_clients.send_message()
 
+    # let every one know you have joined
+    msg = message.Message('m')
+    msg.new_message(client_nickname, [], "Has Joined the Server :D Yay! ")
+    msg.to_connections = get_lobby_connections(client_lobby_id)
+    msg.send_message()
+
     # send start status
     # TODO: ...
+
+def process_message( message_obj ):
+
+    # TODO: filter out connections that are not in to conn
+    message_obj["from_client_name"] = message_obj.from_connection.client_nickname
+    message_obj.to_connections = get_lobby_connections( message_obj.from_connection.lobby_id )
+    message_obj.send_message()
+
 
 def get_lobby_connections( lobby_id ):
     """gets the list of connections in lobby"""
@@ -101,6 +115,7 @@ if __name__ == "__main__":
 
     # bind message functions
     message.Message.bind_action( 'i', process_client_identity )
+    message.Message.bind_action( 'm', process_message )
 
     # setup socket and bind to accept client socket
     port = config.get( "internal_port" )
