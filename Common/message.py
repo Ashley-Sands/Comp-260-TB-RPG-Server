@@ -12,7 +12,7 @@ class Message:
         'i': request_types.identity_request,
         'I': request_types.identity_status,
         'l': info_types.lobby_list,
-        'L': request_types.joint_lobby_request,
+        'L': request_types.join_lobby_request,
         's': scene_control.scene_request
     }
 
