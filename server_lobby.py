@@ -132,6 +132,6 @@ if __name__ == "__main__":
     while running:
         # lets keep it clean :)
         socket_handler.process_connections( process_func=process_connections, extend_remove_connection_func=clean_lobby )
-        time.sleep(0.5)
+
 
     database.remove_lobby_host( config.get( "internal_host" ) )
