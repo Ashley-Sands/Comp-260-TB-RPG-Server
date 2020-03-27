@@ -180,7 +180,9 @@ class Database:
 
         self.database.insert_row( "lobby_host", ["host"], [host] )
 
+        return self.database.select_from_table( "lobby_host", ["uid"], ["host"], [host] )[0][0]
+
     def remove_lobby_host( self, host ):
+        """Add a new lobby host to the current list of lobbies and returns the new id"""
 
-        self.database.remove_row( "lobb_host", ["host"], [host])
-
+        self.database.remove_row( "lobby_host", ["host"], [host])

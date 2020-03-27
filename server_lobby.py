@@ -16,8 +16,12 @@ def process_client_identity( message_obj ):
     DEBUG.LOGS.print( "Recivedd id", message_obj[ "client_id" ], message_obj[ "reg_key" ] )
 
     from_conn = message_obj.from_connection
+
     # add the clients data to the connection
     from_conn.set_client_key( message_obj[ "client_id" ], message_obj[ "reg_key" ] )
+
+    # find the user in the database and make sure they have arrived at the correct location
+
     from_conn.client_nickname = message_obj[ "nickname" ]
 
     # TODO: Find the users lobby via the db.
@@ -25,6 +29,7 @@ def process_client_identity( message_obj ):
 if __name__ == "__main__":
 
     running = True
+    lobby_host_id = -1
 
     # set up
     Global.setup()
@@ -39,8 +44,8 @@ if __name__ == "__main__":
     while not database.database.test_connection():
         time.sleep(10)
 
-    database.add_lobby_host( config.get( "internal_host" ) )
-    print( database.database.select_from_table( "lobby_host", ["*"] ) )
+    lobby_host_id = database.add_lobby_host( config.get( "internal_host" ) )
+
     # bind message functions
     message.Message.bind_action( 'i', process_client_identity )
 
@@ -52,7 +57,7 @@ if __name__ == "__main__":
     socket_handler.start()
 
     # Welcome the server
-    DEBUG.LOGS.print("Welcome",config.get("internal_host"), ":", config.get("internal_port") )
+    DEBUG.LOGS.print("Welcome", config.get("internal_host"), ":", config.get("internal_port"), " - Your host id is: "+lobby_host_id )
 
     while running:
         # lets keep it clean :)
