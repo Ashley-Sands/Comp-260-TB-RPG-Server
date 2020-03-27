@@ -108,7 +108,7 @@ if __name__ == "__main__":
     socket_handler.start()
 
     # Welcome the server
-    DEBUG.LOGS.print("Welcome", config.get("internal_host"), ":", config.get("internal_port"), " - Your host id is: "+lobby_host_id )
+    DEBUG.LOGS.print("Welcome", config.get("internal_host"), ":", config.get("internal_port"), " - Your host id is: ", lobby_host_id )
 
     while running:
         # lets keep it clean :)
