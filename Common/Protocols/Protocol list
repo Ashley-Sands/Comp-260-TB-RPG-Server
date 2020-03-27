@@ -134,3 +134,18 @@ Data
     - string[]      client_nicknames
 
 ================================================================================
+
+Protocol name       : message
+Protocol identity   : m
+Message Origin      : Client
+Services            : lobby(R/S), game(R/S)
+Message Action      : Sent from clients to other clients
+    Client          :
+    Server          : send to all other clients
+Other Details       :
+Data
+    - string        from_client_name         nickname of origin
+    - int[]         to_client_ids            none is all clients
+    - string        message
+
+================================================================================
