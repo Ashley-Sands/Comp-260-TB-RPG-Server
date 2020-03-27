@@ -13,7 +13,8 @@ class Message:
         'I': request_types.identity_status,
         'l': info_types.lobby_list,
         'L': request_types.join_lobby_request,
-        's': scene_control.scene_request
+        's': scene_control.scene_request,
+        'C': info_types.lobby_client_list
     }
 
     # Action functions need to be bound onto there TYPE 'char'
@@ -81,6 +82,10 @@ class Message:
         if not self.ERR:
             self.message = Message.TYPES[self.identity](*params)
 
+    def send_message( self ):
+
+        for c in self.to_connections:
+            c.send_message( self )
 
     def set_from_json( self, from_name, json_str ):
         """set self.message with json string"""

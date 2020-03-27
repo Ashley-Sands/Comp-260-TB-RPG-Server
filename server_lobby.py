@@ -58,6 +58,21 @@ def process_client_identity( message_obj ):
     from_conn.lobby_id = client_lobby_id
     from_conn.client_nickname = client_nickname
 
+    # send all the clients an updated list of connected clients
+    cids, nnames = database.get_lobby_player_list( client_lobby_id )
+    connected_clients = message.Message('C')
+    connected_clients.new_message(const.SERVER_NAME, cids, nnames)
+    connected_clients.to_connections = get_lobby_connections( client_lobby_id )
+    connected_clients.send_message()
+
+    # send start status
+    # TODO: ...
+
+def get_lobby_connections( lobby_id ):
+    """gets the list of connections in lobby"""
+
+    if lobby_id in lobbies:
+        return list( lobbies[lobby_id].values() )
 
 if __name__ == "__main__":
 

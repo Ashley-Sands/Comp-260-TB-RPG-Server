@@ -3,5 +3,13 @@
 # every think must contain a from client name
 
 # See Protocol list for details
+
+
+# l
 def lobby_list( from_client_name, lobby_names, lobby_ids, current_clients, max_clients ):
+    return locals()
+
+
+# C
+def lobby_client_list( from_client_name, client_ids, client_nicknames ):
     return locals()

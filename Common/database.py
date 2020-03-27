@@ -153,6 +153,23 @@ class Database:
 
         return self.database.select_from_table("active_users", ["COUNT(lobby_id)"], ["lobby_id"], [lobby_id])[0][0]
 
+    def get_lobby_player_list( self, lobby_id ):
+        """
+            get a list of players in lobby id
+        :param lobby_id:
+        :return: tuple of list ( [uid], [nicknames] )
+        """
+        row = self.database.select_from_table("active_users", ["uid", "nickname"], ["lobby_id"], [lobby_id])
+        uid = []
+        nicknames = []
+
+        for r in row:
+            uid.append(r[0])
+            nicknames.append(r[1])
+
+        return uid, nicknames
+
+
     def join_lobby( self, client_id, lobby_id ):
         """ Joins game lobby
 

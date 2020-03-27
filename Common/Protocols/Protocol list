@@ -105,7 +105,7 @@ Data
 
 ================================================================================
 
-Protocol name       : Joint lobby Request
+Protocol name       : Join lobby Request
 Protocol identity   : L
 Message Origin      : Client
 Services            : Lobbies (R)
@@ -117,5 +117,20 @@ Other Details       :
 Data
     - string        from_client_name         nickname of origin
     - int           lobby_id
+
+================================================================================
+
+Protocol name       : Lobby client list
+Protocol identity   : C
+Message Origin      : Server
+Services            : Lobby (S)
+Message Action      :
+    Server          : sent from the server to the client with a list of clients including them-self
+    Client          :
+Other Details       :
+Data
+    - string        from_client_name         nickname of origin
+    - int[]         client_ids
+    - string[]      client_nicknames
 
 ================================================================================
