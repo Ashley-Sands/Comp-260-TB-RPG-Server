@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     # wait for db to connection
     while not database.database.test_connection():
-        time.sleep(5) # try every 5 seconds
+        time.sleep(10) # try every 5 seconds
 
     socket_handler = SocketHandler.SocketHandler( config.get("host"), config.get("port"),
                                                   15, ServerSelectSocket.ServerSelectSocket)

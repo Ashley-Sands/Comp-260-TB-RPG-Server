@@ -93,7 +93,7 @@ if __name__ == "__main__":
     # register the host into the database
     # wait for the sql server to come online
     while not database.database.test_connection():
-        time.sleep(10)
+        time.sleep(3)
 
     lobby_host_id = database.add_lobby_host( config.get( "internal_host" ) )
 
