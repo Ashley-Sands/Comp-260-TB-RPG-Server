@@ -149,3 +149,18 @@ Data
     - string        message
 
 ================================================================================
+
+Protocol name       : ping
+Protocol identity   : P
+Message Origin      : Client
+Services            : [serves(S/R)]
+Message Action      : Sent from the client to the server
+    Server          : where the server then processes and returns the package.
+    Client          :
+Other Details       :
+Data
+    - string        from_client_name         nickname of origin
+    - double        client_send_time
+    - double        server_receive_time
+
+================================================================================
