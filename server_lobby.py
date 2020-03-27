@@ -1,6 +1,6 @@
 import Common.DEBUG as DEBUG
 import Common.database as db
-import Sockets.ServerLobbiesSocket as ServerLobbiesSocket   #####
+import Sockets.ServerLobbySocket as ServerLobbySocket
 import Sockets.SocketHandler as SocketHandler
 import Common.constants as const
 import Common.message as message
@@ -9,6 +9,19 @@ import Common.Protocols.status as statusProtocols
 import os
 import Common.Globals as Global
 config = Global.GlobalConfig
+
+
+def process_connections( connection ):
+    pass
+
+
+def clean_lobby( connection ):
+
+    lobby_id = connection.lobby_id
+
+    # remove the client from the lobby
+    if lobby_id in lobbies and connection.socket in lobbies[lobby_id]:
+        del lobbies[lobby_id][connection.socket]
 
 
 def process_client_identity( message_obj ):
@@ -21,15 +34,38 @@ def process_client_identity( message_obj ):
     from_conn.set_client_key( message_obj[ "client_id" ], message_obj[ "reg_key" ] )
 
     # find the user in the database and make sure they have arrived at the correct location
+    client_info = database.select_client( message_obj[ "reg_key" ] )
+    client_nickname = client_info[1]
+    client_lobby_id = client_info[2]
 
-    from_conn.client_nickname = message_obj[ "nickname" ]
+    # find if the lobby exist on the server
+    # if not double check that the client has arrive at the correct location
+    # and create a new lobby.
+    if client_lobby_id in lobbies:
+        lobbies[ client_lobby_id ][ from_conn.socket ] = from_conn
+    else:
+        host = database.get_lobby_host( client_lobby_id )
+        if host == config.get("internal_host"):
+            lobbies[ client_lobby_id ] = { from_conn.socket: from_conn }
+        else:   # it appears the clients has arrived at the wrong location.
+            DEBUG.LOGS.print( "Client has arrived at the wrong lobby host. expected:", config.get("internal_host"), "actual", host, "Disconnecting...",
+                              message_type=DEBUG.LOGS.MSG_TYPE_FATAL )
 
-    # TODO: Find the users lobby via the db.
+            from_conn.safe_close()
+            return
+
+    # update the connection with the db data
+    from_conn.lobby_id = client_lobby_id
+    from_conn.client_nickname = client_nickname
+
 
 if __name__ == "__main__":
 
     running = True
     lobby_host_id = -1
+
+    # the lobbies that exist on this host.
+    lobbies = {}    # key = lobby id in db, value is dict of lobby connections key socket, value connection
 
     # set up
     Global.setup()
@@ -61,7 +97,7 @@ if __name__ == "__main__":
 
     while running:
         # lets keep it clean :)
-        socket_handler.process_connections( )
+        socket_handler.process_connections( process_func=process_connections, extend_remove_connection_func=clean_lobby )
         time.sleep(0.5)
 
     database.remove_lobby_host( config.get( "internal_host" ) )

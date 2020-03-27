@@ -59,7 +59,7 @@ class Database:
         :return:        if found the clients id nickname otherwise None
         """
 
-        user_data = self.database.select_from_table("active_users", ["uid", "nickname"], ["reg_key"], [reg_key])
+        user_data = self.database.select_from_table("active_users", ["uid", "nickname", "lobby_host_key"], ["reg_key"], [reg_key])
 
         if not self.valid_user_response( user_data, reg_key ):
             return None
