@@ -1,10 +1,11 @@
 import Common.DEBUG as DEBUG
+import time
 
-def process_client_identity( message_obj ):
+def processes_ping( message_obj ):
 
-    DEBUG.LOGS.print("Recivedd id", message_obj["client_id"], message_obj["reg_key"] )
+    DEBUG.DEBUG.print( "Processing ping" )
 
-    from_conn = message_obj.from_connection
-    # add the clients data to the connection
-    from_conn.set_client_key( message_obj["client_id"], message_obj["reg_key"] )
-    from_conn.client_nickname = message_obj["nickname"]
+    now_millis = time.time_ns() / 1000000
+    message_obj[ "server_receive_time" ] = now_millis
+
+    message_obj.from_connection.send_message( message_obj )

@@ -1,6 +1,6 @@
 import json
 import Common.DEBUG as DEBUG
-from Common.Protocols import request_types, info_types, scene_control, status, common
+from Common.Protocols import request_types, info_types, scene_control, status, common, test
 
 
 class Message:
@@ -9,6 +9,7 @@ class Message:
     # for a easier life and reference
     TYPES = {
         '!': status.server_status,
+        '&': test.ping,
         'i': request_types.identity_request,
         'I': request_types.identity_status,
         'l': info_types.lobby_list,

@@ -151,7 +151,7 @@ Data
 ================================================================================
 
 Protocol name       : ping
-Protocol identity   : P
+Protocol identity   : &
 Message Origin      : Client
 Services            : [serves(S/R)]
 Message Action      : Sent from the client to the server

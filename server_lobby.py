@@ -4,6 +4,7 @@ import Sockets.ServerLobbySocket as ServerLobbySocket
 import Sockets.SocketHandler as SocketHandler
 import Common.constants as const
 import Common.message as message
+import Common.actions
 import time
 import Common.Protocols.status as statusProtocols
 import os
@@ -114,6 +115,7 @@ if __name__ == "__main__":
     lobby_host_id = database.add_lobby_host( config.get( "internal_host" ) )
 
     # bind message functions
+    message.Message.bind_action( 'P', Common.actions.processes_ping )
     message.Message.bind_action( 'i', process_client_identity )
     message.Message.bind_action( 'm', process_message )
 
