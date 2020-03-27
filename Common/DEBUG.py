@@ -19,7 +19,7 @@ class LOGS:
     active = False
     print_que = q.Queue()    # Queue of tuples (type, message)
     debug_thread = None
-    print_debug_intervals = 1
+    print_debug_intervals = 0 #1
 
     __log_path = "logs/"
     __log_name = "log.txt"
