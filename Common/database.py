@@ -208,3 +208,24 @@ class Database:
         """Add a new lobby host to the current list of lobbies and returns the new id"""
 
         self.database.remove_row( "lobby_host", ["host"], [host])
+
+    def add_game_host( self, host ):
+
+        self.database.insert_row( "game_host", ["host"], [host] )
+
+        return self.database.select_from_table( "game_host", ["uid"], ["host"], [host] )[0][0]
+
+    def get_client_current_game_host( self, client_reg_key ):
+
+        #query = "SELECT games_host.host FROM games_host JOIN lobbies ON games_host.uid = lobbies."
+
+        query = "SELECT games_host.host FROM games_host " \
+                "JOIN lobbies ON games_host.uid = lobbies.game_id" \
+                "JOIN active_users ON lobbies.uid = active_users.lobby_id" \
+                "WHERE active_users.reg_key = %s"
+
+        results = self.database.execute( query, [client_reg_key] )
+
+        print("Get Client Host results >>>>>>>>>>>>>>>>>>>>>>>>> ", results)
+
+        return results
