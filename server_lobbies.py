@@ -7,7 +7,6 @@ import Common.message as message
 import Common.actions
 import time
 import Common.Protocols.status as statusProtocols
-import Common.actions as actions
 import os
 import Common.Globals as Global
 config = Global.GlobalConfig
@@ -16,7 +15,7 @@ LOBBY_UPDATE_CLIENT_INTERVALS = 5  # seconds
 LOBBY_UPDATE_INTERVALS = 1  # seconds
 MIN_LOBBY_COUNT = 2
 
-def procrcess_connection( conn ):
+def process_connection( conn ):
 
     # process any messages from the client
     while conn.receive_message_pending():
@@ -117,4 +116,4 @@ if __name__ == "__main__":
 
     while running:
         # lets keep it clean :)
-        socket_handler.process_connections( procrcess_connection )
+        socket_handler.process_connections( process_connection )
