@@ -29,13 +29,24 @@ def process_client_identity( message_obj ):
     client_nickname = client_info[1]
     client_lobby_id = client_info[2]
 
+    host = database.get_client_current_game_host( message_obj[ "reg_key" ] )
+
     # check that the client is on the correct host
+    if host != config.get("internal_host"):
+        DEBUG.LOGS.print( "Client has arrived at the wrong game host. expected:", config.get("internal_host"), "actual", host,
+                          "Disconnecting...",
+                          message_type=DEBUG.LOGS.MSG_TYPE_FATAL )
+        from_conn.safe_close()
 
     # update the connection with the db data
     from_conn.lobby_id = client_lobby_id
     from_conn.client_nickname = client_nickname
 
     # notify other clients that they have joined the game server
+    msg = message.Message('m')
+    msg.new_message(client_nickname, [], "Has Joined the Server :D Yay! ")
+    msg.to_connections = socket_handler.connections # send to all clients
+    msg.send_message()
 
 
 if __name__ == "__main__":
@@ -65,13 +76,13 @@ if __name__ == "__main__":
     port = config.get( "internal_port" )
 
     # setup socket and bind to accept client socket
-    socket_handler = SocketHandler.SocketHandler( config.get( "internal_host_lobbies" ), port,
+    socket_handler = SocketHandler.SocketHandler( config.get( "internal_host" ), port,
                                                   15, ServerGameSocket.ServerGameSocket )
 
     socket_handler.start()
 
     # Welcome the server
-    DEBUG.LOGS.print("Welcome",config.get("internal_host_lobbies"), ":", config.get("internal_port") )
+    DEBUG.LOGS.print("Welcome",config.get("internal_host"), ":", config.get("internal_port") )
 
     while running:
         # lets keep it clean :)

@@ -34,7 +34,15 @@ services:
       - ./:/services
     networks:
       - back-tier
-
+      
+  server_game:
+    image: gizzmo123456/game_server:server_game.0.1.0
+    working_dir: /services
+    volumes:
+      - ./:/services
+    networks:
+      - back-tier
+      
   selector:
     image: gizzmo123456/game_server:server_selector.0.1.8
     ports: 

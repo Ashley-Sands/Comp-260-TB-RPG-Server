@@ -174,6 +174,21 @@ class Database:
 
         return uid, nicknames
 
+    def get_lobby_info( self, lobby_id ):
+        """Gets list [Level name, min players and max players]"""
+
+        query = "SELECT levels.name, levels.min_players, levels.max_players " \
+                "FROM levels " \
+                "JOIN lobbies ON lobbies.level_id = levels.uid " \
+                "WHERE lobbies.uid = %s"
+
+        rows = self.database.execute( query, [lobby_id] )
+
+        if len(rows) != 1:
+            DEBUG.LOGS.print("Did not receive exactly one result (count: ", len(rows), ") for lobby id", lobby_id)
+            return []
+
+        return rows[0]
 
     def join_lobby( self, client_id, lobby_id ):
         """ Joins game lobby
@@ -211,9 +226,9 @@ class Database:
 
     def add_game_host( self, host ):
 
-        self.database.insert_row( "game_host", ["host"], [host] )
+        self.database.insert_row( "games_host", ["host"], [host] )
 
-        return self.database.select_from_table( "game_host", ["uid"], ["host"], [host] )[0][0]
+        return self.database.select_from_table( "games_host", ["uid"], ["host"], [host] )[0][0]
 
     def get_client_current_game_host( self, client_reg_key ):
 
@@ -228,4 +243,4 @@ class Database:
 
         print("Get Client Host results >>>>>>>>>>>>>>>>>>>>>>>>> ", results)
 
-        return results
+        return results[0][0]

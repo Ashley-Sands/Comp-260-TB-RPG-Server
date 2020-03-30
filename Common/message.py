@@ -16,6 +16,7 @@ class Message:
         'L': request_types.join_lobby_request,
         's': scene_control.scene_request,
         'C': info_types.lobby_client_list,
+        'O': info_types.lobby_info,
         'm': common.message
     }
 

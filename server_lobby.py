@@ -11,6 +11,8 @@ import os
 import Common.Globals as Global
 config = Global.GlobalConfig
 
+GAME_START_TIME = 30        # seconds until the game can start once there is enough players
+NEW_PLAYER_DELAY = 10
 
 def process_connections( conn ):
     # process any messages from the client
@@ -21,10 +23,21 @@ def process_connections( conn ):
 def clean_lobby( connection ):
 
     lobby_id = connection.lobby_id
-
+    client_nickname = connection.client_nickname
     # remove the client from the lobby
     if lobby_id in lobbies and connection.socket in lobbies[lobby_id]:
         del lobbies[lobby_id][connection.socket]
+
+        # notify all the others that a client has left.
+        msg = message.Message( 'm' )
+        msg.new_message( client_nickname, [ ], "Has Left the Server :( " )
+        msg.to_connections = get_lobby_connections( lobby_id )
+        msg.send_message()
+
+        send_client_list( lobby_id )
+
+        send_lobby_info( lobby_id )
+
 
 
 def process_client_identity( message_obj ):
@@ -50,6 +63,7 @@ def process_client_identity( message_obj ):
         host = database.get_lobby_host( client_lobby_id )
         if host == config.get("internal_host"):
             lobbies[ client_lobby_id ] = { from_conn.socket: from_conn }
+            lobbies_start_times [ client_lobby_id ] = -1
         else:   # it appears the clients has arrived at the wrong location.
             DEBUG.LOGS.print( "Client has arrived at the wrong lobby host. expected:", config.get("internal_host"), "actual", host, "Disconnecting...",
                               message_type=DEBUG.LOGS.MSG_TYPE_FATAL )
@@ -62,20 +76,17 @@ def process_client_identity( message_obj ):
     from_conn.client_nickname = client_nickname
 
     # send all the clients an updated list of connected clients
-    cids, nnames = database.get_lobby_player_list( client_lobby_id )
-    connected_clients = message.Message('C')
-    connected_clients.new_message(const.SERVER_NAME, cids, nnames)
-    connected_clients.to_connections = get_lobby_connections( client_lobby_id )
-    connected_clients.send_message()
+    send_client_list()
 
-    # let every one know you have joined
+    # let everyone know you have joined
     msg = message.Message('m')
     msg.new_message(client_nickname, [], "Has Joined the Server :D Yay! ")
     msg.to_connections = get_lobby_connections(client_lobby_id)
     msg.send_message()
 
     # send start status
-    # TODO: ...
+    send_lobby_info( client_lobby_id )
+
 
 def process_message( message_obj ):
 
@@ -85,11 +96,45 @@ def process_message( message_obj ):
     message_obj.send_message()
 
 
+def send_lobby_info(lobby_id):
+
+    level_name, min_players, max_players = database.get_lobby_info( lobby_id )
+
+    # set/unset the game start time as required
+    if lobbies_start_times[ lobby_id ] < 0 and get_clients_in_lobby( lobby_id ) >= min_players:
+        lobbies_start_times[ lobby_id ] = GAME_START_TIME
+    elif lobbies_start_times[ lobby_id ] > 0 and get_clients_in_lobby( lobby_id ) < min_players:
+        lobbies_start_times[ lobby_id ] = -1
+    elif lobbies_start_times[ lobby_id ] > 0:  # add a little more time if a new player connects.
+        lobbies_start_times[ lobby_id ] += NEW_PLAYER_DELAY
+
+    lobby_info = message.Message( 'O' )
+    lobby_info.new_message( const.SERVER_NAME, level_name, min_players, max_players, lobbies_start_times[ lobby_id ] )
+    lobby_info.to_connections = get_lobby_connections( lobby_id )
+    lobby_info.send_message()
+
+
+def send_client_list( lobby_id ):
+
+    cids, nnames = database.get_lobby_player_list( lobby_id )
+    connected_clients = message.Message('C')
+    connected_clients.new_message(const.SERVER_NAME, cids, nnames)
+    connected_clients.to_connections = get_lobby_connections( lobby_id )
+    connected_clients.send_message()
+
+
 def get_lobby_connections( lobby_id ):
     """gets the list of connections in lobby"""
 
     if lobby_id in lobbies:
         return list( lobbies[lobby_id].values() )
+
+
+def get_clients_in_lobby( lobby_id ):
+
+    if lobby_id in lobbies:
+        return len( lobbies[lobby_id] )
+
 
 if __name__ == "__main__":
 
@@ -98,6 +143,7 @@ if __name__ == "__main__":
 
     # the lobbies that exist on this host.
     lobbies = {}    # key = lobby id in db, value is dict of lobby connections key socket, value connection
+    lobbies_start_times = {} # key = lobby id value if > 0 start time else not enough players
 
     # set up
     Global.setup()
@@ -130,8 +176,7 @@ if __name__ == "__main__":
     DEBUG.LOGS.print("Welcome", config.get("internal_host"), ":", config.get("internal_port"), " - Your host id is: ", lobby_host_id )
 
     while running:
-        # lets keep it clean :)
-        socket_handler.process_connections( process_func=process_connections, extend_remove_connection_func=clean_lobby )
 
+        socket_handler.process_connections( process_func=process_connections, extend_remove_connection_func=clean_lobby )
 
     database.remove_lobby_host( config.get( "internal_host" ) )

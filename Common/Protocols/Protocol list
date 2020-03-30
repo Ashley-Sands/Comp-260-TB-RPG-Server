@@ -135,6 +135,23 @@ Data
 
 ================================================================================
 
+Protocol name       : Lobby Info
+Protocol identity   : O
+Message Origin      : Server
+Services            : Lobby(S)
+Message Action      :
+    Server          : Send lobby info to the client
+    Client          :
+Other Details       :
+Data
+    - string        from_client_name         nickname of origin
+    - string        level_name
+    - int           min_players
+    - int           max_players
+    - float         start_time              time till start, <0 not ready to start :)
+
+================================================================================
+
 Protocol name       : message
 Protocol identity   : m
 Message Origin      : Client
