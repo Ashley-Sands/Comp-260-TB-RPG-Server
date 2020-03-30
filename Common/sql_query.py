@@ -350,7 +350,7 @@ class sql_query():
         if not self.table_exist(table_name):
             DEBUG.LOGS.print("Error: can not select from table, table does not exist",
                               message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
-            return
+            return []
 
         # turn the lists of column names into a usable sql string
         col_str = self.sql_string_builder( column_names, ",", False )

@@ -42,9 +42,13 @@ def setup():
                               "VARCHAR(16) NOT NULL DEFAULT '0.0.0.0'" ]
                             )
 
-    database.add_table( "games_host", [ "uid", "available", "host" ],
+    database.add_table( "game_queue", ["uid", "lobby_id"],
+                        [ "INT UNSIGNED NULL AUTO_INCREMENT KEY",
+                          "INT NOT NULL DEFAULY -1" ]
+                        )
+
+    database.add_table( "games_host", [ "uid", "host" ],
                              [ "INT UNSIGNED NULL AUTO_INCREMENT KEY",
-                               "BOOL NOT NULL DEFAULT TRUE",
                                "VARCHAR(16) NOT NULL DEFAULT '0.0.0.0'" ]
                              )
 

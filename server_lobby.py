@@ -11,6 +11,7 @@ import os
 import Common.Globals as Global
 config = Global.GlobalConfig
 
+MAX_GAME_START_TIME = 30
 GAME_START_TIME = 30        # seconds until the game can start once there is enough players
 NEW_PLAYER_DELAY = 10
 
@@ -101,9 +102,15 @@ def send_lobby_info(lobby_id):
 
     # set/unset the game start time as required
     if lobbies_start_times[ lobby_id ] < 0 and get_clients_in_lobby( lobby_id ) >= min_players:
+        # queue the game now theres enough players
         lobbies_start_times[ lobby_id ] = time.time() + GAME_START_TIME
+        queue_lobbie( lobby_id, False )
+
     elif lobbies_start_times[ lobby_id ] > 0 and get_clients_in_lobby( lobby_id ) < min_players:
+        # dequeue the game, now we've lost some players
         lobbies_start_times[ lobby_id ] = -1
+        queue_lobbie( lobby_id, True )
+
     elif lobbies_start_times[ lobby_id ] > 0:  # add a little more time if a new player connects.
         lobbies_start_times[ lobby_id ] += NEW_PLAYER_DELAY
 
@@ -111,7 +118,6 @@ def send_lobby_info(lobby_id):
     lobby_info.new_message( const.SERVER_NAME, level_name, min_players, max_players, lobbies_start_times[ lobby_id ] - time.time() )
     lobby_info.to_connections = get_lobby_connections( lobby_id )
     lobby_info.send_message()
-
 
 def send_client_list( lobby_id ):
 
@@ -133,6 +139,39 @@ def get_clients_in_lobby( lobby_id ):
 
     if lobby_id in lobbies:
         return len( lobbies[lobby_id] )
+
+
+def queue_lobbie( lobby_id, dequeue ):
+
+    if dequeue:
+        database.remove_lobby_from_game_queue(lobby_id)
+    else:
+        database.add_lobby_to_game_queue(lobby_id)
+
+
+def assign_game_slot(): # this will be done from the game instance. while its free to do stuff :)
+    # once a lobby is queued the next available game slot will be assigned even if the
+    # lobby is not ready to launch.
+    pass
+
+
+def launch_game( lobby_id ):
+    # so one the count down is complete, we are able to launch
+    # as long as a game slot has been assigned.
+    # if not we'll just have to stick around until one is freed up
+    # and just hope that the players stick around.
+    # in the real world i would just throw more resources at it
+
+    if database.game_slot_assigned( lobby_id ):
+        # unset the lobby host id and kick them out.
+        # Its game time!! :P
+        database.clear_lobby_host( lobby_id )
+        for client in lobbies[ lobby_id ]:
+            client.safe_close()
+
+        # remove the lobby from the server.
+        del lobbies[ lobby_id ]
+        del lobbies_start_times[ lobby_id ]
 
 
 if __name__ == "__main__":
@@ -176,11 +215,14 @@ if __name__ == "__main__":
 
     while running:
 
-        socket_handler.process_connections( process_func=process_connections, extend_remove_connection_func=clean_lobby )
+        socket_handler.process_connections( process_func=process_connections,
+                                            extend_remove_connection_func=clean_lobby )
 
-        for st in lobbies_start_times:
-            if st > 0 and time.time() > st:
+        for lid in lobbies_start_times:
+            if lobbies_start_times[lid ] > 0 and time.time() > lobbies_start_times[lid ]:
                 # start the lobby
+                launch_game( lid )
+                lobbies_start_times[ lid ] += 2  # don't check for another couple of seconds
                 pass
 
     database.remove_lobby_host( config.get( "internal_host" ) )

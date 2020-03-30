@@ -52,6 +52,7 @@ def process_client_identity( message_obj ):
 if __name__ == "__main__":
 
     running = True
+    game_active = False
     game_host_id = -1
 
     # set up
@@ -85,5 +86,12 @@ if __name__ == "__main__":
     DEBUG.LOGS.print("Welcome",config.get("internal_host"), ":", config.get("internal_port") )
 
     while running:
-        # lets keep it clean :)
-        socket_handler.process_connections( process_connection )
+        # wait for a game to be added to the que
+        while running and not game_active:
+
+            pass
+
+        # run the game.
+        while running and game_active:
+            # lets keep it clean :)
+            socket_handler.process_connections( process_connection )

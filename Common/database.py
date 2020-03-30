@@ -131,6 +131,13 @@ class Database:
         DEBUG.LOGS.print( "---------------<<<", self.database.select_from_table("lobbies", ["*"]) )
         DEBUG.LOGS.print( "---------------<<<", self.database.select_from_table("lobby_host", ["*"]) )
 
+    def update_lobby_host( self, lobby_id ):
+        pass
+
+    def clear_lobby_host( self, lobby_id ):
+
+        self.database.update_row( "lobbies", ["lobby_host_id"], [-1])
+
     def available_lobby_count( self ):
 
         return self.database.select_from_table("lobbies", ["COUNT(game_id)"], ["game_id<"], ["0"], override_where_cols=True)[0][0]
@@ -229,6 +236,40 @@ class Database:
         self.database.insert_row( "games_host", ["host"], [host] )
 
         return self.database.select_from_table( "games_host", ["uid"], ["host"], [host] )[0][0]
+
+    def add_lobby_to_game_queue( self, lobby_id ):
+
+        # check that the lobby does not already exist in the queue
+        exist = self.database.select_from_table( "game_queue", ["COUNT(lobby_id)"], ["lobby_id"], [lobby_id] )[0][0] > 0
+
+        if not exist:
+            self.database.insert_row( "game_queue", ["lobby_id"], [lobby_id] )
+
+    def remove_lobby_from_game_queue( self, lobby_id ):
+
+        self.database.remove_row("game_queue", ["lobby_id"], [lobby_id])
+        # make sure that a game slot has not been assigned
+        self.database.update_row("lobbies", ["game_id"], [-1], ["uid"], [lobby_id])
+
+    def game_slot_assigned( self, lobby_id ):
+
+        return self.database.select_from_table( "lobbies", ["game_id"], ["uid"], [lobby_id] )[0][0] > 0
+
+    def get_available_game_slots( self ):
+        """
+        :return:    the first available game slot. if None, there is currently no slots.
+        """
+
+        # basicly select all game host that are not assigned to a lobby
+        query = "SELECT games_host.uid, COUNT(lobbies.game_id) FROM games_host LEFT JOIN lobbies ON games_host.uid = lobbies.game_id GROUP BY games_host.uid HAVING COUNT(lobbies.game_id) = 0"
+
+        rows = self.database.execute( query, [] )
+
+        if len( rows ) == 0:
+            return None
+
+        return rows[0]
+
 
     def get_client_current_game_host( self, client_reg_key ):
 
