@@ -76,7 +76,7 @@ def process_client_identity( message_obj ):
     from_conn.client_nickname = client_nickname
 
     # send all the clients an updated list of connected clients
-    send_client_list()
+    send_client_list( client_lobby_id )
 
     # let everyone know you have joined
     msg = message.Message('m')
@@ -102,14 +102,14 @@ def send_lobby_info(lobby_id):
 
     # set/unset the game start time as required
     if lobbies_start_times[ lobby_id ] < 0 and get_clients_in_lobby( lobby_id ) >= min_players:
-        lobbies_start_times[ lobby_id ] = GAME_START_TIME
+        lobbies_start_times[ lobby_id ] = time.time() + GAME_START_TIME
     elif lobbies_start_times[ lobby_id ] > 0 and get_clients_in_lobby( lobby_id ) < min_players:
         lobbies_start_times[ lobby_id ] = -1
     elif lobbies_start_times[ lobby_id ] > 0:  # add a little more time if a new player connects.
         lobbies_start_times[ lobby_id ] += NEW_PLAYER_DELAY
 
     lobby_info = message.Message( 'O' )
-    lobby_info.new_message( const.SERVER_NAME, level_name, min_players, max_players, lobbies_start_times[ lobby_id ] )
+    lobby_info.new_message( const.SERVER_NAME, level_name, min_players, max_players, lobbies_start_times[ lobby_id ] - time.time() )
     lobby_info.to_connections = get_lobby_connections( lobby_id )
     lobby_info.send_message()
 
