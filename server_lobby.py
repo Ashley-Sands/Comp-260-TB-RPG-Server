@@ -39,7 +39,6 @@ def clean_lobby( connection ):
         send_lobby_info( lobby_id )
 
 
-
 def process_client_identity( message_obj ):
 
     DEBUG.LOGS.print( "Recivedd id", message_obj[ "client_id" ], message_obj[ "reg_key" ] )
@@ -178,5 +177,10 @@ if __name__ == "__main__":
     while running:
 
         socket_handler.process_connections( process_func=process_connections, extend_remove_connection_func=clean_lobby )
+
+        for st in lobbies_start_times:
+            if st > 0 and time.time() > st:
+                # start the lobby
+                pass
 
     database.remove_lobby_host( config.get( "internal_host" ) )
