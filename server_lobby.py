@@ -172,6 +172,9 @@ def launch_game( lobby_id ):
         # remove the lobby from the server.
         del lobbies[ lobby_id ]
         del lobbies_start_times[ lobby_id ]
+    else:
+        DEBUG.LOGS.print("lh_id", lobby_host_id, "lid", lobby_id, "Waiting for game to be assigned...",
+                         message_type=DEBUG.LOGS.MSG_TYPE_WARNING )
 
 
 if __name__ == "__main__":
@@ -211,7 +214,7 @@ if __name__ == "__main__":
     socket_handler.start()
 
     # Welcome the server
-    DEBUG.LOGS.print("Welcome", config.get("internal_host"), ":", config.get("internal_port"), " - Your host id is: ", lobby_host_id )
+    DEBUG.LOGS.print("Welcome", config.get("internal_host"), ":", config.get("internal_port"), " - Your lobby host id is: ", lobby_host_id )
 
     while running:
 

@@ -21,6 +21,23 @@ def get_host( conn, send_scene_change=False ):
     :return:                    tuple ( connection type, host )
     """
 
+    # *** IMPORTANT ***
+    # 1. if the user does has not auth key set on the (selector) server the user must get authorized.
+    #    either by sending the auth key to the server to be verified or failing that the auth server
+    #    will assign a new key
+    # 2. Once the user has been authorized
+    #    A.     If no lobby is set on the user in the data they are sent to the lobbies server
+    #    B.     If a lobby is set the users is sent to the lobby
+    #    C.     If a lobby and game is set, the users is still sent to lobby, this singles that the
+    #            game is ready to launch when the lobby period is complete.
+    #    D.     If no lobby is set but a game is, the users is sent to the game.
+    #
+    #   So to summarize:
+    #   Auth trumps all, lobby trumps game, and game trumps lobbies.
+    #   Even briefer
+    #   Auth->lobby->game->lobbies
+    #
+
     # find the players current state
     if not conn.get_client_key()[ 1 ].strip():
         # if there is no reg key the user needs to be authed into the system
@@ -31,16 +48,32 @@ def get_host( conn, send_scene_change=False ):
         # get the clients data.
         reg_key = conn.get_client_key()[1]
         current_lobby = database.get_client_lobby( reg_key )
+        current_game = database.get_client_game_id( reg_key )
 
-        if current_lobby > -1:
+        if current_lobby > -1:  # send the client of to the lobby
+
             send_scene_change_message( send_scene_change, conn, const.SCENE_NAMES[ "Lobby" ] )
             host = database.get_lobby_host( current_lobby )
+
             if host is None:
-                DEBUG.LOGS.print( "Could not find host", host, "curr lobby", current_lobby, message_type=DEBUG.LOGS.MSG_TYPE_FATAL )
+                DEBUG.LOGS.print( "Could not find lobbie host, curr lobby", current_lobby, message_type=DEBUG.LOGS.MSG_TYPE_FATAL )
                 return -1, None
             else:
                 return conn.CONN_TYPE_DEFAULT, host
-        else:
+
+        elif current_game > -1:  # send the client off to the game host
+
+            scene_name = database.get_lobby_target_scene_name( current_lobby )
+            send_scene_change_message( send_scene_change, conn, scene_name )
+            host = database.get_client_current_game_host()
+
+            if host is None:
+                DEBUG.LOGS.print( "Could not find game host, curr game", current_game, message_type=DEBUG.LOGS.MSG_TYPE_FATAL )
+                return -1, None
+            else:
+                return conn.CONN_TYPE_DEFAULT, host
+
+        else:  # send the client off to the lobbies host
             send_scene_change_message( send_scene_change, conn, const.SCENE_NAMES["LobbyList"] )
             return conn.CONN_TYPE_DEFAULT, config.get( "internal_host_lobbies" )
 

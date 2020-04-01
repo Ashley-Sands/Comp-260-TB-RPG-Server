@@ -15,11 +15,12 @@ def setup():
 
         time.sleep( 1 )  # try every second
 
-    database.drop_table("games")    #   // quick fix while we only support 1 host // TODO: fix
-    database.drop_table("levels")
+    database.drop_table("active_users")
     database.drop_table("lobbies")
     database.drop_table("lobby_host")
-    database.drop_table("active_users")
+    database.drop_table("game_queue")
+    database.drop_table("games_host")    #   // quick fix while we only support 1 host // TODO: fix
+    database.drop_table("levels")
 
 
 
@@ -44,7 +45,7 @@ def setup():
 
     database.add_table( "game_queue", ["uid", "lobby_id"],
                         [ "INT UNSIGNED NULL AUTO_INCREMENT KEY",
-                          "INT NOT NULL DEFAULY -1" ]
+                          "INT NOT NULL DEFAULT '-1'" ]
                         )
 
     database.add_table( "games_host", [ "uid", "host" ],

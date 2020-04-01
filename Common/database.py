@@ -197,6 +197,23 @@ class Database:
 
         return rows[0]
 
+    def get_lobby_target_scene_name( self, lobby_id ):
+        """Gets the target scene name for the lobby id"""
+
+        query = "SELECT levels.name " \
+                "FROM levels " \
+                "JOIN lobbies ON lobbies.level_id = levels.uid " \
+                "WHERE lobbies.uid = %s"
+
+        rows = self.database.execute( query, [lobby_id] )
+
+        if len(rows) != 1:
+            DEBUG.LOGS.print("Did not receive exactly one result (count: ", len(rows), ") for lobby id", lobby_id)
+            return []
+
+        return rows[0][0]
+
+
     def join_lobby( self, client_id, lobby_id ):
         """ Joins game lobby
 
@@ -271,16 +288,30 @@ class Database:
         return rows[0]
 
 
-    def get_client_current_game_host( self, client_reg_key ):
+    def get_client_game_id( self, reg_key ):
 
-        #query = "SELECT games_host.host FROM games_host JOIN lobbies ON games_host.uid = lobbies."
+        query = "SELECT lobbies.game_id " \
+                "FROM active_users " \
+                "JOIN lobbies ON active_users.lobby_id = lobbies.uid " \
+                "WHERE reg_key = %s " \
 
-        query = "SELECT games_host.host FROM games_host " \
-                "JOIN lobbies ON games_host.uid = lobbies.game_id" \
-                "JOIN active_users ON lobbies.uid = active_users.lobby_id" \
-                "WHERE active_users.reg_key = %s"
+        row = self.database.execute( query, [reg_key] )
 
-        results = self.database.execute( query, [client_reg_key] )
+        if len( row ) != 1:
+            return -1
+
+        return row[0][0]
+
+    def get_client_current_game_host( self, game_id ):
+
+        query = "SELECT host " \
+                "FROM games_host " \
+                "WHERE uid = %s"
+
+        results = self.database.execute( query, [game_id] )
+
+        if len( results ) != 1:
+            return None
 
         print("Get Client Host results >>>>>>>>>>>>>>>>>>>>>>>>> ", results)
 
