@@ -88,8 +88,12 @@ if __name__ == "__main__":
     while running:
         # wait for a game to be added to the que
         while running and not game_active:
-
-            pass
+            # assign the game id to the next lobby in the queue
+            next_lobby_id = database.get_next_lobby_in_queue()
+            if next_lobby_id is not None:
+                database.update_lobby_game_host( next_lobby_id, game_host_id )
+                DEBUG.LOGS.print("Lobby: ", next_lobby_id, "has been assigned", game_host_id, database.game_slot_assigned( next_lobby_id ))
+                game_active = True
 
         # run the game.
         while running and game_active:

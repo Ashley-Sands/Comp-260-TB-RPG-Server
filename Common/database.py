@@ -80,15 +80,26 @@ class Database:
         print(user_data)
         return user_data[0][0]
 
-    def get_lobby_host( self, lobby_id ):
-
-        query = "SELECT lobby_host.host " \
+    def get_lobby_host_ids( self, lobby_id ):
+        """ gets the lobby host id and game host id (tuple)"""
+        query = "SELECT lobby_host_id, game_id " \
                 "FROM lobbies " \
-                "JOIN lobby_host " \
-                "ON lobbies.lobby_host_id=lobby_host.uid " \
-                "WHERE lobbies.uid=%s"
+                "WHERE uid = %s"
 
-        host = self.database.execute(query, [lobby_id]) # self.database.select_from_table("lobby_host", ["host"], ["uid"], [lobby_host_id])
+        results = self.database.execute( query, [lobby_id] )
+
+        if len( results ) != 1:
+            return -1, -1
+
+        return results[0]
+
+    def get_lobby_host( self, host_id ):
+
+        query = "SELECT host " \
+                "FROM lobby_host " \
+                "WHERE uid=%s"
+
+        host = self.database.execute(query, [host_id])
         print(host)
         if len(host) != 1:
             host = None
@@ -134,9 +145,16 @@ class Database:
     def update_lobby_host( self, lobby_id ):
         pass
 
+    def update_lobby_game_host ( self, lobby_id, game_host_id ):
+        """ updates the lobbies game host removeing it from the game que"""
+
+        self.database.update_row( "lobbies", ["game_id"], [game_host_id], ["uid"], [lobby_id])
+        self.database.remove_row("game_queue", ["lobby_id"], [lobby_id])
+
+
     def clear_lobby_host( self, lobby_id ):
 
-        self.database.update_row( "lobbies", ["lobby_host_id"], [-1])
+        self.database.update_row( "lobbies", ["lobby_host_id"], [-1], ["uid"], [lobby_id])
 
     def available_lobby_count( self ):
 
@@ -263,13 +281,13 @@ class Database:
             self.database.insert_row( "game_queue", ["lobby_id"], [lobby_id] )
 
     def remove_lobby_from_game_queue( self, lobby_id ):
-
+        """Removes the lobby id from the que and resets the gmae id in lobbies"""
         self.database.remove_row("game_queue", ["lobby_id"], [lobby_id])
         # make sure that a game slot has not been assigned
         self.database.update_row("lobbies", ["game_id"], [-1], ["uid"], [lobby_id])
 
     def game_slot_assigned( self, lobby_id ):
-
+        print(self.database.select_from_table( "lobbies", ["game_id"], ["uid"], [lobby_id] )[0][0])
         return self.database.select_from_table( "lobbies", ["game_id"], ["uid"], [lobby_id] )[0][0] > 0
 
     def get_available_game_slots( self ):
@@ -302,7 +320,7 @@ class Database:
 
         return row[0][0]
 
-    def get_client_current_game_host( self, game_id ):
+    def get_game_host( self, game_id ):
 
         query = "SELECT host " \
                 "FROM games_host " \
@@ -316,3 +334,27 @@ class Database:
         print("Get Client Host results >>>>>>>>>>>>>>>>>>>>>>>>> ", results)
 
         return results[0][0]
+
+    def get_next_lobby_in_queue( self ):
+        """Gets the next lobby id from the que"""
+
+        query = "SELECT MIN(uid), lobby_id FROM game_queue"
+        result = self.database.execute( query, [] )
+
+        if len(result) == 0:
+            return None
+
+        return result[0][1]
+
+    def get_game_queue_size( self ):
+        """Gets the size of the que"""
+
+        query = "SELECT uid " \
+                "FROM game_queue"
+
+        rows = self.database.execute( query, [] )
+
+        #if len(rows) != 1:
+        #    return -1
+
+        return len(rows)

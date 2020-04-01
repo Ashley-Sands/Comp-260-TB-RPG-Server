@@ -403,7 +403,7 @@ class sql_query():
 
         query = "UPDATE "+table_name+" SET "+set_str+" WHERE "+where_str
 
-        DEBUG.LOGS.print( query )
+        DEBUG.LOGS.print( query, data )
 
         self.cursor.execute(query, data)
 

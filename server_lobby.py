@@ -167,14 +167,18 @@ def launch_game( lobby_id ):
         # Its game time!! :P
         database.clear_lobby_host( lobby_id )
         for client in lobbies[ lobby_id ]:
-            client.safe_close()
+            lobbies[ lobby_id ][client].safe_close()
 
         # remove the lobby from the server.
         del lobbies[ lobby_id ]
         del lobbies_start_times[ lobby_id ]
+
+        DEBUG.LOGS.print( "Bey Bey, Lobby", lobby_id )
+
     else:
+        que_size = database.get_game_queue_size()
         DEBUG.LOGS.print("lh_id", lobby_host_id, "lid", lobby_id, "Waiting for game to be assigned...",
-                         message_type=DEBUG.LOGS.MSG_TYPE_WARNING )
+                         "queue size", que_size, message_type=DEBUG.LOGS.MSG_TYPE_WARNING )
 
 
 if __name__ == "__main__":
