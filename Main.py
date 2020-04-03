@@ -152,7 +152,7 @@ if __name__ == "__main__":
     # Spin up the socket
     socket_inst = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     socket_inst.bind(("0.0.0.0", 8222))
-    socket_inst.listen(clients_max)                   # Allow up to 12 connection.
+    socket_inst.listen(clients_max)
 
     # initialize the game and singletons actions
     Message.initialize_actions(None, send_message, get_client_list, get_client, get_games)
