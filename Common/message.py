@@ -71,8 +71,8 @@ class Message:
 
     def run_action( self ):
         """Run all the actions bound to this messages identity"""
-        print("run action")
-        if not self.ERR:
+
+        if not self.ERR and self.identity in Message.ACTION:
             for func in Message.ACTION[self.identity]:
                 func( self )
 
