@@ -82,6 +82,7 @@ class Database:
 
     def get_lobby_host_ids( self, lobby_id ):
         """ gets the lobby host id and game host id (tuple)"""
+
         query = "SELECT lobby_host_id, game_id " \
                 "FROM lobbies " \
                 "WHERE uid = %s"
@@ -92,6 +93,20 @@ class Database:
             return -1, -1
 
         return results[0]
+
+    def get_lobby_host_from_lobby_id( self, lobby_id ):
+
+        query = "SELECT lobby_host.host " \
+                "FROM lobbies " \
+                "JOIN lobby_host ON lobbies.lobby_host_id = lobby_host.uid " \
+                "WHERE lobbies.uid = %s"
+
+        results = self.database.execute( query, [lobby_id] )
+
+        if len( results ) != 1:
+            return None
+
+        return results[0][0]
 
     def get_lobby_host( self, host_id ):
 
@@ -131,7 +146,6 @@ class Database:
         ahost_rows = self.database.execute(all_lobby_host, [])
 
         min_host = ahost_rows[0] # (-1, 9999)
-        DEBUG.LOGS.print( "--------------->>>", ahost_rows )
 
         # find the host with the list lobbies
         # for uh in uhost_rows :
@@ -139,8 +153,6 @@ class Database:
         #        min_host = r
 
         self.database.insert_row("lobbies", ["level_id", "lobby_host_id"], ["1", min_host[0]])    # TODO: this should just select a level at random.
-        DEBUG.LOGS.print( "---------------<<<", self.database.select_from_table("lobbies", ["*"]) )
-        DEBUG.LOGS.print( "---------------<<<", self.database.select_from_table("lobby_host", ["*"]) )
 
     def update_lobby_host( self, lobby_id ):
         pass
@@ -344,8 +356,6 @@ class Database:
 
         if len( results ) != 1:
             return None
-
-        print("Get Client Host results >>>>>>>>>>>>>>>>>>>>>>>>> ", results)
 
         return results[0][0]
 

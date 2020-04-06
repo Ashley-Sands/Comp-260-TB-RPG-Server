@@ -60,7 +60,7 @@ def process_client_identity( message_obj ):
     if client_lobby_id in lobbies:
         lobbies[ client_lobby_id ][ from_conn.socket ] = from_conn
     else:
-        host = database.get_lobby_host( client_lobby_id )
+        host = database.get_lobby_host_from_lobby_id( client_lobby_id )
         if host == config.get("internal_host"):
             lobbies[ client_lobby_id ] = { from_conn.socket: from_conn }
             lobbies_start_times [ client_lobby_id ] = -1

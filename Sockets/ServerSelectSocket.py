@@ -108,7 +108,7 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
         msg = identity_msg.get_json()
         len_data = len(msg).to_bytes(self.MESSAGE_LEN_PACKET_SIZE, self.BYTE_ORDER)
         chr_data = ord('i').to_bytes(self.MESSAGE_TYPE_PACKET_SIZE, self.BYTE_ORDER)
-        DEBUG.LOGS.print(">>>>> SENDING i TO SERVER", msg)
+        DEBUG.LOGS.print("send identity to sever", msg)
 
         return self.send_data( pass_sock, len_data + chr_data + msg.encode(), "id sender" )
 
