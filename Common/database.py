@@ -311,7 +311,7 @@ class Database:
         query = "SELECT lobbies.game_id " \
                 "FROM active_users " \
                 "JOIN lobbies ON active_users.lobby_id = lobbies.uid " \
-                "WHERE reg_key = %s " \
+                "WHERE active_users.reg_key = %s "
 
         row = self.database.execute( query, [reg_key] )
 
@@ -319,6 +319,21 @@ class Database:
             return -1
 
         return row[0][0]
+
+    def get_client_current_game_host( self, reg_key ):
+
+        query = "SELECT games_host.host " \
+                "FROM active_users " \
+                "JOIN lobbies ON active_users.lobby_id = lobbies.uid " \
+                "JOIN games_host ON games_host.uid = lobbies.game_id " \
+                "WHERE active_users.reg_key = %s "
+
+        row = self.database.execute( query, [ reg_key ] )
+
+        if len( row ) != 1:
+            return -1
+
+        return row[ 0 ][ 0 ]
 
     def get_game_host( self, game_id ):
 
