@@ -71,7 +71,7 @@ def process_client_status( message_obj ):
     # if so send the player info.
     expecting_player_count = database.get_lobby_player_count(lobby_id)
 
-    DEBUG.LOGS.print( "Client Joined successfully! --------------------------------------------------------" )
+    DEBUG.LOGS.print( "Client Joined successfully! --------------------------------------------------------", message_obj.from_connection.client_nickname )
 
     if active_game_model.players_ready_count == expecting_player_count:
         # send out the player details to the clients
@@ -87,6 +87,7 @@ def process_client_status( message_obj ):
             cid, nn, pid = socket_handler.get_connection( sock ).get_player_info()
             try:
                 pid = random.choice( available_player_ids )
+                available_player_ids.remove( pid )
             except Exception as e:
                 DEBUG.LOGS.print( "No more random ids to choose for.", message_type=DEBUG.LOGS.MSG_TYPE_FATAL )
 
