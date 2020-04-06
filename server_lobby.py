@@ -65,7 +65,7 @@ def process_client_identity( message_obj ):
             lobbies[ client_lobby_id ] = { from_conn.socket: from_conn }
             lobbies_start_times [ client_lobby_id ] = -1
         else:   # it appears the clients has arrived at the wrong location.
-            DEBUG.LOGS.print( "Client has arrived at the wrong lobby host. expected:", config.get("internal_host"), "actual", host, "Disconnecting...",
+            DEBUG.LOGS.print( "Client has arrived at the wrong lobby host. expected:", host, "actual", config.get("internal_host"), "Disconnecting...",
                               message_type=DEBUG.LOGS.MSG_TYPE_FATAL )
 
             from_conn.safe_close()
