@@ -15,6 +15,7 @@ MAX_GAME_START_TIME = 30
 GAME_START_TIME = 30        # seconds until the game can start once there is enough players
 NEW_PLAYER_DELAY = 10
 
+
 def process_connections( conn ):
     # process any messages from the client
     while conn.receive_message_pending():

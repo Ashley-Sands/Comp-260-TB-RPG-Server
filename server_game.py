@@ -18,7 +18,9 @@ import Common.Globals as Global
 config = Global.GlobalConfig
 
 def process_connection( conn ):
-    pass
+    # process any messages from the client
+    while conn.receive_message_pending():
+        conn.receive_message().run_action()
 
 def process_client_identity( message_obj ):
 
@@ -51,7 +53,7 @@ def process_client_identity( message_obj ):
     # notify other clients that they have joined the game server
     msg = message.Message('m')
     msg.new_message(client_nickname, [], "Has Joined the Server :D Yay! ")
-    msg.to_connections = socket_handler.connections # send to all clients
+    msg.to_connections = socket_handler.get_connections() # send to all clients
     msg.send_message()
 
 
@@ -69,6 +71,7 @@ def process_client_status( message_obj ):
     # if so send the player info.
     expecting_player_count = database.get_lobby_player_count(lobby_id)
 
+    DEBUG.LOGS.print( "Client Joined successfully! --------------------------------------------------------" )
 
     if active_game_model.players_ready_count == expecting_player_count:
         # send out the player details to the clients
@@ -95,8 +98,6 @@ def process_client_status( message_obj ):
         game_info_msg.new_message( const.SERVER_NAME, client_ids, nicknames, player_ids )
         game_info_msg.to_connections = socket_handler.connections
         game_info_msg.send_message()
-
-
 
 if __name__ == "__main__":
 

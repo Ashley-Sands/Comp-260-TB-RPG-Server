@@ -100,6 +100,9 @@ class SocketHandler:
 
         return count
 
+    def get_connections( self ):
+        return list( self.connections.values() )
+
     def remove_connection( self, sock ):
 
         removed = False

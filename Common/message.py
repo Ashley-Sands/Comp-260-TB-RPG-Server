@@ -94,7 +94,7 @@ class Message:
     def send_message( self ):
 
         for c in self.to_connections:
-            self.to_connections[c].send_message( self )
+            c.send_message( self )
 
     def set_from_json( self, from_name, json_str ):
         """set self.message with json string"""
