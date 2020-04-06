@@ -1,10 +1,15 @@
 
 class BaseGameModel:
 
-    def __init__(self):
+    def __init__(self, socket_handler):
 
+        self.socket_handler = socket_handler
         self.players_ready_count = 0
         self.bind_actions = {}
+        self.bind_actions_init()
+
+    def bind_actions_init( self ):
+        pass
 
     def bind_all( self, message ):
         """binds all functions in bind actions dict to message

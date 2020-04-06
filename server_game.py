@@ -148,7 +148,7 @@ if __name__ == "__main__":
                 DEBUG.LOGS.print("Lobby: ", next_lobby_id, "has been assigned", game_host_id, database.game_slot_assigned( next_lobby_id ))
 
                 lobby_id = next_lobby_id
-                active_game_model = defaultGameMode.DefaultGameMode()
+                active_game_model = defaultGameMode.DefaultGameMode( socket_handler )
                 # bind game model functions to message.
                 active_game_model.bind_all( message.Message )
 
