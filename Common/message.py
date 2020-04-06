@@ -91,9 +91,13 @@ class Message:
         if not self.ERR:
             self.message = Message.TYPES[self.identity](*params)
 
-    def send_message( self ):
+    def send_message( self, ignore_from_client=False ):
 
         for c in self.to_connections:
+
+            if ignore_from_client and self.from_connection == c:
+                continue
+
             c.send_message( self )
 
     def set_from_json( self, from_name, json_str ):
