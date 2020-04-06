@@ -1,4 +1,5 @@
-import Components.Game.baseGameModel as baseGameModle
+import Components.Game.baseGameModel as baseGameModel
 
-class DefaultGameMode( baseGameModle.BaseGameModle ):
+
+class DefaultGameMode( baseGameModel.BaseGameModel ):
     pass

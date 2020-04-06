@@ -1,5 +1,5 @@
 
-class BaseGameModle:
+class BaseGameModel:
 
     def __init__(self):
 
