@@ -24,7 +24,7 @@ class Message:
     # Action functions need to be bound onto there TYPE 'char'
     # Use (static) bind_action and unbind_action functions, to do such task
     # callback functions require a param of type (Common.)Message
-    ACTION = { }
+    ACTION = { }    # dict. Key: identity char. value list of functions [func0, func2, ...] ( dict[char][int] )
 
     def __init__( self, identity_char, from_connection=None ):
         """
@@ -69,6 +69,10 @@ class Message:
         """Remove the func from the actions list"""
         if identity_char in Message.ACTION:
             Message.ACTION[identity_char].remove(func)
+            # remove the identity if there are no functions left bound to the event.
+            if len(Message.ACTION[identity_char]) == 0:
+                del Message.ACTION[identity_char]
+
 
     def run_action( self ):
         """Run all the actions bound to this messages identity"""
