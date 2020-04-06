@@ -156,6 +156,9 @@ def assign_game_slot(): # this will be done from the game instance. while its fr
 
 
 def launch_game( lobby_id ):
+    """Lunches the game if a game slot has been assigned
+    return: true if the game was launched otherwise false
+    """
     # so one the count down is complete, we are able to launch
     # as long as a game slot has been assigned.
     # if not we'll just have to stick around until one is freed up
@@ -174,12 +177,12 @@ def launch_game( lobby_id ):
         del lobbies_start_times[ lobby_id ]
 
         DEBUG.LOGS.print( "Bey Bey, Lobby", lobby_id )
-
+        return True
     else:
         que_size = database.get_game_queue_size()
         DEBUG.LOGS.print("lh_id", lobby_host_id, "lid", lobby_id, "Waiting for game to be assigned...",
                          "queue size", que_size, message_type=DEBUG.LOGS.MSG_TYPE_WARNING )
-
+        return False
 
 if __name__ == "__main__":
 
@@ -225,11 +228,14 @@ if __name__ == "__main__":
         socket_handler.process_connections( process_func=process_connections,
                                             extend_remove_connection_func=clean_lobby )
 
-        for lid in lobbies_start_times:
-            if lobbies_start_times[lid ] > 0 and time.time() > lobbies_start_times[lid ]:
+        # TODO: pre-compute lobby key ids.
+        # we really should not do this evey update.
+        lobby_ids = list( lobbies_start_times.keys() )
+
+        for lid in lobby_ids:
+            if lobbies_start_times[ lid ] > 0 and time.time() > lobbies_start_times[lid ]:
                 # start the lobby
-                launch_game( lid )
-                lobbies_start_times[ lid ] += 2  # don't check for another couple of seconds
-                pass
+                if not launch_game( lid ):
+                    lobbies_start_times[ lid ] += 2  # don't check for another couple of seconds
 
     database.remove_lobby_host( config.get( "internal_host" ) )
