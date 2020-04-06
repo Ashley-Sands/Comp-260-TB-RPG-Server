@@ -1,6 +1,6 @@
 import json
 import Common.DEBUG as DEBUG
-from Common.Protocols import request_types, info_types, scene_control, status, common, test
+from Common.Protocols import request_types, info_types, scene_control, status, common, test, game_types
 
 
 class Message:
@@ -19,7 +19,9 @@ class Message:
         'C': info_types.lobby_client_list,
         'O': info_types.lobby_info,
         'm': common.message,
-        'G': info_types.game_client_list
+        'G': info_types.game_client_list,
+
+        'M': game_types.move_player
     }
 
     # Action functions need to be bound onto there TYPE 'char'
