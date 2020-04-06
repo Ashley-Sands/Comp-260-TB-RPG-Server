@@ -2,6 +2,7 @@
 
 # Template
 Protocol name       : Template
+Type                : [identity/info/status/gAction/...]
 Protocol identity   : [identity char]
 Message Origin      : [Client/Server]
 Services            : [serves(S/R)]
@@ -17,6 +18,7 @@ Data
 ================================================================================
 
 Protocol name       : server status
+Type                : Status
 Protocol identity   : !
 Message Origin      : server
 Services            : ALL (S)
@@ -32,13 +34,14 @@ Status types        :
                 -
 Data
     - string        from_client_name         nickname of origin
-    - int           status_type
+    - int           server_status_type
     - bool          ok
     - string        message
 
 ================================================================================
 
 Protocol name       : client status
+Type                : Status
 Protocol identity   : ?
 Message Origin      : server
 Services            : ALL (S)
@@ -97,6 +100,7 @@ Data
 ================================================================================
 
 Protocol name       : lobby list
+Type                : Info
 Protocol identity   : 'l'               (lower L)
 Message Origin      : Server
 Services            : lobby(S)
@@ -143,6 +147,7 @@ Data
 ================================================================================
 
 Protocol name       : Lobby client list
+Type                : Info
 Protocol identity   : C
 Message Origin      : Server
 Services            : Lobby (S)
@@ -158,6 +163,7 @@ Data
 ================================================================================
 
 Protocol name       : Lobby Info
+Type                : Info
 Protocol identity   : O
 Message Origin      : Server
 Services            : Lobby(S)
@@ -205,6 +211,7 @@ Data
 ================================================================================
 
 Protocol name       : game client list
+Type                : Info
 Protocol identity   : G
 Message Origin      : Server
 Services            : Game (S)

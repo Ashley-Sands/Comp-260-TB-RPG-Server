@@ -84,7 +84,7 @@ def process_client_status( message_obj ):
         conn_sockets = list(socket_handler.connections.keys())
 
         for sock in conn_sockets:
-            cid, nn, pid = socket_handler.get_connection( sock )
+            cid, nn, pid = socket_handler.get_connection( sock ).get_player_info()
             try:
                 pid = random.choice( available_player_ids )
             except Exception as e:
@@ -96,7 +96,7 @@ def process_client_status( message_obj ):
 
         game_info_msg = message.Message( "G" )
         game_info_msg.new_message( const.SERVER_NAME, client_ids, nicknames, player_ids )
-        game_info_msg.to_connections = socket_handler.connections
+        game_info_msg.to_connections = socket_handler.get_connections()
         game_info_msg.send_message()
 
 if __name__ == "__main__":
