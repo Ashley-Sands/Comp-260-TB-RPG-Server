@@ -22,13 +22,13 @@ def get_host( conn, send_scene_change=False ):
     """
 
     # *** IMPORTANT ***
-    # 1. if the user does has not auth key set on the (selector) server the user must get authorized.
+    # 1. if the user does not have an auth key set on the (selector) server the user must get authorized.
     #    either by sending the auth key to the server to be verified or failing that the auth server
     #    will assign a new key
     # 2. Once the user has been authorized
-    #    A.     If no lobby is set on the user in the data they are sent to the lobbies server
+    #    A.     If no lobby is set on the user in the database they are sent to the lobbies server
     #    B.     If a lobby is set the users is sent to the lobby
-    #    C.     If a lobby and game is set, the users is still sent to lobby, this singles that the
+    #    C.     If a lobby and game is set, the users is still be sent to lobby, this singles that the
     #            game is ready to launch when the lobby period is complete.
     #    D.     If no lobby is set but a game is, the users is sent to the game.
     #
