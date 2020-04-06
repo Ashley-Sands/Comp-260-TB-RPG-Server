@@ -1,12 +1,17 @@
 import Common.DEBUG as DEBUG
 import Common.database as db
-import Sockets.ServerGameSocket as ServerGameSocket
-import Sockets.SocketHandler as SocketHandler
 import Common.constants as const
 import Common.message as message
 import Common.actions
 import Common.Protocols.status as status_protocol
+
+import Sockets.ServerGameSocket as ServerGameSocket
+import Sockets.SocketHandler as SocketHandler
+
+import Components.Game.defaultGameMode as defaultGameMode
+
 import time
+import random
 import Common.Protocols.status as statusProtocols
 
 import Common.Globals as Global
@@ -52,37 +57,54 @@ def process_client_identity( message_obj ):
 
 def process_client_status( message_obj ):
 
-    global player_ready_count
-
-    if message_obj[ "status_type" ] == status_protocol.CS_CLIENT:
-        if message_obj["ok"] :
+    # check that the client has reported that the scene has loaded successfully
+    # and that they are now ready to receive the game setup info.
+    if message_obj[ "status_type" ] == status_protocol.CS_SCENE_LOADED:
+        if message_obj["ok"] :  # TODO: if the user is not ok, remove them from the game?
             if not message_obj.from_connection.ready:
                 message_obj.from_connection.ready = True
-                player_ready_count += 1
+                active_game_model.players_ready_count += 1
 
     # check all the players have arrived and readied
     # if so send the player info.
     expecting_player_count = database.get_lobby_player_count(lobby_id)
 
-    # check that all the clients have connected.
-    if socket_handler.get_connection_count() != expecting_player_count:
-        return
 
-    # check that they are all ready
-    # and send message
-    ready = True
+    if active_game_model.players_ready_count == expecting_player_count:
+        # send out the player details to the clients
+        available_player_ids = [x for x in range(expecting_player_count)] # list of player ids to assign each player at random without dups
 
+        client_ids = []
+        nicknames = []
+        player_ids = []
 
+        conn_sockets = list(socket_handler.connections.keys())
+
+        for sock in conn_sockets:
+            cid, nn, pid = socket_handler.get_connection( sock )
+            try:
+                pid = random.choice( available_player_ids )
+            except Exception as e:
+                DEBUG.LOGS.print( "No more random ids to choose for.", message_type=DEBUG.LOGS.MSG_TYPE_FATAL )
+
+            client_ids.append( cid )
+            nicknames.append( nn )
+            player_ids.append( pid )
+
+        game_info_msg = message.Message( "G" )
+        game_info_msg.new_message( const.SERVER_NAME, client_ids, nicknames, player_ids )
+        game_info_msg.to_connections = socket_handler.connections
+        game_info_msg.send_message()
 
 
 
 if __name__ == "__main__":
 
     running = True
-    game_active = False
+    active_game_model = None    # if the model is none then there is no active game currently
+
     game_host_id = -1
     lobby_id = -1
-    player_ready_count = 0
 
     # set up
     Global.setup()
@@ -100,6 +122,7 @@ if __name__ == "__main__":
     game_host_id = database.add_game_host( config.get( "internal_host" ) )
 
     # bind message functions
+    message.Message.bind_action( '?', process_client_status )
     message.Message.bind_action( '&', Common.actions.processes_ping )
     message.Message.bind_action( 'i', process_client_identity )
 
@@ -116,19 +139,25 @@ if __name__ == "__main__":
 
     while running:
         # wait for a game to be added to the que
-        while running and not game_active:
+        while running and active_game_model is None:
             # assign the game id to the next lobby in the queue
             next_lobby_id = database.get_next_lobby_in_queue()
             if next_lobby_id is not None:
                 database.update_lobby_game_host( next_lobby_id, game_host_id )
                 DEBUG.LOGS.print("Lobby: ", next_lobby_id, "has been assigned", game_host_id, database.game_slot_assigned( next_lobby_id ))
-                game_active = True
+
                 lobby_id = next_lobby_id
+                active_game_model = defaultGameMode.DefaultGameMode()
+                # bind game model functions to message.
+                active_game_model.bind_all( message.Message )
 
         # run the game.
-        while running and game_active:
+        while running and active_game_model is not None:
 
             socket_handler.process_connections( process_connection )
 
+        # unbind the game model functions from message
+        # and reset the server status
+        active_game_model.unbind_all( message.Message )
+        active_game_model = None
         lobby_id = -1
-        players_ready_count = 0

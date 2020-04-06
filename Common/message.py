@@ -18,7 +18,8 @@ class Message:
         's': scene_control.scene_request,
         'C': info_types.lobby_client_list,
         'O': info_types.lobby_info,
-        'm': common.message
+        'm': common.message,
+        'G': info_types.game_client_list
     }
 
     # Action functions need to be bound onto there TYPE 'char'

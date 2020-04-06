@@ -14,7 +14,13 @@ def lobby_list( from_client_name, lobby_names, lobby_ids, current_clients, max_c
 def lobby_client_list( from_client_name, client_ids, client_nicknames ):
     return locals()
 
+
 # L
 def lobby_info( from_client_name, level_name, min_players, max_players, starts_in ):
+    return locals()
+
+
+# G
+def game_client_list( from_client_name, client_ids, client_nicknames, client_player_ids ):
     return locals()
 

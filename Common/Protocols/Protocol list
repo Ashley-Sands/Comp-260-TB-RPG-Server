@@ -204,6 +204,24 @@ Data
 
 ================================================================================
 
+Protocol name       : game client list
+Protocol identity   : G
+Message Origin      : Server
+Services            : Game (S)
+Message Action      :
+    Server          : sent from the server to the client with a list of clients that will be
+                      taking part in the game
+    Client          : received by client to set up the players in the game.
+                      the client should then respond with client status GAME_READY ok = True
+Other Details       :
+Data
+    - string        from_client_name         nickname of origin
+    - int[]         client_ids
+    - string[]      client_nicknames
+    - int[]         client_player_ids
+
+================================================================================
+
 Protocol name       : move player
 Protocol identity   : M
 Message Origin      : Client

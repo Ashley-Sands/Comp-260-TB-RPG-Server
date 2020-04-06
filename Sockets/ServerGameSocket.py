@@ -9,4 +9,16 @@ class ServerGameSocket( ServerModuleSocket.ServerModuleSocket ):
 
         # Game stats
         self.ready = False
+        self.player_id = -1     # < 0 unset.
 
+    def get_player_info( self ):
+        """ gets the players info.
+
+        :return:    tuple ( client_id, nickname, player_id)
+        """
+
+        self.thread_lock.acquire()
+        info = (self._client_db_id, self.client_nickname, self.player_id)
+        self.thread_lock.release()
+
+        return info
