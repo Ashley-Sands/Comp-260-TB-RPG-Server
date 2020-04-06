@@ -7,3 +7,6 @@ class ServerGameSocket( ServerModuleSocket.ServerModuleSocket ):
 
         super().__init__(socket)
 
+        # Game stats
+        self.ready = False
+

@@ -92,6 +92,14 @@ class SocketHandler:
         else:
             return None
 
+    def get_connection_count( self ):
+
+        self.thread_lock.acquire()
+        count = len( self.connections )
+        self.thread_lock.acquire()
+
+        return count
+
     def remove_connection( self, sock ):
 
         removed = False

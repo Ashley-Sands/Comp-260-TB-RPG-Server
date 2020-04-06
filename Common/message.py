@@ -9,6 +9,7 @@ class Message:
     # for a easier life and reference
     TYPES = {
         '!': status.server_status,
+        '?': status.client_status,
         '&': test.ping,
         'i': request_types.identity_request,
         'I': request_types.identity_status,

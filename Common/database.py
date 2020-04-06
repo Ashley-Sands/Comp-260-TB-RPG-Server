@@ -305,7 +305,6 @@ class Database:
 
         return rows[0]
 
-
     def get_client_game_id( self, reg_key ):
 
         query = "SELECT lobbies.game_id " \

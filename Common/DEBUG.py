@@ -13,8 +13,8 @@ class LOGS:
     MSG_TYPE_ERROR   = 3
     MSG_TYPE_FATAL   = 4
 
-    debug_mode = False
-    que_pre_init_msg = False
+    debug_mode = True
+    que_pre_init_msg = True
     inited = False
     active = False
     print_que = q.Queue()    # Queue of tuples (type, message)
@@ -26,8 +26,8 @@ class LOGS:
 
     __log_messages_to_file = False
     __log_warning_to_file = False
-    __log_errors_to_file = False
-    __log_fatal_to_file = False
+    __log_errors_to_file = True
+    __log_fatal_to_file = True
 
 
     @staticmethod

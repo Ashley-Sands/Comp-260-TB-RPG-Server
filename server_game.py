@@ -5,6 +5,7 @@ import Sockets.SocketHandler as SocketHandler
 import Common.constants as const
 import Common.message as message
 import Common.actions
+import Common.Protocols.status as status_protocol
 import time
 import Common.Protocols.status as statusProtocols
 
@@ -49,11 +50,39 @@ def process_client_identity( message_obj ):
     msg.send_message()
 
 
+def process_client_status( message_obj ):
+
+    global player_ready_count
+
+    if message_obj[ "status_type" ] == status_protocol.CS_CLIENT:
+        if message_obj["ok"] :
+            if not message_obj.from_connection.ready:
+                message_obj.from_connection.ready = True
+                player_ready_count += 1
+
+    # check all the players have arrived and readied
+    # if so send the player info.
+    expecting_player_count = database.get_lobby_player_count(lobby_id)
+
+    # check that all the clients have connected.
+    if socket_handler.get_connection_count() != expecting_player_count:
+        return
+
+    # check that they are all ready
+    # and send message
+    ready = True
+
+
+
+
+
 if __name__ == "__main__":
 
     running = True
     game_active = False
     game_host_id = -1
+    lobby_id = -1
+    player_ready_count = 0
 
     # set up
     Global.setup()
@@ -94,8 +123,12 @@ if __name__ == "__main__":
                 database.update_lobby_game_host( next_lobby_id, game_host_id )
                 DEBUG.LOGS.print("Lobby: ", next_lobby_id, "has been assigned", game_host_id, database.game_slot_assigned( next_lobby_id ))
                 game_active = True
+                lobby_id = next_lobby_id
 
         # run the game.
         while running and game_active:
-            # lets keep it clean :)
+
             socket_handler.process_connections( process_connection )
+
+        lobby_id = -1
+        players_ready_count = 0

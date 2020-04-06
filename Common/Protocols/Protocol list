@@ -38,6 +38,28 @@ Data
 
 ================================================================================
 
+Protocol name       : client status
+Protocol identity   : ?
+Message Origin      : server
+Services            : ALL (S)
+Message Action      :
+    Server          : Sent from the server to the client with the current status
+                      of the users request.
+    Client          :
+Other Details       : This will be mostly used for errors.
+Status types        :
+                (add 'CS_' to start in python)
+                - CLIENT            = 0
+                - SCENE_READY       = 1
+                -
+Data
+    - string        from_client_name         nickname of origin
+    - int           status_type
+    - bool          ok
+    - string        message
+
+================================================================================
+
 Protocol name       : identity request
 Protocol identity   : i
 Message Origin      : Server
@@ -179,5 +201,22 @@ Data
     - string        from_client_name         nickname of origin
     - double        client_send_time
     - double        server_receive_time
+
+================================================================================
+
+Protocol name       : move player
+Protocol identity   : M
+Message Origin      : Client
+Services            : game(S/R)
+Message Action      : Sent from the client to the server
+    Server          : distrabutes the action among other clients
+    Client          :
+Other Details       :
+Data
+    - string        from_client_name        nickname of origin
+    - int           player_id
+    - float         x                       x position
+    - float         y                       y position
+    - float         z                       z position
 
 ================================================================================
