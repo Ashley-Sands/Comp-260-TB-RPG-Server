@@ -7,3 +7,10 @@
 
 def move_player( from_client_name, x, y, z ):
     return locals()
+
+# Server Object types
+SO_PLAYER = 0
+SO_RELIC = 1
+
+def server_object( from_client_name, type, object_id, x, y, z ):
+    return locals()

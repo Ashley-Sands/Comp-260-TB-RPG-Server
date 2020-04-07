@@ -21,7 +21,8 @@ class Message:
         'm': common.message,
         'G': info_types.game_client_list,
 
-        'M': game_types.move_player
+        'M': game_types.move_player,
+        '#': game_types.server_object
     }
 
     # Action functions need to be bound onto there TYPE 'char'
