@@ -247,6 +247,22 @@ Data
 
 ================================================================================
 
+Protocol name       : collect item
+Type                : Game Action
+Protocol identity   : P
+Message Origin      : Client
+Services            : game(S/R)
+Message Action      :
+    Client          : Sent from the client to the server with the item id the the player has collected
+    Server          : distrabutes the action among other clients
+Other Details       :
+Data
+    - string        from_client_name        nickname of origin
+    - int           player_id
+    - int           object_id               server object id
+
+================================================================================
+
 Protocol name       : server object
 Type                : Game Action
 Protocol identity   : #
@@ -255,14 +271,20 @@ Services            : game(S/R)
 Message Action      : updates the position of an object on the server and client.
     Client          : Sent from the client to the server
     Server          : distrabutes the action among other clients
-Other Details       :
+Other Details       : Altho this inherits from BaseProtocol its an action that
+                      can only happen in the game
                 Object types (add SO_ to start in python):
                     - PLAYER = 0
                     - RELIC = 1
-                    -
+
+                Action Types (add SOA_ to start in python)
+                    - DEFAULT = 0
+                    - ADD = 1
+                    - REMOVE = 2
 Data
     - string        from_client_name        nickname of origin
     - int           type                    the object type
+    - int           action                  the action for the object
     - int           object_id               the id of the object or if type player the player id
     - float         x                       x position
     - float         y                       y position

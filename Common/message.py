@@ -22,6 +22,8 @@ class Message:
         'G': info_types.game_client_list,
 
         'M': game_types.move_player,
+        'P': game_types.collect_item,
+
         '#': game_types.server_object
     }
 
