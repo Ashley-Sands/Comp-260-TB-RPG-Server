@@ -16,7 +16,7 @@ def collect_item( from_client_name, player_id, object_id ):
 
 
 # p
-def collect_item( from_client_name, player_id ):
+def drop_item( from_client_name, player_id ):
     return locals()
 
 # Server Object types

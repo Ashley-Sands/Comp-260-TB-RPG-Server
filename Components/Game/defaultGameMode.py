@@ -22,6 +22,8 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
         self.bind_actions = {
             'M': self.move_player,
+            'P': self.collect_object,
+            'p': self.drop_object,
             '#': self.server_object
         }
 
@@ -30,12 +32,39 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
         message_obj.to_connections = self.socket_handler.get_connections()
         message_obj.send_message(True)
 
+    def collect_object( self, message_obj ):
+
+        # update the clients item
+        from_client = message_obj.from_connection
+        from_client.urrent_item = message_obj["object_id"]
+
+        # send the message to all other clients.
+        message_obj.to_connections = self.socket_handler.get_connections()
+        message_obj.send_message(True)
+
+    def drop_object( self, message_obj ):
+
+        # update the clients item
+        from_client = message_obj.from_connection
+        from_client.current_item = None
+
+        # send the message to all other clients.
+        message_obj.to_connections = self.socket_handler.get_connections()
+        message_obj.send_message( True )
+
     def server_object( self, message_obj ):
 
         # if the object type is of player then we need to update the player
         # otherwise we just have to update self.objects
         if message_obj["type"] == game_types.SO_PLAYER:
-            pass
+
+            client = self.get_client_by_player_id( message_obj["object_id"] )
+
+            if client is not None:
+                client.set_position( message_obj[ "x" ],
+                                     message_obj[ "y" ],
+                                     message_obj[ "z" ] )
+
         else:
 
             obj_id = message_obj["object_id"]
@@ -43,6 +72,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
                 self.objects[ obj_id ].set_position( message_obj[ "x" ],
                                                      message_obj[ "y" ],
                                                      message_obj[ "z" ] )
+
                 # send the message to all other clients.
                 message_obj.to_connections = self.socket_handler.get_connections()
                 message_obj.send_message( True )
