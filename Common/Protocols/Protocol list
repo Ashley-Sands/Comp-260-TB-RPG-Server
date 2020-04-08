@@ -263,6 +263,25 @@ Data
 
 ================================================================================
 
+Protocol name       : action
+Type                : Game Action
+Protocol identity   : A
+Message Origin      : Client
+Services            : game(S/R)
+Message Action      : for game action that only require the player id
+    Client          : Sent from the client to the server with the item id the the player has droped
+    Server          : distrabutes the action among other clients
+Other Details       :
+                Game Action types (add GA_ to start in python):
+                    - DROP_ITEM          = 0
+                    - LAUNCH_PROJECTILE  = 1
+Data
+    - string        from_client_name        nickname of origin
+    - int           player_id
+    - int           action                  game action type
+
+================================================================================
+
 Protocol name       : drop item
 Type                : Game Action
 Protocol identity   : p

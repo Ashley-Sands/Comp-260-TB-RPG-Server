@@ -15,7 +15,16 @@ def collect_item( from_client_name, player_id, object_id ):
     return locals()
 
 
-# p
+# Game Action Types
+GA_DROP_ITEM         = 0
+GA_LAUNCH_PROJECTILE = 1
+
+# A
+def game_Action( from_client_name, player_id, action ):
+    return locals();
+
+
+# p # todo: remove
 def drop_item( from_client_name, player_id ):
     return locals()
 
