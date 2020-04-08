@@ -263,6 +263,21 @@ Data
 
 ================================================================================
 
+Protocol name       : drop item
+Type                : Game Action
+Protocol identity   : p
+Message Origin      : Client
+Services            : game(S/R)
+Message Action      :
+    Client          : Sent from the client to the server with the item id the the player has droped
+    Server          : distrabutes the action among other clients
+Other Details       :
+Data
+    - string        from_client_name        nickname of origin
+    - int           player_id
+
+================================================================================
+
 Protocol name       : server object
 Type                : Game Action
 Protocol identity   : #

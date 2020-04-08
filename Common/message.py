@@ -23,6 +23,7 @@ class Message:
 
         'M': game_types.move_player,
         'P': game_types.collect_item,
+        'p': game_types.drop_item,
 
         '#': game_types.server_object
     }

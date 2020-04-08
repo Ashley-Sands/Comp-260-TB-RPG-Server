@@ -9,10 +9,15 @@
 def move_player( from_client_name, x, y, z ):
     return locals()
 
+
 # P
 def collect_item( from_client_name, player_id, object_id ):
     return locals()
 
+
+# p
+def collect_item( from_client_name, player_id ):
+    return locals()
 
 # Server Object types
 SO_PLAYER = 0
