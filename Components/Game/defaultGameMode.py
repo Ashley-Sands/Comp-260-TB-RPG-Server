@@ -66,7 +66,6 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
                                      message_obj[ "z" ] )
 
         else:
-
             obj_id = message_obj["object_id"]
             if obj_id in self.objects:
                 self.objects[ obj_id ].set_position( message_obj[ "x" ],
