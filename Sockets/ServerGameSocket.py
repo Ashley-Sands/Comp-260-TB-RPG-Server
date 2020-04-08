@@ -11,6 +11,10 @@ class ServerGameSocket( ServerModuleSocket.ServerModuleSocket ):
         self.ready = False
         self.player_id = -1     # < 0 unset.
 
+        # Game
+        self.position = (0, 0, 0)
+        self.current_item = None
+
     def get_player_info( self ):
         """ gets the players info.
 
@@ -22,3 +26,7 @@ class ServerGameSocket( ServerModuleSocket.ServerModuleSocket ):
         self.thread_lock.release()
 
         return info
+
+    def set_position( self, x, y, z ):
+
+        self.position = (x, y, z)
