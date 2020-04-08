@@ -24,7 +24,6 @@ class Message:
         'M': game_types.move_player,
         'A': game_types.game_Action,
         'P': game_types.collect_item,
-        'p': game_types.drop_item,      # TOdo Remove.
 
         '#': game_types.server_object
     }

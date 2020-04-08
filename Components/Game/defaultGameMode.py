@@ -17,13 +17,12 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             3: serverObj.ServerObject( 3, game_types.SO_RELIC, (0, 0, 0) )
         }
 
-
     def bind_actions_init( self ):
 
         self.bind_actions = {
             'M': self.move_player,
+            'A': self.game_action,
             'P': self.collect_object,
-            'p': self.drop_object,
             '#': self.server_object
         }
 
@@ -42,15 +41,18 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
         message_obj.to_connections = self.socket_handler.get_connections()
         message_obj.send_message(True)
 
-    def drop_object( self, message_obj ):
+    def game_action( self, message_obj ):
 
-        # update the clients item
-        from_client = message_obj.from_connection
-        from_client.current_item = None
+        actions = [game_types.GA_DROP_ITEM, game_types.GA_LAUNCH_PROJECTILE]
 
-        # send the message to all other clients.
-        message_obj.to_connections = self.socket_handler.get_connections()
-        message_obj.send_message( True )
+        if message_obj["action"] in actions:
+            # update the clients item
+            from_client = message_obj.from_connection
+            from_client.current_item = None
+
+            # send the message to all other clients.
+            message_obj.to_connections = self.socket_handler.get_connections()
+            message_obj.send_message( True )
 
     def server_object( self, message_obj ):
 
