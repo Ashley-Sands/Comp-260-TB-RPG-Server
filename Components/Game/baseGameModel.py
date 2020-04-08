@@ -24,3 +24,14 @@ class BaseGameModel:
         """
         for ba in self.bind_actions:
             message.unbind_action( ba, self.bind_actions[ba] )
+
+    def get_client_by_player_id( self, player_id ):
+        """ Get the serverGameSocket by the player id """
+
+        connections = self.socket_handler.get_connections()
+
+        for conn in connections:
+            if conn.player_id == player_id :
+                return conn
+
+        return None
