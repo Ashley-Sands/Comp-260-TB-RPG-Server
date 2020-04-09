@@ -35,8 +35,8 @@ def apply_damage( from_client_id, player_id, damage, kill ):
     return locals()
 
 
-# R # todo: remove
-def Look_At( from_client_name, player_id, x, y, z ):
+# R
+def look_at( from_client_name, player_id, x, y, z ):
     return locals()
 
 # Server Object types

@@ -85,6 +85,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
     def look_at_position( self, message_obj ):
 
+        DEBUG.LOGS.print("Hreloooo look at position")
         # send the message to all other clients.
         message_obj.to_connections = self.socket_handler.get_connections()
         message_obj.send_message( True )
@@ -109,6 +110,10 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
                 self.objects[ obj_id ].set_position( message_obj[ "x" ],
                                                      message_obj[ "y" ],
                                                      message_obj[ "z" ] )
+
+                self.objects[ obj_id ].set_rotation ( message_obj[ "r_x" ],
+                                                      message_obj[ "r_y" ],
+                                                      message_obj[ "r_z" ] )
 
                 # send the message to all other clients.
                 message_obj.to_connections = self.socket_handler.get_connections()

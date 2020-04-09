@@ -360,5 +360,8 @@ Data
     - float         x                       x position
     - float         y                       y position
     - float         z                       z position
+    - float         r_x                     x rotation
+    - float         r_y                     y rotation
+    - float         r_z                     z rotation
 
 ================================================================================
