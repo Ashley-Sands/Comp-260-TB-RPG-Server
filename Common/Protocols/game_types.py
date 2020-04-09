@@ -31,7 +31,7 @@ def explosion( from_client_id, x, y, z ):
 
 
 # D
-def apply_damage( from_client_id, player_id, damage ):
+def apply_damage( from_client_id, player_id, damage, kill ):
     return locals()
 
 

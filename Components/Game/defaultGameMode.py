@@ -60,8 +60,11 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             distance = helpers.distance( position, conn.position )
             if distance < const.EXPLOSION_RANGE:
                 # send damage message to all clients
-                damage_amt = int(const.EXPLOSION_DAMAGE * (1.0-(distance/const.EXPLOSION_RANGE)) )
-                damage.new_message( const.SERVER_NAME, conn.player_id, damage_amt )
+                damage_amt = abs(int(const.EXPLOSION_DAMAGE * (1.0-(distance/const.EXPLOSION_RANGE)) ))
+
+                conn.health -= damage_amt
+
+                damage.new_message( const.SERVER_NAME, conn.player_id, damage_amt, conn.health <= 0 )
                 damage.send_message()
 
                 DEBUG.LOGS.print( "Damage: ", damage_amt )

@@ -312,6 +312,7 @@ Data
     - string        from_client_name        nickname of origin
     - int           player_id
     - int           damage
+    - bool          kill
 
 ================================================================================
 

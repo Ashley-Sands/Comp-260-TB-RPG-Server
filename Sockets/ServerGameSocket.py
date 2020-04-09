@@ -14,6 +14,7 @@ class ServerGameSocket( ServerModuleSocket.ServerModuleSocket ):
         # Game
         self.position = (0, 0, 0)
         self.current_item = None
+        self.health = 100
 
     def get_player_info( self ):
         """ gets the players info.
