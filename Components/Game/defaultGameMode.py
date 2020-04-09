@@ -27,6 +27,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             'A': self.game_action,
             'P': self.collect_object,
             'E': self.explosion,
+            'R': self.look_at_position,
             '#': self.server_object
         }
 
@@ -81,6 +82,13 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             # send the message to all other clients.
             message_obj.to_connections = self.socket_handler.get_connections()
             message_obj.send_message( True )
+
+    def look_at_position( self, message_obj ):
+
+        # send the message to all other clients.
+        message_obj.to_connections = self.socket_handler.get_connections()
+        message_obj.send_message( True )
+
 
     def server_object( self, message_obj ):
 

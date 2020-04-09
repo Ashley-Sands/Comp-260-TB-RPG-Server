@@ -316,6 +316,24 @@ Data
 
 ================================================================================
 
+Protocol name       : Look at
+Type                : Game Action
+Protocol identity   : R
+Message Origin      : Server
+Services            : game(R)
+Message Action      :
+    Client          : sent by the client when they look at something
+    Server          : sends to all other clients
+Other Details       :
+Data
+    - string        from_client_name        nickname of origin
+    - int           player_id
+    - float         x
+    - float         y
+    - float         z
+
+================================================================================
+
 Protocol name       : server object
 Type                : Game Action
 Protocol identity   : #
