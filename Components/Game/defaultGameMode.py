@@ -104,6 +104,9 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
                                      message_obj[ "y" ],
                                      message_obj[ "z" ] )
 
+                client.set_rotation( message_obj[ "r_x" ],
+                                     message_obj[ "r_y" ],
+                                     message_obj[ "r_z" ] )
         else:
             obj_id = message_obj["object_id"]
             if obj_id in self.objects:
