@@ -19,9 +19,20 @@ def collect_item( from_client_name, player_id, object_id ):
 GA_DROP_ITEM         = 0
 GA_LAUNCH_PROJECTILE = 1
 
+
 # A
 def game_Action( from_client_name, player_id, action ):
-    return locals();
+    return locals()
+
+
+# E
+def explosion( from_client_id, x, y, z ):
+    return locals()
+
+
+# D
+def apply_damage( from_client_id, player_id, damage ):
+    return locals()
 
 
 # p # todo: remove

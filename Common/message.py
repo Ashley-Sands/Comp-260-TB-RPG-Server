@@ -24,6 +24,8 @@ class Message:
         'M': game_types.move_player,
         'A': game_types.game_Action,
         'P': game_types.collect_item,
+        'E': game_types.explosion,
+        'D': game_types.apply_damage,
 
         '#': game_types.server_object
     }

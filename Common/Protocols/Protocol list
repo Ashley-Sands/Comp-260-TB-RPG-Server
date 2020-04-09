@@ -282,18 +282,36 @@ Data
 
 ================================================================================
 
-Protocol name       : drop item
+Protocol name       : Explosion
 Type                : Game Action
-Protocol identity   : p
+Protocol identity   : E
 Message Origin      : Client
-Services            : game(S/R)
-Message Action      :
-    Client          : Sent from the client to the server with the item id the the player has droped
-    Server          : distrabutes the action among other clients
+Services            : game(R)
+Message Action      : Tells the server that an explosion has ocured at location
+    Client          : Sent from the client who fired the projectile
+    Server          : distrabuted the action among other clients
 Other Details       :
 Data
     - string        from_client_name        nickname of origin
+    - float         x                       x position
+    - float         y                       y position
+    - float         z                       z position
+
+================================================================================
+
+Protocol name       : Damage
+Type                : Game Action
+Protocol identity   : D
+Message Origin      : Server
+Services            : game(S)
+Message Action      : tells the clients who get hurt from the explosion
+    Server          : sends all the clients the damage that is applied to clients
+    Client          : updates the clients that got hurt.
+Other Details       : the server works out who and how much damage to apply to each client.
+Data
+    - string        from_client_name        nickname of origin
     - int           player_id
+    - int           damage
 
 ================================================================================
 
