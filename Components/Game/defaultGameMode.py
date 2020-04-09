@@ -61,7 +61,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             if distance < const.EXPLOSION_RANGE:
                 # send damage message to all clients
                 damage.new_message( const.SERVER_NAME, conn.player_id,
-                                    int(const.EXPLOSION_DAMAGE * (1.0-(distance/const.EXPLOSION_DAMAGE)) ))
+                                    int(const.EXPLOSION_DAMAGE * (1.0-(distance/const.EXPLOSION_RANGE)) ))
                 damage.send_message()
 
 
