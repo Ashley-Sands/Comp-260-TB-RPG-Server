@@ -1,6 +1,9 @@
 import Components.Game.baseGameModel as baseGameModel
 import Components.Game.serverObject as serverObj
+import Components.Game.helpers as helpers
 import Common.Protocols.game_types as game_types
+import Common.message as message
+import Common.constants as const
 import Common.DEBUG as DEBUG
 
 class DefaultGameMode( baseGameModel.BaseGameModel ):
@@ -23,6 +26,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             'M': self.move_player,
             'A': self.game_action,
             'P': self.collect_object,
+            'E': self.explosion,
             '#': self.server_object
         }
 
@@ -40,6 +44,27 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
         # send the message to all other clients.
         message_obj.to_connections = self.socket_handler.get_connections()
         message_obj.send_message(True)
+
+    def explosion( self, message_obj ):
+
+        position = ( message_obj["x"],
+                     message_obj["y"],
+                     message_obj["z"] )
+
+        connections = self.socket_handler.get_connections()
+
+        damage = message.Message( 'D' )
+        damage.to_connections = connections
+
+        for conn in connections:
+            distance = helpers.distance( position, conn.position )
+            if distance < const.EXPLOSION_RANGE:
+                # send damage message to all clients
+                damage.new_message( const.SERVER_NAME, conn.player_id,
+                                    int(const.EXPLOSION_DAMAGE * (1.0-(distance/const.EXPLOSION_DAMAGE)) ))
+                damage.send_message()
+
+
 
     def game_action( self, message_obj ):
 

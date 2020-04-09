@@ -7,3 +7,6 @@ SCENE_NAMES = {
     "LobbyList": "LobbyList",
     "Lobby" : "Lobby"
 }
+
+EXPLOSION_RANGE = 100
+EXPLOSION_DAMAGE = 10
