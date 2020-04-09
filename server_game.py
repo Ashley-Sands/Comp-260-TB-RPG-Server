@@ -81,7 +81,7 @@ def process_client_status( message_obj ):
         nicknames = []
         player_ids = []
 
-        conn_sockets = list(socket_handler.connections.keys())
+        conn_sockets = socket_handler.connections
 
         for sock in conn_sockets:
             cid, nn, pid = socket_handler.get_connection( sock ).get_player_info()
@@ -94,6 +94,8 @@ def process_client_status( message_obj ):
             client_ids.append( cid )
             nicknames.append( nn )
             player_ids.append( pid )
+
+            conn_sockets[sock].player_id = pid
 
         game_info_msg = message.Message( "G" )
         game_info_msg.new_message( const.SERVER_NAME, client_ids, nicknames, player_ids )
