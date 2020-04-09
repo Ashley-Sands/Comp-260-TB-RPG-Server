@@ -26,7 +26,7 @@ class Message:
         'P': game_types.collect_item,
         'E': game_types.explosion,
         'D': game_types.apply_damage,
-
+        'R': game_types.look_at,
         '#': game_types.server_object
     }
 

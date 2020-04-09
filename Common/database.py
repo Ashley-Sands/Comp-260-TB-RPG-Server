@@ -35,6 +35,7 @@ class Database:
         reg_key = hashlib.sha224("{0}{1}".format( nickname, time.time() ).encode() ).hexdigest()
 
         self.database.insert_row("active_users", ["nickname", "reg_key"], [nickname, reg_key])
+
         uid = self.database.select_from_table( "active_users", ["uid, reg_key"], ["reg_key"], [reg_key] )[0][0]
 
         client_id = uid
