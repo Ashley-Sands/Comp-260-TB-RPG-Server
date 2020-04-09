@@ -13,6 +13,7 @@ class ServerGameSocket( ServerModuleSocket.ServerModuleSocket ):
 
         # Game
         self.position = (0, 0, 0)
+        self.rotation = (0, 0, 0)
         self.current_item = None
         self.health = 100
 
@@ -29,5 +30,7 @@ class ServerGameSocket( ServerModuleSocket.ServerModuleSocket ):
         return info
 
     def set_position( self, x, y, z ):
-
         self.position = (x, y, z)
+
+    def set_rotation( self, x, y, z ):
+        self.rotation = ( x, y, z )

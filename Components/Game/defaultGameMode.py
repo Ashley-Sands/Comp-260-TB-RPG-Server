@@ -67,7 +67,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
                 damage.new_message( const.SERVER_NAME, conn.player_id, damage_amt, conn.health <= 0 )
                 damage.send_message()
 
-                DEBUG.LOGS.print( "Damage: ", damage_amt )
+                DEBUG.LOGS.print( "Damage: ", damage_amt, "health: ", conn.health )
 
     def game_action( self, message_obj ):
 
