@@ -10,7 +10,6 @@ class MySqlHelpers:
         try:
             db_connection = MySqlHelpers.MYSQL.connect( host=host, user=user, passwd=passwd)
             db_cursor = db_connection.cursor()
-            # DEBUG.LOGS.print( "mysql: Connected" )
         except Exception as err:
             DEBUG.LOGS.print("mysql:", err, message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
             return None, None
@@ -39,8 +38,6 @@ class MySqlHelpers:
                               message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
             db_cursor.execute( "CREATE DATABASE " + db_name )
             db_cursor.execute("USE "+db_name)
-
-        # DEBUG.LOGS.print("mysql: database", db_name, "selected")
 
         return db_connection, db_cursor
 

@@ -14,6 +14,7 @@ class LOGS:
     MSG_TYPE_FATAL   = 4
 
     debug_mode = True
+    debug_sql = True
     que_pre_init_msg = True
     inited = False
     active = False

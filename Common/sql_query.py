@@ -226,15 +226,15 @@ class sql_query():
 
         columns = ', '.join(columns)
 
-        self.connect_db()
-
         query += " ("+columns+")"
-        DEBUG.LOGS.print("SQL Query", query)
-        self.cursor.execute(query)
 
+        self.connect_db()
+        self.cursor.execute(query)
         self.close_db()
 
-        DEBUG.LOGS.print("Table Created")
+        if DEBUG.LOGS.debug_sql:
+            DEBUG.LOGS.print("SQL Query", query)
+
         return None, None
 
     def drop_table(self, table_name):
@@ -271,15 +271,13 @@ class sql_query():
         col_value_str = ', '.join([val_str] * len(value_data))
 
         query = "INSERT INTO " + table_name + " (" + col_name_str + ") VALUES (" + col_value_str + ") "
-        DEBUG.LOGS.print(query, value_data)
-        if Global.DEBUG:
+
+        if DEBUG.LOGS.debug_sql:
             DEBUG.LOGS.print("query: ", query, "Data", value_data)
 
         self.cursor.execute(query, value_data)
-
         self.close_db()
 
-        DEBUG.LOGS.print("data Inserted to table")
 
     def insert_rows(self, table_name, value_columns, value_data):
         """Inserts rots into table
@@ -306,15 +304,15 @@ class sql_query():
             col_value_str = ', '.join([val_str] * val_len)
 
             query = "INSERT INTO " + table_name + " (" + col_name_str + ") VALUES (" + col_value_str + ") "
-            DEBUG.LOGS.print(query, val)
+            if DEBUG.LOGS.debug_sql:
+                DEBUG.LOGS.print(query, val)
+
             if Global.DEBUG:
                 DEBUG.LOGS.print("query: ", query, "Data", val)
 
             self.cursor.execute(query, val)
 
         self.close_db()
-
-        DEBUG.LOGS.print("data Inserted to table")
 
     def remove_row(self, table_name, where_columns, where_data):
         """remove row from table"""
@@ -328,7 +326,7 @@ class sql_query():
 
         query = " DELETE FROM "+table_name+" WHERE "+where_str
 
-        if Global.DEBUG:
+        if DEBUG.LOGS.debug_sql:
             DEBUG.LOGS.print(query, where_data)
 
         self.cursor.execute( query, where_data )
@@ -372,7 +370,9 @@ class sql_query():
 
         query = "SELECT " + col_str + " FROM " + table_name + where_str + order_str
 
-        DEBUG.LOGS.print (query)
+        if DEBUG.LOGS.debug_sql:
+            DEBUG.LOGS.print (query)
+
         self.connect_db()
         self.cursor.execute( query, where_data )
         data = self.cursor.fetchall()
@@ -403,7 +403,8 @@ class sql_query():
 
         query = "UPDATE "+table_name+" SET "+set_str+" WHERE "+where_str
 
-        DEBUG.LOGS.print( query, data )
+        if DEBUG.LOGS.debug_sql:
+            DEBUG.LOGS.print( query, data )
 
         self.cursor.execute(query, data)
 
