@@ -37,7 +37,6 @@ def get_host( conn, send_scene_change=False ):
     #   Even briefer
     #   Auth->lobby->game->lobbies
     #
-    DEBUG.LOGS.print( "<><>Pre-Selecting host, " )
 
     # find the players current state
     if not conn.get_client_key()[ 1 ].strip():
@@ -49,8 +48,6 @@ def get_host( conn, send_scene_change=False ):
         # get the clients data.
         reg_key = conn.get_client_key()[1]
         current_client_lobby = database.get_client_lobby( reg_key )
-
-        DEBUG.LOGS.print("<><>Selecting host, ", current_client_lobby)
 
         if current_client_lobby > -1:
             # if a lobby has been assigned to the client
