@@ -29,9 +29,9 @@ Message Action      :
 Other Details       : This will be mostly used for errors.
 Status types        :
                 (add 'SS_' to start in python)
-                - SERVER            = 0
-                - LOBBY_REQUEST     = 1
-                -
+                - SERVER                  = 0
+                - LOBBY_REQUEST           = 1
+                - GAME_ENOUGH_PLAYERS     = 2
 Data
     - string        from_client_name         nickname of origin
     - int           server_status_type

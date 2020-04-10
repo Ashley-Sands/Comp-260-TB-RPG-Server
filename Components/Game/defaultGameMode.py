@@ -4,12 +4,17 @@ import Components.Game.helpers as helpers
 import Common.Protocols.game_types as game_types
 import Common.message as message
 import Common.constants as const
+import Common.database as database
 import Common.DEBUG as DEBUG
 
 class DefaultGameMode( baseGameModel.BaseGameModel ):
 
-    def __init__(self, socket_handler):
-        super().__init__( socket_handler )
+    def __init__(self, socket_handler, database):
+        super().__init__( socket_handler, database )
+
+        self.scene_name = "default"
+        self.min_players, self.max_players = self.database.get_level_info_from_name( self.scene_name )
+
         # all the objects that the server tracks excluding the players.
         # dict key = object id, value = server_object
         # TODO: put the objects in the database :)

@@ -180,6 +180,7 @@ def launch_game( lobby_id ):
         DEBUG.LOGS.print( "Bey Bey, Lobby", lobby_id )
         return True
     else:
+        database.debug()
         que_size = database.get_game_queue_size()
         DEBUG.LOGS.print("lh_id", lobby_host_id, "lid", lobby_id, "Waiting for game to be assigned...",
                          "queue size", que_size, message_type=DEBUG.LOGS.MSG_TYPE_WARNING )

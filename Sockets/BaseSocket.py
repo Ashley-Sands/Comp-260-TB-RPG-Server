@@ -112,4 +112,4 @@ class BaseSocketClient:
         self.close_socket()
         self.join_threads()
 
-        DEBUG.LOGS.print( "Client Socket Closed" )
+        DEBUG.LOGS.print( "Client Socket Closed", self._client_db_id)

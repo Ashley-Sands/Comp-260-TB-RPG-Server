@@ -5,9 +5,9 @@
 # See Protocol list for details
 
 # server status types
-SS_SERVER            = 0
-SS_LOBBY_REQUEST     = 1
-
+SS_SERVER                   = 0
+SS_LOBBY_REQUEST            = 1
+SS_GAME_ENOUGH_PLAYERS  = 2
 
 def server_status(from_client_name, status_type, ok, message):
     return locals()

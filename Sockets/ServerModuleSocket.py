@@ -139,4 +139,4 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
             pass # wait until the outbound thread stops
 
         self.close()
-        DEBUG.LOGS.print("########## Safely Closed")
+        DEBUG.LOGS.print("########## Safely Closed ", self._client_db_id)

@@ -139,24 +139,34 @@ class Database:
                 "GROUP BY lobby_host.uid " \
                 "WHERE lobbies.game_id < 0 "
 
+        min_host = self.get_min_lobby_host()
+
+        self.database.insert_row("lobbies", ["level_id", "lobby_host_id"], ["1", min_host])    # TODO: this should just select a level at random.
+
+    def update_lobby_host( self, lobby_id ):
+
+        min_host = self.get_min_lobby_host()
+        self.database.update_row("lobbies", ["lobby_host_id"], [min_host], ["uid"], [lobby_id])
+
+    def get_min_lobby_host( self ):
+        """Get the lobby host with the least amount of lobbies assigned to it."""
+
         all_lobby_host = "SELECT * FROM lobby_host"
+
 
         # return (host id, lobby count)
         # if theres more ahost than uhost then theres host without lobbies
         # uhost_rows = self.database.execute(used_host, []) # TODO: make dynamic
-        ahost_rows = self.database.execute(all_lobby_host, [])
+        ahost_rows = self.database.execute( all_lobby_host, [ ] )
 
-        min_host = ahost_rows[0] # (-1, 9999)
+        min_host = ahost_rows[ 0 ]
 
         # find the host with the list lobbies
         # for uh in uhost_rows :
         #    if r[1] < min_host[1]:
         #        min_host = r
 
-        self.database.insert_row("lobbies", ["level_id", "lobby_host_id"], ["1", min_host[0]])    # TODO: this should just select a level at random.
-
-    def update_lobby_host( self, lobby_id ):
-        pass
+        return min_host[0]
 
     def update_lobby_game_host ( self, lobby_id, game_host_id ):
         """ updates the lobbies game host removeing it from the game que"""
@@ -224,6 +234,21 @@ class Database:
 
         if len(rows) != 1:
             DEBUG.LOGS.print("Did not receive exactly one result (count: ", len(rows), ") for lobby id", lobby_id)
+            return []
+
+        return rows[0]
+
+    def get_level_info_from_name( self, scene_name ):
+        """Gets list [min players and max players]"""
+
+        query = "SELECT min_players, max_players " \
+                "FROM levels " \
+                "WHERE name = %s"
+
+        rows = self.database.execute( query, [scene_name] )
+
+        if len(rows) != 1:
+            DEBUG.LOGS.print("Did not receive exactly one result (count: ", len(rows), ") for scene name: ", scene_name)
             return []
 
         return rows[0]
@@ -383,3 +408,31 @@ class Database:
         #    return -1
 
         return len(rows)
+
+    def clear_game_host( self, game_id ):
+        """Clears the game host for the lobbie"""
+
+        self.database.update_row( "lobbies", ["game_id"], [-1], ["game_id"], [game_id] )
+
+    def debug( self ):
+
+        users_query = "SELECT * FROM active_users"
+        lobbies_query = "SELECT * FROM lobbies"
+        game_query = "SELECT * FROM game_queue"
+        lobby_host_query = "SELECT * FROM lobby_host"
+        game_host_query = "SELECT * FROM games_host"
+        levels_query = "SELECT * FROM levels"
+
+        user_d = self.database.execute( users_query, [ ] )
+        lobbies_d = self.database.execute( lobbies_query, [ ] )
+        game_d = self.database.execute( game_query, [ ] )
+        lobbyh_d = self.database.execute( lobby_host_query, [ ] )
+        gameh_d = self.database.execute( game_host_query, [ ] )
+        levels_d = self.database.execute( levels_query, [ ] )
+
+        DEBUG.LOGS.print( "users", user_d )
+        DEBUG.LOGS.print( "lobbies", lobbies_d )
+        DEBUG.LOGS.print( "game que", game_d )
+        DEBUG.LOGS.print( "lobbies host", lobbyh_d )
+        DEBUG.LOGS.print( "games host", gameh_d )
+        DEBUG.LOGS.print( "levels", levels_d )

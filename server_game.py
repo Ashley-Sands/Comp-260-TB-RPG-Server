@@ -22,6 +22,38 @@ def process_connection( conn ):
     while conn.receive_message_pending():
         conn.receive_message().run_action()
 
+def process_remove_connection( conn ):
+
+    global close_game
+    # check there is enough players still if not we'll have to end the game :(
+    # When the player is disconnected the selector removes them from the database.
+
+    player_count = database.get_lobby_player_count( lobby_id )
+
+    if player_count < active_game_model.min_players:
+        # disconect all others
+        status = message.Message('!')
+        # sent the from connection to the conn disconnecting so we can ignore it when we send the message
+        status.from_connection = conn
+        status.to_connections = socket_handler.get_connections()
+        status.new_message( const.SERVER_NAME, status_protocol.SS_GAME_ENOUGH_PLAYERS,
+                            False, "Not enough Players To continue." )
+        status.send_message(True)
+
+        # clear the game from the database.
+        database.clear_game_host( game_host_id )
+
+        # disconnect the remaining players from the server.
+        connections = socket_handler.get_connections()
+        for c in connections:
+            if c == conn:
+                continue
+            DEBUG.LOGS.print(c.client_nickname, "::", c._client_db_id)
+            c.safe_close()
+
+        close_game = True
+
+
 def process_client_identity( message_obj ):
 
     DEBUG.LOGS.print( "Recivedd id", message_obj[ "client_id" ], message_obj[ "reg_key" ] )
@@ -71,7 +103,7 @@ def process_client_status( message_obj ):
     # if so send the player info.
     expecting_player_count = database.get_lobby_player_count(lobby_id)
 
-    DEBUG.LOGS.print( "Client Joined successfully! --------------------------------------------------------", message_obj.from_connection.client_nickname )
+    DEBUG.LOGS.print( "Client Joined successfully! - ", message_obj.from_connection.client_nickname )
 
     if active_game_model.players_ready_count == expecting_player_count:
         # send out the player details to the clients
@@ -105,6 +137,8 @@ def process_client_status( message_obj ):
 if __name__ == "__main__":
 
     running = True
+    game_active = False
+    close_game = False
     active_game_model = None    # if the model is none then there is no active game currently
 
     game_host_id = -1
@@ -140,7 +174,7 @@ if __name__ == "__main__":
 
     # Welcome the server
     DEBUG.LOGS.print("Welcome",config.get("internal_host"), ":", config.get("internal_port"), " - You game host id is: ", game_host_id )
-
+    T = 0
     while running:
         # wait for a game to be added to the que
         while running and active_game_model is None:
@@ -151,17 +185,29 @@ if __name__ == "__main__":
                 DEBUG.LOGS.print("Lobby: ", next_lobby_id, "has been assigned", game_host_id, database.game_slot_assigned( next_lobby_id ))
 
                 lobby_id = next_lobby_id
-                active_game_model = defaultGameMode.DefaultGameMode( socket_handler )
+                active_game_model = defaultGameMode.DefaultGameMode( socket_handler, database )
                 # bind game model functions to message.
                 active_game_model.bind_all( message.Message )
+                game_active = True
 
         # run the game.
-        while running and active_game_model is not None:
+        while running and game_active:
 
-            socket_handler.process_connections( process_connection )
+            socket_handler.process_connections( process_connection, process_remove_connection )
+            if time.time() > T:
+                DEBUG.LOGS.print("Running game - ", close_game)
+                T = time.time() + 1
+
+            if close_game and socket_handler.get_connection_count() > 0:
+                DEBUG.LOGS.print( "Waiting for ", socket_handler.get_connection_count(), "To Disconnect" )
+            elif close_game:
+                game_active = False
 
         # unbind the game model functions from message
         # and reset the server status
         active_game_model.unbind_all( message.Message )
         active_game_model = None
         lobby_id = -1
+        close_game = False
+
+        DEBUG.LOGS.print("Next Lobby Please...")

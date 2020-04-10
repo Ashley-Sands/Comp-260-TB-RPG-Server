@@ -94,9 +94,7 @@ class SocketHandler:
 
     def get_connection_count( self ):
 
-        self.thread_lock.acquire()
         count = len( self.connections )
-        self.thread_lock.acquire()
 
         return count
 
@@ -109,10 +107,10 @@ class SocketHandler:
         self.thread_lock.acquire()
 
         self.connections[sock].close()
-
         if sock in self.connections:
             del self.connections[sock]
             removed = True
+
         self.thread_lock.release()
 
         return removed
@@ -133,9 +131,11 @@ class SocketHandler:
 
                 if extend_remove_connection_func is not None:
                     extend_remove_connection_func( self.connections[ s ] )
+                DEBUG.LOGS.print( "Client ", self.connections[ s ]._client_db_id, "Not Valid, Removing..." )
 
                 self.remove_connection(s)
                 continue    # even if it fails to remove the connection skip any invalid
 
             if process_func is not None:
                 process_func( self.connections[s] )
+

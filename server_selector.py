@@ -37,6 +37,7 @@ def get_host( conn, send_scene_change=False ):
     #   Even briefer
     #   Auth->lobby->game->lobbies
     #
+    DEBUG.LOGS.print( "<><>Pre-Selecting host, " )
 
     # find the players current state
     if not conn.get_client_key()[ 1 ].strip():
@@ -48,6 +49,8 @@ def get_host( conn, send_scene_change=False ):
         # get the clients data.
         reg_key = conn.get_client_key()[1]
         current_client_lobby = database.get_client_lobby( reg_key )
+
+        DEBUG.LOGS.print("<><>Selecting host, ", current_client_lobby)
 
         if current_client_lobby > -1:
             # if a lobby has been assigned to the client
@@ -66,8 +69,9 @@ def get_host( conn, send_scene_change=False ):
                 scene_name = database.get_lobby_target_scene_name( current_client_lobby )
                 send_scene_change_message( send_scene_change, conn, scene_name )
             else:
-                DEBUG.LOGS.print( "No lobby host or game host assigned to lobby", current_client_lobby,
-                                  message_type=DEBUG.LOGS.MSG_TYPE_FATAL )
+                database.update_lobby_host( current_client_lobby )
+                DEBUG.LOGS.print( "No lobby host or game host assigned to lobby, assigning new...",
+                                  current_client_lobby, message_type=DEBUG.LOGS.MSG_TYPE_FATAL )
 
             return conn.CONN_TYPE_DEFAULT, connect_to_host
 
@@ -85,14 +89,21 @@ def send_scene_change_message( send_message, conn, scene_name ):
 
 
 def client_connection_accepted ( conn, addr ):
+
     DEBUG.LOGS.print( "Client joined", addr )
-    conn.connect_passthrough( *get_host( conn, True ), 8223 )
+    con_type, con_host = get_host( conn, True )
+
+    if con_host != -1:
+        conn.connect_passthrough( con_type, con_host, 8223 )
 
 def process_connections( conn ):
 
     if not conn.passthrough_mode():
-        conn.connect_passthrough( *get_host( conn, True ), 8223 )
-        pass
+        con_type, con_host = get_host( conn, True )
+
+        if con_host != -1:
+            conn.connect_passthrough( con_type, con_host, 8223 )
+
 
 if __name__ == "__main__":
 
