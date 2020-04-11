@@ -15,7 +15,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
     def __init__(self, socket_handler, database):
         super().__init__( socket_handler, database )
 
-        self.analytics = analytics.Analytics( self.database )
+        self.analytics = analytics.Analytics()
 
         self.scene_name = "default"
         self.min_players, self.max_players = self.database.get_level_info_from_name( self.scene_name )

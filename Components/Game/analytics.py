@@ -1,3 +1,4 @@
+import Common.database as database
 import threading
 import queue
 import Common.database
@@ -5,11 +6,11 @@ import time
 
 class Analytics:
 
-    def __init__( self, database ):
+    def __init__( self ):
 
         self.queue = queue.Queue()
         self.running = True
-        self.database = database
+        self.database = database.Database()
 
         self.thread_lock = threading.Lock()
         self.update_thread = threading.Thread( target=self.update )
