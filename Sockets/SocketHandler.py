@@ -26,6 +26,7 @@ class SocketHandler:
         """Starts allowing connections via the socket"""
 
         self.socket_inst = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket_inst.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         self.socket_inst.bind( (self.ip, self.port) )
         self.socket_inst.listen( self.max_conn )
