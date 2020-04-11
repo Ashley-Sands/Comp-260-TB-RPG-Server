@@ -1,3 +1,5 @@
+import Common.DEBUG as DEBUG
+
 
 class Transform:
 
@@ -13,12 +15,30 @@ class Transform:
         self.scale = scale
         self.half_scale = (scale[ 0 ] / 2.0, scale[ 1 ] / 2.0, scale[ 2 ] / 2.0)
 
+    def set_position( self, x, y, z ):
+        self.position = (x, y, z)
+
+    def set_rotation( self, x, y, z ):
+        self.rotation = (x, y, z)
+
+    def set_scale( self, x, y, z ):
+        self.scale = (x, y, z)
+
 
 class Health:
 
     def __init__( self, health ):
 
         self.health = health
+
+    def apply_damage( self, damage ):
+        """ Applies damage to the object if it has health
+            :returns True if still alive
+        """
+
+        self.health -= damage
+
+        return self.health > 0
 
 
 class Bounds:

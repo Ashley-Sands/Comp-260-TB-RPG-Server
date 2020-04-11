@@ -46,7 +46,7 @@ Protocol identity   : ?
 Message Origin      : server
 Services            : ALL (S)
 Message Action      :
-    Server          : Sent from the server to the client with the current status
+    Server          : Sent from the client to the server with the current status
                       of the users request.
     Client          :
 Other Details       : This will be mostly used for errors.

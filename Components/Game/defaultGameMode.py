@@ -1,3 +1,4 @@
+import Components.Game.serverObjectComponents as components
 import Components.Game.baseGameModel as baseGameModel
 import Components.Game.serverObject as serverObj
 import Components.Game.helpers as helpers
@@ -23,10 +24,10 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
         # dict key = object id, value = server_object
         # TODO: put the objects in the database :)
         self.objects = {
-            0: serverObj.ServerObject( 0, game_types.SO_RELIC, (0, 0, 0), active=True ),
-            1: serverObj.ServerObject( 1, game_types.SO_RELIC, (0, 0, 0), active=True ),
-            2: serverObj.ServerObject( 2, game_types.SO_RELIC, (0, 0, 0), active=True ),
-            3: serverObj.ServerObject( 3, game_types.SO_RELIC, (0, 0, 0), active=True )
+            0: serverObj.ServerObject( 0, game_types.SO_RELIC, (0, 1.5, -28.5), active=True ),
+            1: serverObj.ServerObject( 1, game_types.SO_RELIC, (-4, 1.5, -25), active=True ),
+            2: serverObj.ServerObject( 2, game_types.SO_RELIC, (4, 1.5, -25), active=True ),
+            3: serverObj.ServerObject( 3, game_types.SO_RELIC, (0, 1.5, -22), active=True ),
         }
 
         self.object_id = 3
@@ -57,7 +58,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
         # update the clients item
         from_client = message_obj.from_connection
-        from_client.urrent_item = message_obj["object_id"]
+        from_client.current_item = message_obj["object_id"]
 
         # send the message to all other clients.
         message_obj.to_connections = self.socket_handler.get_connections()
@@ -98,17 +99,20 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
         for objId in objects:
             # find if any objects are in range.
-            distance = helpers.distance( position, objects[objId].position )
+            distance = helpers.distance( position, objects[objId].transform.position )
 
             if distance < const.EXPLOSION_RANGE:
                 damage_amt = abs( int( const.EXPLOSION_DAMAGE * (1.0 - (distance / const.EXPLOSION_RANGE)) ) )
 
                 # if the object has died remove it and notify the other clients its dead!
-                if not objects[objId].apply_damage(damage_amt):
+                if objects[objId].health is not None and \
+                   not objects[objId].health.apply_damage(damage_amt):
 
                     remove_obj = message.Message('#')
-                    remove_obj.new_message( const.SERVER_NAME, objects[objId].type,
-                                            objects[objId].object_id, *objects[objId].position,
+                    remove_obj.new_message( const.SERVER_NAME,
+                                            objects[objId].type,
+                                            objects[objId].object_id,
+                                            *objects[objId].transform.position,  # unpack into x, y, z
                                             game_types.SOA_REMOVE )
 
                     remove_obj.to_connections = self.socket_handler.get_connections()
@@ -118,6 +122,8 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
     def game_action( self, message_obj ):
 
+        # TODO: current item should only be set to none if the action id drop item
+        # TODO: we should only beable to launch a projectile if we are not carrying an item.
         actions = [game_types.GA_DROP_ITEM, game_types.GA_LAUNCH_PROJECTILE]
 
         if message_obj["action"] in actions:
@@ -148,11 +154,12 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
         self.object_id = next_id = self.object_id + 1
 
         if game_types.SO_BLOCK == object_type:
-            health = 25
+            health = components.Health(25)
         else:
-            health = -1
+            health = None
 
-        self.objects[ next_id ] = serverObj.ServerObject( next_id, object_type, (0, 0, 0), active=False, health=health)
+        self.objects[ next_id ] = serverObj.ServerObject( next_id, object_type, (0, 0, 0),
+                                                          active=False, health=health )
 
         return next_id
 
@@ -176,11 +183,11 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             obj_id = message_obj["object_id"]
             if obj_id in self.objects:
 
-                self.objects[ obj_id ].set_position( message_obj[ "x" ],
+                self.objects[ obj_id ].transform.set_position( message_obj[ "x" ],
                                                      message_obj[ "y" ],
                                                      message_obj[ "z" ] )
 
-                self.objects[ obj_id ].set_rotation ( message_obj[ "r_x" ],
+                self.objects[ obj_id ].transform.set_rotation ( message_obj[ "r_x" ],
                                                       message_obj[ "r_y" ],
                                                       message_obj[ "r_z" ] )
 
