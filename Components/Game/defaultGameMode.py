@@ -1,16 +1,20 @@
 import Components.Game.baseGameModel as baseGameModel
 import Components.Game.serverObject as serverObj
 import Components.Game.helpers as helpers
+import Components.Game.analytics as analytics
 import Common.Protocols.game_types as game_types
 import Common.message as message
 import Common.constants as const
 import Common.database as database
 import Common.DEBUG as DEBUG
+import threading
 
 class DefaultGameMode( baseGameModel.BaseGameModel ):
 
     def __init__(self, socket_handler, database):
         super().__init__( socket_handler, database )
+
+        self.analytics = analytics.Analytics( self.database )
 
         self.scene_name = "default"
         self.min_players, self.max_players = self.database.get_level_info_from_name( self.scene_name )
@@ -26,6 +30,9 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
         }
 
         self.object_id = 3
+
+    def __del__(self):
+        self.analytics.stop()
 
     def bind_actions_init( self ):
 
@@ -43,6 +50,8 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
         message_obj.to_connections = self.socket_handler.get_connections()
         message_obj.send_message(True)
+
+        self.analytics.add_data( message_obj )
 
     def collect_object( self, message_obj ):
 
@@ -78,6 +87,35 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
                 DEBUG.LOGS.print( "Damage: ", damage_amt, "health: ", conn.health )
 
+        # work out the other objects some where else :)
+        remove_server_object = threading.Thread( target=self.damage_object, args=(self.objects, position) )
+        remove_server_object.start()
+
+        self.analytics.add_data( message_obj )
+
+
+    def damage_object( self, objects, position ):
+
+        for objId in objects:
+            # find if any objects are in range.
+            distance = helpers.distance( position, objects[objId].position )
+
+            if distance < const.EXPLOSION_RANGE:
+                damage_amt = abs( int( const.EXPLOSION_DAMAGE * (1.0 - (distance / const.EXPLOSION_RANGE)) ) )
+
+                # if the object has died remove it and notify the other clients its dead!
+                if not objects[objId].apply_damage(damage_amt):
+
+                    remove_obj = message.Message('#')
+                    remove_obj.new_message( const.SERVER_NAME, objects[objId].type,
+                                            objects[objId].object_id, *objects[objId].position,
+                                            game_types.SOA_REMOVE )
+
+                    remove_obj.to_connections = self.socket_handler.get_connections()
+                    remove_obj.send_message()
+
+                    del self.objects[ objId ]
+
     def game_action( self, message_obj ):
 
         actions = [game_types.GA_DROP_ITEM, game_types.GA_LAUNCH_PROJECTILE]
@@ -91,6 +129,8 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             message_obj.to_connections = self.socket_handler.get_connections()
             message_obj.send_message( True )
 
+        self.analytics.add_data( message_obj )
+
     def look_at_position( self, message_obj ):
 
         # send the message to all other clients.
@@ -98,8 +138,6 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
         message_obj.send_message( True )
 
     def request_new_obj_id( self, message_obj ):
-
-        DEBUG.LOGS.print("Hreloooo new object")
 
         message_obj[ "obj_id" ] = self.new_object( message_obj["type"] )
         message_obj.to_connections = [message_obj.from_connection]
@@ -109,7 +147,12 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
         self.object_id = next_id = self.object_id + 1
 
-        self.objects[ next_id ] = serverObj.ServerObject( next_id, object_type, (0, 0, 0), active=False)
+        if game_types.SO_BLOCK == object_type:
+            health = 25
+        else:
+            health = -1
+
+        self.objects[ next_id ] = serverObj.ServerObject( next_id, object_type, (0, 0, 0), active=False, health=health)
 
         return next_id
 
@@ -160,3 +203,5 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
                                  "type:", message_obj["type"],
                                  "id:", obj_id,
                                  message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
+
+        self.analytics.add_data( message_obj )

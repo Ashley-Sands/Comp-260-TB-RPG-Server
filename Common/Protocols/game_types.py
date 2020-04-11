@@ -48,11 +48,12 @@ def build_object( from_client_name, player_id, type, obj_id ):
 # Server Object types
 SO_PLAYER = 0
 SO_RELIC = 1
+SO_BLOCK = 2
 
 # server object action types
 SOA_DEFAULT = 0
 SOA_ADD = 1
-SOA_REMOVE = 0
+SOA_REMOVE = 2
 
 
 # # (as in its id is hash)

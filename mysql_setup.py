@@ -15,6 +15,7 @@ def setup():
 
         time.sleep( 1 )  # try every second
 
+    database.drop_table("analytics")
     database.drop_table("active_users")
     database.drop_table("lobbies")
     database.drop_table("lobby_host")
@@ -22,7 +23,18 @@ def setup():
     database.drop_table("games_host")    #   // quick fix while we only support 1 host // TODO: fix
     database.drop_table("levels")
 
-
+    database.add_table( "analytics", ["uid", "player_id", "lobby_id", "game_id",
+                                      "level_id", "data_type", "data", "time" ],
+                        [ "INT UNSIGNED NULL AUTO_INCREMENT KEY",
+                          "INT NOT NULL DEFAULT '-1'",
+                          "INT NOT NULL DEFAULT '-1'",
+                          "INT NOT NULL DEFAULT '-1'",
+                          "INT NOT NULL DEFAULT '-1'",
+                          "VARCHAR(10) NOT NULL",
+                          "TEXT NOT NULL",
+                          "INT NOT NULL DEFAULT '-1'"
+                          ]
+                        )
 
     database.add_table( "active_users", [ "uid", "nickname", "lobby_id", "reg_key" ],
                              [ "INT UNSIGNED NULL AUTO_INCREMENT KEY",
@@ -31,11 +43,12 @@ def setup():
                                "VARCHAR(64) NOT NULL DEFAULT 'None'" ]
                              )
 
-    database.add_table( "lobbies", [ "uid", "level_id", "game_id", "lobby_host_id" ],
+    database.add_table( "lobbies", [ "uid", "level_id", "game_id", "lobby_host_id", "game_count" ],
                              [ "INT UNSIGNED NULL AUTO_INCREMENT KEY",
                                "INT NOT NULL DEFAULT '-1'",
                                "INT NOT NULL DEFAULT '-1'",
-                               "INT NOT NULL DEFAULT '-1'" ]
+                               "INT NOT NULL DEFAULT '-1'",
+                               "INT NOT NULL DEFAULT '0'" ]
                              )
 
     database.add_table( "lobby_host", ["uid", "host"],

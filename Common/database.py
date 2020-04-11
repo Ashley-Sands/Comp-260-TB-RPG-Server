@@ -62,7 +62,7 @@ class Database:
         """
             Selects users by there reg key
         :param reg_key: the users reg key
-        :return:        if found the clients id nickname otherwise None
+        :return:        if found the clients id nickname and lobby id otherwise None
         """
 
         user_data = self.database.select_from_table("active_users", ["uid", "nickname", "lobby_id"], ["reg_key"], [reg_key])
@@ -174,6 +174,14 @@ class Database:
         self.database.update_row( "lobbies", ["game_id"], [game_host_id], ["uid"], [lobby_id])
         self.database.remove_row("game_queue", ["lobby_id"], [lobby_id])
 
+    def get_lobby_row( self, lobby_id ):
+
+        query = "SELECT lobby_host_id, game_id, level_id, game_count " \
+                "FROM lobbies " \
+                "WHERE uid = %s"
+        info = self.database.execute( query, [lobby_id] )
+        DEBUG.LOGS.print("LOBBY_INFO", info, lobby_id)
+        return info[0]
 
     def clear_lobby_host( self, lobby_id ):
 
@@ -413,6 +421,14 @@ class Database:
         """Clears the game host for the lobbie"""
 
         self.database.update_row( "lobbies", ["game_id"], [-1], ["game_id"], [game_id] )
+
+    def add_analytic_data( self, data_type, data, player_id, lobby_id, game_id, level_id, t ):
+        DEBUG.LOGS.print(player_id,    lobby_id,   game_id,   level_id,   data_type,   data,   t)
+
+        self.database.insert_row("analytics",
+                                 ["player_id", "lobby_id", "game_id", "level_id", "data_type", "data", "time"],
+                                 [player_id,    lobby_id,   game_id,   level_id,   data_type,   data,   t]
+                                 )
 
     def debug( self ):
 
