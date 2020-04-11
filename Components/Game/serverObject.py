@@ -2,14 +2,16 @@ import Common.message as message
 import Common.constants as const
 class ServerObject:
 
-    def __init__( self, obj_id, obj_type, pos, rot=(0, 0, 0)):
+    def __init__( self, obj_id, obj_type, pos, rot=(0, 0, 0), active=False):
         """
 
         :param obj_type:    The SO type
         :param obj_id:      object id
         :param pos:         position of object : tuple (x, y, z)
         :param rot:         rotation of object : tuple (x, y, z)
+        :param active:      is the object in uses.
         """
+        self.active = active
         self.type = obj_type              # see Common.Protocols.GameAction for SO types.
         self.object_id = obj_id
 

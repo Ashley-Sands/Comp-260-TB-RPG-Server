@@ -27,6 +27,8 @@ class Message:
         'E': game_types.explosion,
         'D': game_types.apply_damage,
         'R': game_types.look_at,
+        'B': game_types.build_object,
+
         '#': game_types.server_object
     }
 

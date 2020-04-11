@@ -311,7 +311,7 @@ Other Details       : the server works out who and how much damage to apply to e
 Data
     - string        from_client_name        nickname of origin
     - int           player_id
-    - int           damage
+    - int           health                  remaining health
     - bool          kill
 
 ================================================================================
@@ -334,6 +334,23 @@ Data
 
 ================================================================================
 
+Protocol name       : Build Object
+Type                : Game Action
+Protocol identity   : B
+Message Origin      : Player
+Services            : game(S/R)
+Message Action      :
+    Client          : sent by the client when building an object to request a new object id
+    Server          : sends the player the new object id, and regs the object into the game awaiting position update.
+Other Details       :
+Data
+    - string        from_client_name        nickname of origin
+    - int           player_id
+    - int           type
+    - int           obj_id                  new object id
+
+================================================================================
+
 Protocol name       : server object
 Type                : Game Action
 Protocol identity   : #
@@ -347,10 +364,11 @@ Other Details       : Altho this inherits from BaseProtocol its an action that
                 Object types (add SO_ to start in python):
                     - PLAYER = 0
                     - RELIC = 1
+                    - BLOCK = 2
 
                 Action Types (add SOA_ to start in python)
                     - DEFAULT = 0
-                    - ADD = 1
+                    - ADD = 1           # confirms that the object has been added. affter build object request
                     - REMOVE = 2
 Data
     - string        from_client_name        nickname of origin

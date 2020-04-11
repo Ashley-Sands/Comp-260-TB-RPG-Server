@@ -194,9 +194,6 @@ if __name__ == "__main__":
         while running and game_active:
 
             socket_handler.process_connections( process_connection, process_remove_connection )
-            if time.time() > T:
-                DEBUG.LOGS.print("Running game - ", close_game)
-                T = time.time() + 1
 
             if close_game and socket_handler.get_connection_count() > 0:
                 DEBUG.LOGS.print( "Waiting for ", socket_handler.get_connection_count(), "To Disconnect" )

@@ -19,11 +19,13 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
         # dict key = object id, value = server_object
         # TODO: put the objects in the database :)
         self.objects = {
-            0: serverObj.ServerObject( 0, game_types.SO_RELIC, (0, 0, 0) ),
-            1: serverObj.ServerObject( 1, game_types.SO_RELIC, (0, 0, 0) ),
-            2: serverObj.ServerObject( 2, game_types.SO_RELIC, (0, 0, 0) ),
-            3: serverObj.ServerObject( 3, game_types.SO_RELIC, (0, 0, 0) )
+            0: serverObj.ServerObject( 0, game_types.SO_RELIC, (0, 0, 0), active=True ),
+            1: serverObj.ServerObject( 1, game_types.SO_RELIC, (0, 0, 0), active=True ),
+            2: serverObj.ServerObject( 2, game_types.SO_RELIC, (0, 0, 0), active=True ),
+            3: serverObj.ServerObject( 3, game_types.SO_RELIC, (0, 0, 0), active=True )
         }
+
+        self.object_id = 3
 
     def bind_actions_init( self ):
 
@@ -33,6 +35,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             'P': self.collect_object,
             'E': self.explosion,
             'R': self.look_at_position,
+            'B': self.request_new_obj_id,
             '#': self.server_object
         }
 
@@ -70,7 +73,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
                 conn.health -= damage_amt
 
-                damage.new_message( const.SERVER_NAME, conn.player_id, damage_amt, conn.health <= 0 )
+                damage.new_message( const.SERVER_NAME, conn.player_id, conn.health, conn.health <= 0 )
                 damage.send_message()
 
                 DEBUG.LOGS.print( "Damage: ", damage_amt, "health: ", conn.health )
@@ -90,11 +93,25 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
     def look_at_position( self, message_obj ):
 
-        DEBUG.LOGS.print("Hreloooo look at position")
         # send the message to all other clients.
         message_obj.to_connections = self.socket_handler.get_connections()
         message_obj.send_message( True )
 
+    def request_new_obj_id( self, message_obj ):
+
+        DEBUG.LOGS.print("Hreloooo new object")
+
+        message_obj[ "obj_id" ] = self.new_object( message_obj["type"] )
+        message_obj.to_connections = [message_obj.from_connection]
+        message_obj.send_message()
+
+    def new_object( self, object_type ):
+
+        self.object_id = next_id = self.object_id + 1
+
+        self.objects[ next_id ] = serverObj.ServerObject( next_id, object_type, (0, 0, 0), active=False)
+
+        return next_id
 
     def server_object( self, message_obj ):
 
@@ -115,6 +132,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
         else:
             obj_id = message_obj["object_id"]
             if obj_id in self.objects:
+
                 self.objects[ obj_id ].set_position( message_obj[ "x" ],
                                                      message_obj[ "y" ],
                                                      message_obj[ "z" ] )
@@ -122,6 +140,16 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
                 self.objects[ obj_id ].set_rotation ( message_obj[ "r_x" ],
                                                       message_obj[ "r_y" ],
                                                       message_obj[ "r_z" ] )
+
+                # once we get some data we can make the object as active and
+                # notify other clients to spawn it
+                if self.objects[ obj_id ].active is False and message_obj[ "action" ] != game_types.SOA_ADD:
+                    DEBUG.LOGS.print("Unable to update object. the object must be active first by setting type to add. ",
+                                     message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
+                    return
+                elif self.objects[ obj_id ].active is False:
+                    message_obj[ "action" ] = game_types.SOA_ADD
+                    self.objects[ obj_id ].active = True
 
                 # send the message to all other clients.
                 message_obj.to_connections = self.socket_handler.get_connections()

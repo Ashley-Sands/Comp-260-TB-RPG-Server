@@ -26,18 +26,24 @@ def game_Action( from_client_name, player_id, action ):
 
 
 # E
-def explosion( from_client_id, x, y, z ):
+def explosion( from_client_name, x, y, z ):
     return locals()
 
 
 # D
-def apply_damage( from_client_id, player_id, damage, kill ):
+def apply_damage( from_client_name, player_id, health, kill ):
     return locals()
 
 
 # R
 def look_at( from_client_name, player_id, x, y, z ):
     return locals()
+
+
+# B
+def build_object( from_client_name, player_id, type, obj_id ):
+    return locals()
+
 
 # Server Object types
 SO_PLAYER = 0
@@ -47,6 +53,7 @@ SO_RELIC = 1
 SOA_DEFAULT = 0
 SOA_ADD = 1
 SOA_REMOVE = 0
+
 
 # # (as in its id is hash)
 def server_object( from_client_name, type, object_id, x, y, z, action=SOA_DEFAULT ):
