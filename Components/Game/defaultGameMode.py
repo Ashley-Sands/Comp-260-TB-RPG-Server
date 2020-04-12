@@ -49,6 +49,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
     def __del__(self):
         self.analytics.stop()
+        self.task_que.stop()
         self.exit = True
 
     def bind_actions_init( self ):
