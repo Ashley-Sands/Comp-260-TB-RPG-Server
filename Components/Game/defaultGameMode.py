@@ -16,6 +16,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
     def __init__(self, socket_handler, database):
         super().__init__( socket_handler, database )
 
+        self.exit = False
         self.analytics = analytics.Analytics()
         self.task_que = taskQueue.Task()
 
@@ -48,6 +49,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
     def __del__(self):
         self.analytics.stop()
+        self.exit = True
 
     def bind_actions_init( self ):
 
@@ -79,6 +81,9 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
         self.task_que.new_task( msg, task_len, self.update_game)
 
     def update_game( self, prv_task_is ):
+
+        if self.exit:
+            return
 
         self.current_game_loop_id = self.next_game_loop_id
         self.next_game_loop_id += 1
