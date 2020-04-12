@@ -220,7 +220,7 @@ if __name__ == "__main__":
 
         # unbind the game model functions from message
         # and reset the server status
-        active_game_model.unbind_all( message.Message )
+        active_game_model.stop_game( message.Message )
         del active_game_model
         active_game_model = None
         lobby_id = -1

@@ -10,18 +10,21 @@ import Common.taskQueue as taskQueue
 import Common.database as database
 import Common.DEBUG as DEBUG
 import threading
+import time
 
 class DefaultGameMode( baseGameModel.BaseGameModel ):
 
     def __init__(self, socket_handler, database):
         super().__init__( socket_handler, database )
 
+        self.started = False
         self.exit = False
         self.analytics = analytics.Analytics()
-        self.task_que = taskQueue.Task()
 
         self.scene_name = "default"
         self.min_players, self.max_players = self.database.get_level_info_from_name( self.scene_name )
+
+        self.game_loop_thread = threading.Thread(target=self.update_game)
 
         # game loop tuple (type time)
         self.game_loop = [ (game_types.GL_CHANGE, 3),
@@ -29,9 +32,12 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
                            (game_types.GL_END, 5) ]
 
         self.current_game_loop_id = 0
-        self.next_game_loop_id = 0
 
+        # needed??
+        self.next_game_loop_id = 0
         self.next_player_id = 0
+        ###
+
         self.current_player_id = 0
         self.current_player_connection = None
 
@@ -47,11 +53,6 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
         self.object_id = 3
 
-    def __del__(self):
-        self.analytics.stop()
-        self.task_que.stop()
-        self.exit = True
-
     def bind_actions_init( self ):
 
         self.bind_actions = {
@@ -66,55 +67,54 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
     def start_game( self ):
 
-        self.current_player_id = 0
-        self.current_game_loop_id = 0
-        self.next_game_loop_id = 1
-
-        # change to the first player
-        task_len = self.game_loop[ self.current_game_loop_id ][1]
-        msg = self.get_game_loop_message( self.current_game_loop_id, self.current_player_id )
-        msg.send_message()
-
-        # que the first turn to start
-        # que the next message as a task.
-        msg = self.get_game_loop_message( self.next_game_loop_id, self.current_player_id )
-
-        self.task_que.new_task( msg, task_len, self.update_game)
-
-    def update_game( self, prv_task_is ):
-
-        if self.exit:
+        if self.started or self.exit:
             return
 
-        self.current_game_loop_id = self.next_game_loop_id
-        self.next_game_loop_id += 1
+        self.current_game_loop_id = -1  # this will be increased to 0 once we enter the update game
+        self.current_player_id = -1     # Which will then selected the start player :)
+        self.started = True
 
-        if self.next_game_loop_id >= len(self.game_loop):
-            self.next_game_loop_id = 0
+        self.game_loop_thread.start()
 
-        # que the next task
-        if self.current_game_loop_id == 0:
-            # set the next player
-            self.current_player_id = self.next_player_id
-            self.get_client_by_player_id( self.current_player_id )
-        elif self.current_game_loop_id == 2:
-            self.next_player_id = self.get_next_player_id()
+    def update_game( self ):
 
-        # get the length of the current task and the next message to be sent
-        # so we can que it to be sent when the task ends.
-        task_len = self.game_loop[ self.current_game_loop_id ][ 1 ]
-        msg = self.get_game_loop_message( self.next_game_loop_id, self.next_player_id )
-        self.task_que.new_task(msg, task_len, self.update_game)
+        while not self.exit and self.started:
+            # change current game loop id
+            # 0 = Change Player # 1 = Start Turn # 2 = End Turn
+            self.current_game_loop_id += 1
 
-    def get_game_loop_message( self, gl_id, message_player_id ):
+            if self.current_game_loop_id >= len(self.game_loop):
+                self.current_game_loop_id = 0
 
-        action, time = self.game_loop[ gl_id ]
+            # change player
+            if self.current_game_loop_id == 0:
+                self.current_player_id = self.get_next_player_id()
+
+            msg, time_till_next_update = self.get_game_loop_message( self.current_game_loop_id, self.current_player_id )
+            msg.send_message()
+
+            time.sleep( time_till_next_update )
+
+    def stop_game( self, message ):
+
+        self.exit = True
+
+        self.unbind_all( message )
+
+        if self.game_loop_thread.is_alive():
+            self.game_loop_thread.join()
+
+        self.analytics.stop()
+
+    def get_game_loop_message( self, game_loop_id, message_player_id ):
+
+        action, time = self.game_loop[ game_loop_id ]
 
         msg = message.Message( '>' )
         msg.new_message( const.SERVER_NAME, message_player_id, action, time )
         msg.to_connections = self.socket_handler.get_connections()
 
-        return msg
+        return msg, time
 
     def get_next_player_id( self ):
 

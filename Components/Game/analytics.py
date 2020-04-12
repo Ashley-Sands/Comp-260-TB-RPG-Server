@@ -1,4 +1,5 @@
 import Common.database as database
+import Common.DEBUG as DEBUG
 import threading
 import queue
 import Common.database
@@ -57,3 +58,5 @@ class Analytics:
         self.thread_lock.release()
 
         self.update_thread.join()
+
+        DEBUG.LOGS.print( "Analytics Stopped" )
