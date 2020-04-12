@@ -6,6 +6,7 @@ class BaseGameModel:
         self.socket_handler = socket_handler
         self.database = database
         self.players_ready_count = 0
+        self.players_set_count = 0
         self.bind_actions = {}
         self.bind_actions_init()
 

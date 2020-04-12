@@ -351,6 +351,35 @@ Data
 
 ================================================================================
 
+Protocol name       : Game Loop
+Type                : Game Action
+Protocol identity   : >
+Message Origin      : Player
+Services            : game(S)
+Message Action      :
+    Server          : set from the server to the player to change the current player.
+    Client          : set the current player
+Other Details       :
+              Actions types (add GL_ to start in python):
+                    - CHANGE = 0
+                    - START = 1
+                    - END = 2
+              Action and time
+              time is the amount of time the action will last ie
+
+              CHANGE player [wait 3 secs] ->
+              START turn [play 20 secs]   ->
+              END turn [wait 5 secs] -> ...
+
+              so this defines the game loop :)
+Data
+    - string        from_client_name        nickname of origin
+    - int           player_id               the player to change to or start/stop playing
+    - int           action                  CHANGE / START / STOP
+    - int           t                       amount of time the action last for
+
+================================================================================
+
 Protocol name       : server object
 Type                : Game Action
 Protocol identity   : #

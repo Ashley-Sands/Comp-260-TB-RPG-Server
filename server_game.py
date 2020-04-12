@@ -94,10 +94,18 @@ def process_client_status( message_obj ):
     # check that the client has reported that the scene has loaded successfully
     # and that they are now ready to receive the game setup info.
     if message_obj[ "status_type" ] == status_protocol.CS_SCENE_LOADED:
-        if message_obj["ok"] :  # TODO: if the user is not ok, remove them from the game?
-            if not message_obj.from_connection.ready:
-                message_obj.from_connection.ready = True
-                active_game_model.players_ready_count += 1
+        process_client_status_scene_loaded( message_obj )
+    elif message_obj[ "status_type" ] == status_protocol.CS_GAME_READY:
+        process_client_status_game_ready( message_obj )
+    else:
+        pass
+
+def process_client_status_scene_loaded( message_obj ):
+
+    if message_obj["ok"] :  # TODO: if the user is not ok, remove them from the game?
+        if not message_obj.from_connection.ready:
+            message_obj.from_connection.ready = True
+            active_game_model.players_ready_count += 1
 
     # check all the players have arrived and readied
     # if so send the player info.
@@ -133,6 +141,16 @@ def process_client_status( message_obj ):
         game_info_msg.new_message( const.SERVER_NAME, client_ids, nicknames, player_ids )
         game_info_msg.to_connections = socket_handler.get_connections()
         game_info_msg.send_message()
+
+def process_client_status_game_ready( message_obj ):
+
+    if message_obj["ok"] :  # TODO: if the user is not ok, remove them from the game?
+        if message_obj.from_connection.ready and not message_obj.from_connection.set:
+            message_obj.from_connection.set = True
+            active_game_model.players_set_count += 1
+
+    if active_game_model.players_ready_count == active_game_model.players_set_count:
+        active_game_model.start_game()
 
 if __name__ == "__main__":
 

@@ -9,7 +9,7 @@ class MySqlHelpers:
 
         try:
             db_connection = MySqlHelpers.MYSQL.connect( host=host, user=user, passwd=passwd)
-            db_cursor = db_connection.cursor()
+            db_cursor = db_connection.cursor( buffered=True )
         except Exception as err:
             DEBUG.LOGS.print("mysql:", err, message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
             return None, None

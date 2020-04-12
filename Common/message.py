@@ -21,6 +21,7 @@ class Message:
         'm': common.message,
         'G': info_types.game_client_list,
 
+        '>': game_types.game_loop,
         'M': game_types.move_player,
         'A': game_types.game_Action,
         'P': game_types.collect_item,

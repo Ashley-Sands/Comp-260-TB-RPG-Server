@@ -1,5 +1,5 @@
 import Sockets.ServerModuleSocket as ServerModuleSocket
-
+import Components.Game.serverObjectComponents as components
 
 class ServerGameSocket( ServerModuleSocket.ServerModuleSocket ):
 
@@ -9,13 +9,14 @@ class ServerGameSocket( ServerModuleSocket.ServerModuleSocket ):
 
         # Game stats
         self.ready = False
+        self.set = False    # ready set go!
+
         self.player_id = -1     # < 0 unset.
 
         # Game
-        self.position = (0, 0, 0)
-        self.rotation = (0, 0, 0)
+        self.transform = components.Transform( (0, 0, 0), (0, 0, 0), (1, 1, 1) )
+        self.health = components.Health(100)
         self.current_item = None
-        self.health = 100
 
     def get_player_info( self ):
         """ gets the players info.

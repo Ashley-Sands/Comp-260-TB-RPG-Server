@@ -44,6 +44,14 @@ def look_at( from_client_name, player_id, x, y, z ):
 def build_object( from_client_name, player_id, type, obj_id ):
     return locals()
 
+# Game loop actions
+GL_CHANGE = 0
+GL_START = 1
+GL_END = 2
+
+# >
+def game_loop( from_client_name, player_id, action, t ):
+    return locals()
 
 # Server Object types
 SO_PLAYER = 0

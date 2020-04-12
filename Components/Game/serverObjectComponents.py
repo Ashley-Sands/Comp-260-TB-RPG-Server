@@ -40,6 +40,9 @@ class Health:
 
         return self.health > 0
 
+    def is_alive( self ):
+        return self.health > 0
+
 
 class Bounds:
 

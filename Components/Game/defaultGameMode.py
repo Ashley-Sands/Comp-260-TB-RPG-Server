@@ -6,6 +6,7 @@ import Components.Game.analytics as analytics
 import Common.Protocols.game_types as game_types
 import Common.message as message
 import Common.constants as const
+import Common.taskQueue as taskQueue
 import Common.database as database
 import Common.DEBUG as DEBUG
 import threading
@@ -16,9 +17,22 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
         super().__init__( socket_handler, database )
 
         self.analytics = analytics.Analytics()
+        self.task_que = taskQueue.Task()
 
         self.scene_name = "default"
         self.min_players, self.max_players = self.database.get_level_info_from_name( self.scene_name )
+
+        # game loop tuple (type time)
+        self.game_loop = [ (game_types.GL_CHANGE, 3),
+                           (game_types.GL_START, 20),
+                           (game_types.GL_END, 5) ]
+
+        self.current_game_loop_id = 0
+        self.next_game_loop_id = 0
+
+        self.next_player_id = 0
+        self.current_player_id = 0
+        self.current_player_connection = None
 
         # all the objects that the server tracks excluding the players.
         # dict key = object id, value = server_object
@@ -46,6 +60,77 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             'B': self.request_new_obj_id,
             '#': self.server_object
         }
+
+    def start_game( self ):
+
+        self.current_player_id = 0
+        self.current_game_loop_id = 0
+        self.next_game_loop_id = 1
+
+        # change to the first player
+        task_len = self.game_loop[ self.current_game_loop_id ][1]
+        msg = self.get_game_loop_message( self.current_game_loop_id, self.current_player_id )
+        msg.send_message()
+
+        # que the first turn to start
+        # que the next message as a task.
+        msg = self.get_game_loop_message( self.next_game_loop_id, self.current_player_id )
+
+        self.task_que.new_task( msg, task_len, self.update_game)
+
+    def update_game( self, prv_task_is ):
+
+        self.current_game_loop_id = self.next_game_loop_id
+        self.next_game_loop_id += 1
+
+        if self.next_game_loop_id >= len(self.game_loop):
+            self.next_game_loop_id = 0
+
+        # que the next task
+        if self.current_game_loop_id == 0:
+            # set the next player
+            self.current_player_id = self.next_player_id
+            self.get_client_by_player_id( self.current_player_id )
+        elif self.current_game_loop_id == 2:
+            self.next_player_id = self.get_next_player_id()
+
+        # get the length of the current task and the next message to be sent
+        # so we can que it to be sent when the task ends.
+        task_len = self.game_loop[ self.current_game_loop_id ][ 1 ]
+        msg = self.get_game_loop_message( self.next_game_loop_id, self.next_player_id )
+        self.task_que.new_task(msg, task_len, self.update_game)
+
+    def get_game_loop_message( self, gl_id, message_player_id ):
+
+        action, time = self.game_loop[ gl_id ]
+
+        msg = message.Message( '>' )
+        msg.new_message( const.SERVER_NAME, message_player_id, action, time )
+        msg.to_connections = self.socket_handler.get_connections()
+
+        return msg
+
+    def get_next_player_id( self ):
+
+        cons = self.socket_handler.get_connections()
+        next_min = 999
+        min_ = 999
+        for c in cons:
+            DEBUG.LOGS.print("Current",self.current_player_id ,"PLAYER: ", c.player_id, "next min", next_min, "min", min_)
+            if c.health.is_alive():
+                if c.player_id < min_:
+                    min_ = c.player_id
+
+                if self.current_player_id < c.player_id < next_min:
+                    next_min = c.player_id
+
+        if next_min != 999:
+            return next_min
+        elif min_ != 999:
+            return min_
+        else:
+            return -1 # all deaded??
+
 
     def move_player( self, message_obj ):
 
@@ -76,14 +161,15 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
         damage.to_connections = connections
 
         for conn in connections:
-            distance = helpers.distance( position, conn.position )
+            distance = helpers.distance( position, conn.transform.position )
             if distance < const.EXPLOSION_RANGE:
                 # send damage message to all clients
                 damage_amt = abs(int(const.EXPLOSION_DAMAGE * (1.0-(distance/const.EXPLOSION_RANGE)) ))
 
-                conn.health -= damage_amt
+                dead = not conn.health.apply_damage( damage_amt )
+                health = conn.health.health
 
-                damage.new_message( const.SERVER_NAME, conn.player_id, conn.health, conn.health <= 0 )
+                damage.new_message( const.SERVER_NAME, conn.player_id, health, dead )
                 damage.send_message()
 
                 DEBUG.LOGS.print( "Damage: ", damage_amt, "health: ", conn.health )
@@ -93,7 +179,6 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
         remove_server_object.start()
 
         self.analytics.add_data( message_obj )
-
 
     def damage_object( self, objects, position ):
 
@@ -172,13 +257,13 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             client = self.get_client_by_player_id( message_obj["object_id"] )
 
             if client is not None:
-                client.set_position( message_obj[ "x" ],
-                                     message_obj[ "y" ],
-                                     message_obj[ "z" ] )
+                client.transform.set_position( message_obj[ "x" ],
+                                               message_obj[ "y" ],
+                                               message_obj[ "z" ] )
 
-                client.set_rotation( message_obj[ "r_x" ],
-                                     message_obj[ "r_y" ],
-                                     message_obj[ "r_z" ] )
+                client.transform.set_rotation( message_obj[ "r_x" ],
+                                               message_obj[ "r_y" ],
+                                               message_obj[ "r_z" ] )
         else:
             obj_id = message_obj["object_id"]
             if obj_id in self.objects:

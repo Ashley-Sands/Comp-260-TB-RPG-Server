@@ -5,7 +5,7 @@ import Common.DEBUG as DEBUG
 
 class ServerObject:
 
-    def __init__( self, obj_id, obj_type, pos, rot=(0, 0, 0), scale=(0, 0, 0), active=False, health=None, bounds=None ):
+    def __init__( self, obj_id, obj_type, pos, rot=(0, 0, 0), scale=(1, 1, 1), active=False, health=None, bounds=None ):
         """
 
         :param obj_type:    The SO type
