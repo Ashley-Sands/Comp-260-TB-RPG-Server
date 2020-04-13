@@ -29,7 +29,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
         # game loop tuple (type time)
         self.game_loop = [ (game_types.GL_CHANGE, 3),
-                           (game_types.GL_START, 20),
+                           (game_types.GL_START, 25),
                            (game_types.GL_END, 5) ]
 
         self.current_game_loop_id = 0
@@ -148,6 +148,12 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
         else:
             return -1 # all deaded??
 
+    def get_object( self, obj_id ):
+
+        if obj_id in self.objects:
+            return self.objects[obj_id]
+        else:
+            return None
 
     def move_player( self, message_obj ):
 
@@ -160,7 +166,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
         # update the clients item
         from_client = message_obj.from_connection
-        from_client.current_item = message_obj["object_id"]
+        from_client.current_item = self.get_object( message_obj["object_id"] )
 
         # send the message to all other clients.
         message_obj.to_connections = self.socket_handler.get_connections()
@@ -233,8 +239,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             # update the clients item
             from_client = message_obj.from_connection
 
-            if action == game_types.GA_DROP_ITEM:
-                self.relic_in_area( from_client.current_item )
+            if action == game_types.GA_DROP_ITEM and from_client.current_item is not None:
                 from_client.current_item = None
 
             # send the message to all other clients.
@@ -245,9 +250,11 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
     def relic_in_area( self, relic ):
 
+        print("########## HIYA")
         # make sure that it is a relic
         if not isinstance( relic, serverObj.Relic ):
-            DEBUG.LOGS.print("Item is not a relic")
+            print("Item is not a relic", relic)
+            return
 
         connections = self.socket_handler.get_connections()
 
@@ -257,8 +264,10 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             out_area = None         # the area that the relic has came out of
             if area.bounds.contains( relic.transform ):
                 if relic.area == area:
+                    print( "RELIC No Change!!!!!!!!!!!!!!!!!")
                     return  # no change
                 else:
+                    print( "RELIC Change!!!!!!!!!!!!!!!!!")
                     if relic.area is not None:
                         out_area = relic.area
                         relic.area.remove_relic( relic )
@@ -344,6 +353,10 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
                 self.objects[ obj_id ].transform.set_rotation ( message_obj[ "r_x" ],
                                                       message_obj[ "r_y" ],
                                                       message_obj[ "r_z" ] )
+
+                # update the relic ares if a relic has been updated :)
+                if message_obj["type"] == game_types.SO_RELIC:
+                    self.relic_in_area( self.objects[ obj_id ] )
 
                 # once we get some data we can make the object as active and
                 # notify other clients to spawn it

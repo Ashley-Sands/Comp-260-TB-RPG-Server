@@ -13,7 +13,7 @@ class LOGS:
     MSG_TYPE_ERROR   = 3
     MSG_TYPE_FATAL   = 4
 
-    debug_mode = True
+    debug_mode = False
     debug_sql = False
     que_pre_init_msg = True
     inited = False
