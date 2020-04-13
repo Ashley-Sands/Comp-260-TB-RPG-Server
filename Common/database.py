@@ -51,10 +51,10 @@ class Database:
 
         rand = random.random()
         query = "SELECT word FROM {0} WHERE id >= {1} * (SELECT MAX(id) FROM {0})"
-        adj = self.database.execute( query.format( "names_list_adjective", rand ), [] )[0][0]
+        adj = self.database.execute( query.format( "names_list_adjective", rand, fetch=True ), [] )[0][0]
 
         rand = random.random()
-        noun = self.database.execute( query.format( "names_list_nouns", rand ), [] )[0][0]
+        noun = self.database.execute( query.format( "names_list_nouns", rand, fetch=True ), [] )[0][0]
 
         return adj[0:1].upper() + adj[1:].lower() + " " + noun[0:1].upper() + noun[1:]
 
@@ -88,7 +88,7 @@ class Database:
                 "FROM lobbies " \
                 "WHERE uid = %s"
 
-        results = self.database.execute( query, [lobby_id] )
+        results = self.database.execute( query, [lobby_id], fetch=True )
 
         if len( results ) != 1:
             return -1, -1
@@ -102,7 +102,7 @@ class Database:
                 "JOIN lobby_host ON lobbies.lobby_host_id = lobby_host.uid " \
                 "WHERE lobbies.uid = %s"
 
-        results = self.database.execute( query, [lobby_id] )
+        results = self.database.execute( query, [lobby_id], fetch=True )
 
         if len( results ) != 1:
             return None
@@ -115,7 +115,7 @@ class Database:
                 "FROM lobby_host " \
                 "WHERE uid=%s"
 
-        host = self.database.execute(query, [host_id])
+        host = self.database.execute(query, [host_id], fetch=True)
         print(host)
         if len(host) != 1:
             host = None
@@ -157,7 +157,7 @@ class Database:
         # return (host id, lobby count)
         # if theres more ahost than uhost then theres host without lobbies
         # uhost_rows = self.database.execute(used_host, []) # TODO: make dynamic
-        ahost_rows = self.database.execute( all_lobby_host, [ ] )
+        ahost_rows = self.database.execute( all_lobby_host, [ ], fetch=True )
 
         min_host = ahost_rows[ 0 ]
 
@@ -179,7 +179,7 @@ class Database:
         query = "SELECT lobby_host_id, game_id, level_id, game_count " \
                 "FROM lobbies " \
                 "WHERE uid = %s"
-        info = self.database.execute( query, [lobby_id] )
+        info = self.database.execute( query, [lobby_id], fetch=True )
         DEBUG.LOGS.print("LOBBY_INFO", info, lobby_id)
         return info[0]
 
@@ -202,7 +202,7 @@ class Database:
                 " FROM lobbies JOIN levels ON lobbies.level_id=levels.uid WHERE lobbies.lobby_host_id >= 0"
 
         # stitch the current_players count
-        lobbies = self.database.execute(query, [])
+        lobbies = self.database.execute(query, [], fetch=True)
         current_players = []
 
         for l in lobbies:
@@ -238,7 +238,7 @@ class Database:
                 "JOIN lobbies ON lobbies.level_id = levels.uid " \
                 "WHERE lobbies.uid = %s"
 
-        rows = self.database.execute( query, [lobby_id] )
+        rows = self.database.execute( query, [lobby_id], fetch=True )
 
         if len(rows) != 1:
             DEBUG.LOGS.print("Did not receive exactly one result (count: ", len(rows), ") for lobby id", lobby_id)
@@ -253,7 +253,7 @@ class Database:
                 "FROM levels " \
                 "WHERE name = %s"
 
-        rows = self.database.execute( query, [scene_name] )
+        rows = self.database.execute( query, [scene_name], fetch=True )
 
         if len(rows) != 1:
             DEBUG.LOGS.print("Did not receive exactly one result (count: ", len(rows), ") for scene name: ", scene_name)
@@ -269,7 +269,7 @@ class Database:
                 "JOIN lobbies ON lobbies.level_id = levels.uid " \
                 "WHERE lobbies.uid = %s"
 
-        rows = self.database.execute( query, [lobby_id] )
+        rows = self.database.execute( query, [lobby_id], fetch=True )
 
         if len(rows) != 1:
             DEBUG.LOGS.print("Did not receive exactly one result (count: ", len(rows), ") for lobby id", lobby_id)
@@ -289,7 +289,7 @@ class Database:
                 "FROM lobbies JOIN levels ON lobbies.level_id = levels.uid " \
                 "WHERE lobbies.lobby_host_id >= 0 AND lobbies.uid = %s"
 
-        lobby = self.database.execute( query, [lobby_id] )
+        lobby = self.database.execute( query, [lobby_id], fetch=True )
         current_players = self.get_lobby_player_count( lobby_id )
 
         if len(lobby) != 1:  # error not found
@@ -344,7 +344,7 @@ class Database:
         # basicly select all game host that are not assigned to a lobby
         query = "SELECT games_host.uid, COUNT(lobbies.game_id) FROM games_host LEFT JOIN lobbies ON games_host.uid = lobbies.game_id GROUP BY games_host.uid HAVING COUNT(lobbies.game_id) = 0"
 
-        rows = self.database.execute( query, [] )
+        rows = self.database.execute( query, [], fetch=True )
 
         if len( rows ) == 0:
             return None
@@ -358,7 +358,7 @@ class Database:
                 "JOIN lobbies ON active_users.lobby_id = lobbies.uid " \
                 "WHERE active_users.reg_key = %s "
 
-        row = self.database.execute( query, [reg_key] )
+        row = self.database.execute( query, [reg_key], fetch=True )
 
         if len( row ) != 1:
             return -1
@@ -373,7 +373,7 @@ class Database:
                 "JOIN games_host ON games_host.uid = lobbies.game_id " \
                 "WHERE active_users.reg_key = %s "
 
-        row = self.database.execute( query, [ reg_key ] )
+        row = self.database.execute( query, [ reg_key ], fetch=True )
 
         if len( row ) != 1:
             return -1
@@ -386,7 +386,7 @@ class Database:
                 "FROM games_host " \
                 "WHERE uid = %s"
 
-        results = self.database.execute( query, [game_id] )
+        results = self.database.execute( query, [game_id], fetch=True )
 
         if len( results ) != 1:
             return None
@@ -397,7 +397,7 @@ class Database:
         """Gets the next lobby id from the que"""
 
         query = "SELECT MIN(uid), lobby_id FROM game_queue"
-        result = self.database.execute( query, [] )
+        result = self.database.execute( query, [], fetch=True )
 
         if len(result) == 0:
             return None
@@ -410,7 +410,7 @@ class Database:
         query = "SELECT uid " \
                 "FROM game_queue"
 
-        rows = self.database.execute( query, [] )
+        rows = self.database.execute( query, [], fetch=True )
 
         #if len(rows) != 1:
         #    return -1
@@ -439,12 +439,12 @@ class Database:
         game_host_query = "SELECT * FROM games_host"
         levels_query = "SELECT * FROM levels"
 
-        user_d = self.database.execute( users_query, [ ] )
-        lobbies_d = self.database.execute( lobbies_query, [ ] )
-        game_d = self.database.execute( game_query, [ ] )
-        lobbyh_d = self.database.execute( lobby_host_query, [ ] )
-        gameh_d = self.database.execute( game_host_query, [ ] )
-        levels_d = self.database.execute( levels_query, [ ] )
+        user_d = self.database.execute( users_query, [ ], fetch=True )
+        lobbies_d = self.database.execute( lobbies_query, [ ], fetch=True )
+        game_d = self.database.execute( game_query, [ ], fetch=True )
+        lobbyh_d = self.database.execute( lobby_host_query, [ ], fetch=True )
+        gameh_d = self.database.execute( game_host_query, [ ], fetch=True )
+        levels_d = self.database.execute( levels_query, [ ], fetch=True )
 
         DEBUG.LOGS.print( "users", user_d )
         DEBUG.LOGS.print( "lobbies", lobbies_d )
