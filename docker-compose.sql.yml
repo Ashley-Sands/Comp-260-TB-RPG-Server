@@ -1,0 +1,27 @@
+version: "3.7"
+
+services:
+  sql_setup:
+    image: gizzmo123456/game_server:sql_setup.0.1.3
+    working_dir: /services
+    volumes:
+      - ./:/services
+    networks:
+      - back-tier
+  sql:
+    container_name: localhost_sql
+    image: mariadb:10.4.12-bionic
+    volumes:
+      - mysql_db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password!2E
+    networks:
+      - back-tier
+         
+volumes:
+  mysql_db:
+    
+networks:
+  front-tier:
+  back-tier:
+  
