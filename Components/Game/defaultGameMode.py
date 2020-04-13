@@ -295,6 +295,25 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
                                                  out_area.relic_count() )
                         out_conn.send_message( relic_count )
 
+                    return
+
+        out_area = None
+        if relic.area is not None:
+            relic.area.remove_relic( relic )
+            out_area = relic.area
+
+        if out_area is not None:
+            out_conn = self.get_client_by_player_id( out_area.object_id )
+
+            if out_conn is None:
+                return
+
+            relic_count = message.Message( '+' )
+            relic_count.new_message( const.SERVER_NAME,
+                                     out_area.object_id,  # for relic_areas the server object id match the player id
+                                     out_area.relic_count() )
+            out_conn.send_message( relic_count )
+            return
 
     def look_at_position( self, message_obj ):
 
