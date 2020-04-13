@@ -16,7 +16,12 @@ class ServerGameSocket( ServerModuleSocket.ServerModuleSocket ):
         # Game
         self.transform = components.Transform( (0, 0, 0), (0, 0, 0), (1, 1, 1) )
         self.health = components.Health(100)
+        self.ammo = 25
+        self.blocks = 10
+
         self.current_item = None
+        self.relic_area = None
+
 
     def get_player_info( self ):
         """ gets the players info.

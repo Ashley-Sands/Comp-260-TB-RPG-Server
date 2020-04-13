@@ -18,7 +18,7 @@ def collect_item( from_client_name, player_id, object_id ):
 # Game Action Types
 GA_DROP_ITEM         = 0
 GA_LAUNCH_PROJECTILE = 1
-
+GA_END_GAME          = 2
 
 # A
 def game_Action( from_client_name, player_id, action ):
@@ -53,10 +53,17 @@ GL_END = 2
 def game_loop( from_client_name, player_id, action, t ):
     return locals()
 
+
+# +
+def relic_count ( from_client_name, player_id, count ):
+    return locals()
+
+
 # Server Object types
 SO_PLAYER = 0
 SO_RELIC = 1
 SO_BLOCK = 2
+SO_RELIC_AREA = 3
 
 # server object action types
 SOA_DEFAULT = 0

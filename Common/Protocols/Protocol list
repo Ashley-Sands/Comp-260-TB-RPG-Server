@@ -275,6 +275,7 @@ Other Details       :
                 Game Action types (add GA_ to start in python):
                     - DROP_ITEM          = 0
                     - LAUNCH_PROJECTILE  = 1
+                    - END_GAME           = 2
 Data
     - string        from_client_name        nickname of origin
     - int           player_id
@@ -377,6 +378,22 @@ Data
     - int           player_id               the player to change to or start/stop playing
     - int           action                  CHANGE / START / STOP
     - int           t                       amount of time the action last for
+
+================================================================================
+
+Protocol name       : Relic Count
+Type                : Game Action
+Protocol identity   : +
+Message Origin      : Server
+Services            : game(S)
+Message Action      :
+    Server          : Updates the client relic count
+    Client          : set the player relic count
+Other Details       :
+Data
+    - string        from_client_name        nickname of origin
+    - int           player_id               the player to change to or start/stop playing
+    - int           count                   relic count
 
 ================================================================================
 

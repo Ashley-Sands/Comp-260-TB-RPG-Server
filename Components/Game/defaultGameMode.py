@@ -18,6 +18,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
         super().__init__( socket_handler, database )
 
         self.started = False
+        self.players_setup = False
         self.exit = False
         self.analytics = analytics.Analytics()
 
@@ -43,13 +44,23 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
         # all the objects that the server tracks excluding the players.
         # dict key = object id, value = server_object
-        # TODO: put the objects in the database :)
-        self.objects = {
-            0: serverObj.ServerObject( 0, game_types.SO_RELIC, (0, 1.5, -28.5), active=True ),
-            1: serverObj.ServerObject( 1, game_types.SO_RELIC, (-4, 1.5, -25), active=True ),
-            2: serverObj.ServerObject( 2, game_types.SO_RELIC, (4, 1.5, -25), active=True ),
-            3: serverObj.ServerObject( 3, game_types.SO_RELIC, (0, 1.5, -22), active=True ),
+        # TODO: put the objects in the database or file :)
+        self.relics = {
+            0: serverObj.Relic( 0, game_types.SO_RELIC, (0, 1.5, -28.5), active=True ),
+            1: serverObj.Relic( 1, game_types.SO_RELIC, (-4, 1.5, -25), active=True ),
+            2: serverObj.Relic( 2, game_types.SO_RELIC, (4, 1.5, -25), active=True ),
+            3: serverObj.Relic( 3, game_types.SO_RELIC, (0, 1.5, -22), active=True ),
         }
+
+        # TODO: put the objects in the database or file :)
+        self.relic_areas = {
+            0: serverObj.RelicArea( 0, game_types.SO_RELIC_AREA, (0, 3.5, 5), scale=(19, 6, 19), active=True, bounds=True ),
+            1: serverObj.RelicArea( 1, game_types.SO_RELIC_AREA, (0, 3.5, -55), scale=(19, 6, 19), active=True, bounds=True ),
+            2: serverObj.RelicArea( 2, game_types.SO_RELIC_AREA, (30, 3.5, -25), scale=(19, 6, 19), active=True, bounds=True ),
+            3: serverObj.RelicArea( 3, game_types.SO_RELIC_AREA, (-30, 3.5, -25), scale=(19, 6, 19), active=True, bounds=True )
+        }
+
+        self.objects = { **self.relics }
 
         self.object_id = 3
 
@@ -216,17 +227,65 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
         # TODO: current item should only be set to none if the action id drop item
         # TODO: we should only beable to launch a projectile if we are not carrying an item.
         actions = [game_types.GA_DROP_ITEM, game_types.GA_LAUNCH_PROJECTILE]
+        action = message_obj["action"]
 
-        if message_obj["action"] in actions:
+        if action in actions:
             # update the clients item
             from_client = message_obj.from_connection
-            from_client.current_item = None
+
+            if action == game_types.GA_DROP_ITEM:
+                self.relic_in_area( from_client.current_item )
+                from_client.current_item = None
 
             # send the message to all other clients.
             message_obj.to_connections = self.socket_handler.get_connections()
             message_obj.send_message( True )
 
         self.analytics.add_data( message_obj )
+
+    def relic_in_area( self, relic ):
+
+        # make sure that it is a relic
+        if not isinstance( relic, serverObj.Relic ):
+            DEBUG.LOGS.print("Item is not a relic")
+
+        connections = self.socket_handler.get_connections()
+
+        # we only need to check the areas that have an active player.
+        for conn in connections:
+            area = conn.relic_area
+            out_area = None         # the area that the relic has came out of
+            if area.bounds.contains( relic.transform ):
+                if relic.area == area:
+                    return  # no change
+                else:
+                    if relic.area is not None:
+                        out_area = relic.area
+                        relic.area.remove_relic( relic )
+
+                    area.add_relic( relic )
+                    relic.area = area
+
+                    # update the client that gained a relic
+                    relic_count = message.Message( '+' )
+                    relic_count.new_message( const.SERVER_NAME,
+                                             area.object_id,    # for relic_areas the server object id match the player id
+                                             area.relic_count() )
+                    conn.send_message( relic_count )
+
+                    # update the client who lost a relic
+                    if out_area is not None:
+                        out_conn = self.get_client_by_player_id( out_area.object_id )
+
+                        if out_conn is None:
+                            return
+
+                        relic_count = message.Message( '+' )
+                        relic_count.new_message( const.SERVER_NAME,
+                                                 out_area.object_id,  # for relic_areas the server object id match the player id
+                                                 out_area.relic_count() )
+                        out_conn.send_message( relic_count )
+
 
     def look_at_position( self, message_obj ):
 
@@ -242,17 +301,17 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
     def new_object( self, object_type ):
 
-        self.object_id = next_id = self.object_id + 1
+        self.object_id = new_id = self.object_id + 1
 
         if game_types.SO_BLOCK == object_type:
             health = components.Health(25)
         else:
             health = None
 
-        self.objects[ next_id ] = serverObj.ServerObject( next_id, object_type, (0, 0, 0),
+        self.objects[ new_id ] = serverObj.ServerObject( new_id, object_type, (0, 0, 0),
                                                           active=False, health=health )
 
-        return next_id
+        return new_id
 
     def server_object( self, message_obj ):
 
@@ -270,6 +329,10 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
                 client.transform.set_rotation( message_obj[ "r_x" ],
                                                message_obj[ "r_y" ],
                                                message_obj[ "r_z" ] )
+
+                message_obj.to_connections = self.socket_handler.get_connections()
+                message_obj.send_message( True )
+
         else:
             obj_id = message_obj["object_id"]
             if obj_id in self.objects:

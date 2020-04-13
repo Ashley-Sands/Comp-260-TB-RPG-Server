@@ -113,7 +113,7 @@ def process_client_status_scene_loaded( message_obj ):
 
     DEBUG.LOGS.print( "Client Joined successfully! - ", message_obj.from_connection.client_nickname )
 
-    if active_game_model.players_ready_count == expecting_player_count:
+    if active_game_model.players_ready_count == expecting_player_count and not active_game_model.players_setup:
         # send out the player details to the clients
         available_player_ids = [x for x in range(expecting_player_count)] # list of player ids to assign each player at random without dups
 
@@ -121,13 +121,15 @@ def process_client_status_scene_loaded( message_obj ):
         nicknames = []
         player_ids = []
 
-        conn_sockets = socket_handler.connections
+        connections = socket_handler.connections
 
-        for sock in conn_sockets:
+        for sock in connections:
             cid, nn, pid = socket_handler.get_connection( sock ).get_player_info()
             try:
                 pid = random.choice( available_player_ids )
                 available_player_ids.remove( pid )
+                # assign each of the players a relic area from ActiveGame
+                connections[ sock ].relic_area = active_game_model.relic_areas[ pid ]
             except Exception as e:
                 DEBUG.LOGS.print( "No more random ids to choose for.", message_type=DEBUG.LOGS.MSG_TYPE_FATAL )
 
@@ -135,7 +137,9 @@ def process_client_status_scene_loaded( message_obj ):
             nicknames.append( nn )
             player_ids.append( pid )
 
-            conn_sockets[sock].player_id = pid
+            connections[sock].player_id = pid
+
+        active_game_model.players_setup = True
 
         game_info_msg = message.Message( "G" )
         game_info_msg.new_message( const.SERVER_NAME, client_ids, nicknames, player_ids )

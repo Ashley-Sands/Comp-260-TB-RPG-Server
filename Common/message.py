@@ -29,6 +29,7 @@ class Message:
         'D': game_types.apply_damage,
         'R': game_types.look_at,
         'B': game_types.build_object,
+        '+': game_types.relic_count,
 
         '#': game_types.server_object
     }
