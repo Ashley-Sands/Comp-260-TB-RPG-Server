@@ -13,11 +13,10 @@ class sql_query():
 
     def __init__(self, db_name, using_mysql=False):
 
+        self.available = True
+
         self.using_mysql = using_mysql
         self.db_name = db_name
-
-        self.connection = None
-        self.cursor = None
 
         # make sure that the db root is set
         if not Config.is_set( "db_root" ):
@@ -36,8 +35,8 @@ class sql_query():
 
             DEBUG.LOGS.print( "mysql details:", Config.get("mysql_host"), Config.get("mysql_user"), "*" * random.randint( 6, 16 ), db_name )
 
-        self.connect_db()
-        self.close_db(commit=False)
+        connection, cursor = self.connect_db()
+        self.close_db(connection, cursor, commit=False)
 
     def test_connection( self ):
 
@@ -55,23 +54,22 @@ class sql_query():
 
         return False
 
-
-
     def connect_db(self):
-        """ Connect to the SQLite DB, creates new if not exist """
-
-        if self.connection is not None:
-            return
+        """ Connect to the SQLite DB, creates new if not exist
+            :returns:  tuple (connection, cursor)
+        """
 
         if self.using_mysql:
-            self.connection, self.cursor = mysql_helpers.MySqlHelpers.mysql_connect(
+            connection, cursor = mysql_helpers.MySqlHelpers.mysql_connect(
                                                                                     Config.get("mysql_host"),
                                                                                     Config.get("mysql_user"),
                                                                                     Config.get("mysql_pass"),
                                                                                     self.db_name )
         else:
-            self.connection = sqlite3.connect( Config.get("db_root")+self.db_name )
-            self.cursor = self.connection.cursor()
+            connection = sqlite3.connect( Config.get("db_root")+self.db_name )
+            cursor = connection.cursor()
+
+        return connection, cursor
 
     def destroy_database(self):
 
@@ -79,34 +77,33 @@ class sql_query():
             if os.path.exists( Config.get("db_root")+self.db_name ):
                 os.remove( Config.get("db_root")+self.db_name )
         else:
-           mysql_helpers.MySqlHelpers.mysql_destroy_database( Config.get("mysql_host"),
-                                                              Config.get("mysql_user"),
-                                                              Config.get("mysql_pass"),
-                                                              self.db_name )
+            mysql_helpers.MySqlHelpers.mysql_destroy_database( Config.get("mysql_host"),
+                                                               Config.get("mysql_user"),
+                                                               Config.get("mysql_pass"),
+                                                               self.db_name )
 
-
-    def close_db(self, commit = True):
+    def close_db(self, connection, cursor, commit=True):
         """Closes the db connection"""
 
         # check that the connection exists
-        if self.connection is None and self.cursor is None:
+        if connection is None and cursor is None:
             return
 
-        #if not self.using_mysql and commit:
+        # if not self.using_mysql and commit:
         if commit:
-            self.connection.commit()
+            connection.commit()
 
         # in mysql we must close the cursor and connection
         if self.using_mysql:
-            self.cursor.close()
+            cursor.close()
 
-        self.connection.close()
+        connection.close()
 
-        # reset the connection to insure we established a new connection
-        self.connection = None
-        self.cursor = None
+        # necessary??
+        del connection
+        del cursor
 
-    def get_all_tables(self, close_conn = True):
+    def get_all_tables(self, close_conn=True):
         """ Gets an list of tuples with all table names in database
 
         :return: list of table names [table_name, ...]
@@ -116,16 +113,10 @@ class sql_query():
         else:
             query = "SELECT name FROM sqlite_master WHERE type='table'"
 
-        self.connect_db()
-
-        self.cursor.execute(query)
-        data = self.cursor.fetchall()
+        data = self.execute(query, [], close_conn=close_conn)
 
         # get only the table names
         data = [ r[0] for r in data ]
-
-        if close_conn:
-            self.close_db()
 
         return data
 
@@ -144,16 +135,11 @@ class sql_query():
         else:
             query = "pragma table_info("+table_name+")"
 
-        self.connect_db()
-
         try:
-            self.cursor.execute(query)
-            data = self.cursor.fetchall()
+            data = self.execute( query, [] )
         except Exception as e:
             DEBUG.LOGS.print(e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
             data = []
-
-        self.close_db()
 
         return data
 
@@ -228,9 +214,7 @@ class sql_query():
 
         query += " ("+columns+")"
 
-        self.connect_db()
-        self.cursor.execute(query)
-        self.close_db()
+        self.execute(query, [])
 
         if DEBUG.LOGS.debug_sql:
             DEBUG.LOGS.print("SQL Query", query)
@@ -244,12 +228,8 @@ class sql_query():
                               message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
             return
 
-        self.connect_db()
-
         query = "DROP TABLE " + table_name
-        self.cursor.execute(query)
-
-        self.close_db()
+        self.execute(query, [])
 
         DEBUG.LOGS.print(table_name, "Droped")
 
@@ -259,8 +239,6 @@ class sql_query():
             DEBUG.LOGS.print("Error: can not insert row into table, table does not exist",
                               message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
             return
-
-        self.connect_db()
 
         if self.using_mysql:
             val_str = "%s"
@@ -275,9 +253,7 @@ class sql_query():
         if DEBUG.LOGS.debug_sql:
             DEBUG.LOGS.print("query: ", query, "Data", value_data)
 
-        self.cursor.execute(query, value_data)
-        self.close_db()
-
+        self.execute(query, value_data)
 
     def insert_rows(self, table_name, value_columns, value_data):
         """Inserts rots into table
@@ -289,8 +265,6 @@ class sql_query():
             DEBUG.LOGS.print("Error: can not insert row into table, table does not exist",
                               message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
             return
-
-        self.connect_db()
 
         if self.using_mysql:
             val_str = "%s"
@@ -310,9 +284,7 @@ class sql_query():
             if Global.DEBUG:
                 DEBUG.LOGS.print("query: ", query, "Data", val)
 
-            self.cursor.execute(query, val)
-
-        self.close_db()
+            self.execute(query, val)
 
     def remove_row(self, table_name, where_columns, where_data):
         """remove row from table"""
@@ -322,16 +294,12 @@ class sql_query():
 
         where_str = self.sql_string_builder( where_columns, "AND " )
 
-        self.connect_db()
-
         query = " DELETE FROM "+table_name+" WHERE "+where_str
 
         if DEBUG.LOGS.debug_sql:
             DEBUG.LOGS.print(query, where_data)
 
-        self.cursor.execute( query, where_data )
-
-        self.close_db()
+        self.execute( query, where_data )
 
     def select_from_table(self, table_name, column_names, where_columns=[], where_data=[], order_data={}, override_where_cols = False):
         """ Selects rows of data from table
@@ -346,7 +314,7 @@ class sql_query():
         :return:
         """
         if not self.table_exist(table_name):
-            DEBUG.LOGS.print("Error: can not select from table, table does not exist",
+            DEBUG.LOGS.print( "Error: can not select from table, table does not exist",
                               message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
             return []
 
@@ -373,12 +341,7 @@ class sql_query():
         if DEBUG.LOGS.debug_sql:
             DEBUG.LOGS.print (query)
 
-        self.connect_db()
-        self.cursor.execute( query, where_data )
-        data = self.cursor.fetchall()
-        self.close_db()
-
-        return data
+        return self.execute( query, where_data )
 
     def update_row(self, table_name, set_columns, set_data, where_columns, where_data ):
         """ Updates table row
@@ -399,16 +362,12 @@ class sql_query():
         where_str = self.sql_string_builder(where_columns, "AND ")
         data = (*set_data, *where_data)
 
-        self.connect_db()
-
         query = "UPDATE "+table_name+" SET "+set_str+" WHERE "+where_str
 
         if DEBUG.LOGS.debug_sql:
             DEBUG.LOGS.print( query, data )
 
-        self.cursor.execute(query, data)
-
-        self.close_db()
+        self.execute(query, data)
 
     def sql_string_builder(self, column_names, join, add_equals=True, add_value=False):
         """ build a list of column names in to sql query string for set and where ect...
@@ -439,11 +398,13 @@ class sql_query():
 
         return string
 
-    def execute( self, query, where_data ):
+    def execute( self, query, where_data, close_conn=True ):
 
-        self.connect_db()
-        self.cursor.execute( query, where_data )
-        data = self.cursor.fetchall()
-        self.close_db()
+        connection, cursor = self.connect_db()
+
+        cursor.execute( query, where_data )
+        data = cursor.fetchall()
+
+        self.close_db( connection, cursor)
 
         return data
