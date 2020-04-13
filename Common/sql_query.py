@@ -113,7 +113,7 @@ class sql_query():
         else:
             query = "SELECT name FROM sqlite_master WHERE type='table'"
 
-        data = self.execute(query, [], close_conn=close_conn)
+        data = self.execute(query, [], fetch=True, close_conn=close_conn)
 
         # get only the table names
         data = [ r[0] for r in data ]
@@ -136,7 +136,7 @@ class sql_query():
             query = "pragma table_info("+table_name+")"
 
         try:
-            data = self.execute( query, [] )
+            data = self.execute( query, [], fetch=True )
         except Exception as e:
             DEBUG.LOGS.print(e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
             data = []
@@ -341,7 +341,7 @@ class sql_query():
         if DEBUG.LOGS.debug_sql:
             DEBUG.LOGS.print (query)
 
-        return self.execute( query, where_data )
+        return self.execute( query, where_data, fetch=True )
 
     def update_row(self, table_name, set_columns, set_data, where_columns, where_data ):
         """ Updates table row
@@ -398,12 +398,14 @@ class sql_query():
 
         return string
 
-    def execute( self, query, where_data, close_conn=True ):
+    def execute( self, query, where_data, fetch=False, close_conn=True ):
 
         connection, cursor = self.connect_db()
+        data = None
 
         cursor.execute( query, where_data )
-        data = cursor.fetchall()
+        if fetch:
+            data = cursor.fetchall()
 
         self.close_db( connection, cursor)
 
