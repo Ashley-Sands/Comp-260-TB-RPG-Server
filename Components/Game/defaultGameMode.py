@@ -123,6 +123,8 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             for _ in yield_for_seconds( time_till_next_update, self.wake_up_game_loop ):
                 pass
 
+            self.next_game_state = False
+
         DEBUG.LOGS.print( "Game Has Ended. Winner:", self.current_player_id )
 
         for _ in yield_for_seconds( TIME_TO_CLOSE,
