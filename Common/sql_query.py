@@ -400,9 +400,13 @@ class sql_query():
 
     def execute( self, query, where_data, fetch=False, close_conn=True ):
 
+        data = None
+
         try:
             connection, cursor = self.connect_db()
-            data = None
+
+            if connection is None or cursor is None:
+                return None
 
             cursor.execute( query, where_data )
             if fetch:
@@ -413,6 +417,6 @@ class sql_query():
                 self.close_db( connection, cursor)
         except Exception as e:
             DEBUG.LOGS.print("Bad SQL", e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
-            return []
+            return None
 
         return data

@@ -139,6 +139,7 @@ def client_status( message_obj ):
         database.clear_client_lobby( from_conn.get_client_key()[1] )
         from_conn.safe_close()
 
+
 def get_lobby_connections( lobby_id ):
     """gets the list of connections in lobby"""
 
