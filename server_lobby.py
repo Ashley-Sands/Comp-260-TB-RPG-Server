@@ -242,9 +242,11 @@ if __name__ == "__main__":
                 if not launch_game( lid ):
                     lobbies_start_times[ lid ] += 2  # don't check for another couple of seconds
 
-    database.remove_lobby_host( config.get( "internal_host" ) )
-
     DEBUG.LOGS.print("Exiting...")
+
+    # clean up any existing data in the database.
+    database.remove_lobby_host( config.get( "internal_host" ) )
+    database.clear_lobby_host( lobby_host_id )
 
     socket_handler.close()
     DEBUG.LOGS.close()

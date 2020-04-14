@@ -242,6 +242,9 @@ if __name__ == "__main__":
     # TODO: remove game host.
 
     DEBUG.LOGS.print("Exiting...")
+
+    # clean up any existing data in the database.
+    database.clear_game_host( game_host_id )
     database.remove_game_host( config.get("internal_host") )
     database.debug_game_host()
 
