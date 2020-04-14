@@ -55,7 +55,9 @@ Status types        :
                 - CLIENT            = 0
                 - SCENE_LOADED      = 1
                 - GAME_READY        = 2
-                - LEAVE_GAME        = 3
+                - LEAVE_GAME        = 3     # used for both leave game and lobby
+                                            # if the users is in a game it leaves the game
+                                            # otherwise it leaves the lobby.
                 - DISCONNECT        = 4
 Data
     - string        from_client_name         nickname of origin

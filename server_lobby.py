@@ -130,6 +130,15 @@ def send_client_list( lobby_id ):
     connected_clients.send_message()
 
 
+def client_status( message_obj ):
+
+    if message_obj[ "status_type" ] == statusProtocols.CS_LEAVE_GAME:
+        from_conn = message_obj.from_connection
+
+        # clear the clients lobby in the database and disconnect client
+        database.clear_client_lobby( from_conn.get_client_key()[1] )
+        from_conn.safe_close()
+
 def get_lobby_connections( lobby_id ):
     """gets the list of connections in lobby"""
 
@@ -216,6 +225,7 @@ if __name__ == "__main__":
     message.Message.bind_action( '&', Common.actions.processes_ping )
     message.Message.bind_action( 'i', process_client_identity )
     message.Message.bind_action( 'm', process_message )
+    message.Message.bind_action( 'A', client_status )
 
     # setup socket and bind to accept client socket
     port = config.get( "internal_port" )
@@ -247,6 +257,10 @@ if __name__ == "__main__":
     # clean up any existing data in the database.
     database.remove_lobby_host( config.get( "internal_host" ) )
     database.clear_lobby_host( lobby_host_id )
+
+    # clear any assigned lobbies from all clients
+    for lid in lobbies:
+        database.clear_lobby_from_all_users(lid)
 
     socket_handler.close()
     DEBUG.LOGS.close()

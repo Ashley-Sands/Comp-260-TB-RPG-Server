@@ -191,6 +191,10 @@ class Database:
 
         self.database.update_row( "lobbies", ["lobby_host_id"], [-1], ["uid"], [lobby_id])
 
+    def clear_lobby_from_all_users( self, lobby_id ):
+
+        self.database.update_row( "active_users", ["lobby_id"], [-1], ["lobby_id"], [lobby_id])
+
     def available_lobby_count( self ):
 
         return self.database.select_from_table("lobbies", ["COUNT(game_id)"], ["game_id<"], ["0"], override_where_cols=True)[0][0]
