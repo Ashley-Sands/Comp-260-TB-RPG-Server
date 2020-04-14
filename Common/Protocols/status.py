@@ -16,6 +16,8 @@ def server_status(from_client_name, status_type, ok, message):
 CS_CLIENT           = 0
 CS_SCENE_LOADED     = 1
 CS_GAME_READY       = 2
+CS_LEAVE_GAME       = 3
+CS_DISCONNECT       = 4
 
 def client_status(from_client_name, status_type, ok, message):
     return locals()

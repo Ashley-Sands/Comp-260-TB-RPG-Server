@@ -4,6 +4,7 @@ import Components.Game.serverObject as serverObj
 import Components.Game.helpers as helpers
 import Components.Game.analytics as analytics
 import Common.Protocols.game_types as game_types
+import Common.Protocols.status as status
 import Common.message as message
 import Common.constants as const
 import Common.taskQueue as taskQueue
@@ -12,13 +13,21 @@ import Common.DEBUG as DEBUG
 import threading
 import time
 
+# Win conditions:
+# - Last man standing
+# - The player has all 4 relics at the start of there turn.
+
+TIME_TO_CLOSE = 20      # the amount of time ofter the game until the game is closed.
+
 class DefaultGameMode( baseGameModel.BaseGameModel ):
 
     def __init__(self, socket_handler, database):
         super().__init__( socket_handler, database )
 
         self.started = False
+        self.ended = False
         self.players_setup = False
+        self.completed = False
         self.exit = False
         self.analytics = analytics.Analytics()
 
@@ -67,6 +76,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
     def bind_actions_init( self ):
 
         self.bind_actions = {
+            '?': self.client_status,
             'M': self.move_player,
             'A': self.game_action,
             'P': self.collect_object,
@@ -89,7 +99,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
     def update_game( self ):
 
-        while not self.exit and self.started:
+        while not self.exit and self.started and not self.ended:
             # change current game loop id
             # 0 = Change Player # 1 = Start Turn # 2 = End Turn
             self.current_game_loop_id += 1
@@ -100,11 +110,27 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             # change player
             if self.current_game_loop_id == 0:
                 self.current_player_id = self.get_next_player_id()
+                player_connection = self.get_client_by_player_id( self.current_player_id )
+                # if the player we change to has all 4 relics they win!
+                if player_connection.relic_area.relic_count() == len(self.relics):
+                    self.send_win_message( self.current_player_id )
+                    self.ended = True
 
             msg, time_till_next_update = self.get_game_loop_message( self.current_game_loop_id, self.current_player_id )
             msg.send_message()
 
             time.sleep( time_till_next_update )
+
+        DEBUG.LOGS.print( "Game Has Ended. Winner:", self.current_player_id )
+
+        time.sleep( TIME_TO_CLOSE )
+
+        # disconnect all clients
+        connections = self.socket_handler.get_connections()
+        for conn in connections:
+            self.return_to_lobby(conn)
+            
+        self.completed = True
 
     def stop_game( self, message ):
 
@@ -116,6 +142,20 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             self.game_loop_thread.join()
 
         self.analytics.stop()
+
+    def return_to_lobby( self, conn ):
+
+        self.database.clear_game_host()
+        conn.safe_close()
+
+    def client_status( self, message_obj ):
+
+        if message_obj["type"] == status.CS_LEAVE_GAME:
+            reg_key = message_obj.from_connection.get_client_key()[1]
+            # unset the clients lobby id and disconnect
+            self.database.clear_client_lobby( reg_key )
+
+            message_obj.from_connection.safe_close()
 
     def get_game_loop_message( self, game_loop_id, message_player_id ):
 
@@ -230,8 +270,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
     def game_action( self, message_obj ):
 
-        # TODO: current item should only be set to none if the action id drop item
-        # TODO: we should only beable to launch a projectile if we are not carrying an item.
+        # TODO: we should only be able to launch a projectile if we are not carrying an item.
         actions = [game_types.GA_DROP_ITEM, game_types.GA_LAUNCH_PROJECTILE]
         action = message_obj["action"]
 
@@ -250,10 +289,9 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
     def relic_in_area( self, relic ):
 
-        print("########## HIYA")
         # make sure that it is a relic
         if not isinstance( relic, serverObj.Relic ):
-            print("Item is not a relic", relic)
+            DEBUG.LOGS.print("Item is not a relic", relic)
             return
 
         connections = self.socket_handler.get_connections()
@@ -264,10 +302,10 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             out_area = None         # the area that the relic has came out of
             if area.bounds.contains( relic.transform ):
                 if relic.area == area:
-                    print( "RELIC No Change!!!!!!!!!!!!!!!!!")
+                    DEBUG.LOGS.print( "RELIC No Change!!!!!!!!!!!!!!!!!")
                     return  # no change
                 else:
-                    print( "RELIC Change!!!!!!!!!!!!!!!!!")
+                    DEBUG.LOGS.print( "RELIC Change!!!!!!!!!!!!!!!!!")
                     if relic.area is not None:
                         out_area = relic.area
                         relic.area.remove_relic( relic )
@@ -340,6 +378,14 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
                                                           active=False, health=health )
 
         return new_id
+
+    def send_win_message( self, win_player_id ):
+
+        win_message = message.Message( 'A' )
+        win_message.new_message( const.SERVER_NAME, win_player_id, game_types.GA_END_GAME )
+        win_message.to_connections = self.socket_handler.get_connections()
+        win_message.send_message()
+        DEBUG.LOGS.print( "Win Sent" )
 
     def server_object( self, message_obj ):
 

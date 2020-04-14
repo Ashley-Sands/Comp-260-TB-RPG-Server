@@ -217,7 +217,8 @@ if __name__ == "__main__":
                 game_active = True
 
         # run the game.
-        while running and not terminate_signal.triggered and game_active:
+        while running and not terminate_signal.triggered and \
+                game_active and not active_game_model.completed:
 
             socket_handler.process_connections( process_connection, process_remove_connection )
 

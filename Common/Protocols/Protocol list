@@ -55,6 +55,8 @@ Status types        :
                 - CLIENT            = 0
                 - SCENE_LOADED      = 1
                 - GAME_READY        = 3
+                - LEAVE_GAME        = 4
+                - LEVEL_SERVER      = 5
 Data
     - string        from_client_name         nickname of origin
     - int           status_type
@@ -268,17 +270,19 @@ Type                : Game Action
 Protocol identity   : A
 Message Origin      : Client
 Services            : game(S/R)
-Message Action      : for game action that only require the player id
-    Client          : Sent from the client to the server with the item id the the player has droped
-    Server          : distrabutes the action among other clients
+Message Action      : game actions sent/received by both server and client
+                      with actions that only require player id
+    Client          :
+    Server          :
 Other Details       :
                 Game Action types (add GA_ to start in python):
                     - DROP_ITEM          = 0
                     - LAUNCH_PROJECTILE  = 1
-                    - END_GAME           = 2
+                    - END_TURN           = 2
+                    - END_GAME           = 3
 Data
     - string        from_client_name        nickname of origin
-    - int           player_id
+    - int           player_id               for end_game this is the winner
     - int           action                  game action type
 
 ================================================================================

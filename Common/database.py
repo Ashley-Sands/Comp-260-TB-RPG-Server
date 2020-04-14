@@ -81,6 +81,10 @@ class Database:
         print(user_data)
         return user_data[0][0]
 
+    def clear_client_lobby( self, reg_key ):
+
+        self.database.update_row( "active_users", ["lobby_id"], [-1], ["reg_key"], [reg_key] )
+
     def get_lobby_host_ids( self, lobby_id ):
         """ gets the lobby host id and game host id (tuple)"""
 
@@ -116,7 +120,7 @@ class Database:
                 "WHERE uid=%s"
 
         host = self.database.execute(query, [host_id], fetch=True)
-        print(host)
+        print(host, query, host_id)
         if len(host) != 1:
             host = None
         else:
