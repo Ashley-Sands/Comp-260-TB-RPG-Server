@@ -154,7 +154,7 @@ class SocketHandler:
 
         try:
             self.socket_inst.close()
-            DEBUG.LOGS.print( "Closed Main Socket ")
+            DEBUG.LOGS.print( "Closed Main Socket " )
         except Exception as e:
             DEBUG.LOGS.print( "Failed to Close Main Socket ", e, DEBUG.LOGS.MSG_TYPE_WARNING )
 
