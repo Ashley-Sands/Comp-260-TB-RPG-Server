@@ -11,6 +11,7 @@ class SocketHandler:
         self.port = port
         self.max_conn = max_conn
         self.accepting_connections = True
+        self.valid = True
 
         self.socket_inst = None
 
@@ -57,7 +58,7 @@ class SocketHandler:
         # even if we not accepting connections anymore,
         # other wise they build up and connect/disconnect
         # as soon as we start accepting connection again.
-        while True:
+        while self.vaild:
 
             client_sock, addr = active_socket.accept()
             DEBUG.LOGS.print( "Client Accepted" )
@@ -140,3 +141,27 @@ class SocketHandler:
             if process_func is not None:
                 process_func( self.connections[s] )
 
+    def close( self ):
+        """ closes all connections and terminates all threads """
+
+        self.valid = False
+
+        # close the main socket instance.
+        try:
+            self.socket_inst.shutdown( socket.SHUT_RDWR )
+        except Exception as e:
+            DEBUG.LOGS.print( "Bad socket: ", e, DEBUG.LOGS.MSG_TYPE_WARNING )
+
+        try:
+            self.socket_inst.close()
+            DEBUG.LOGS.print( "Closed Main Socket ")
+        except Exception as e:
+            DEBUG.LOGS.print( "Failed to Close Main Socket ", e, DEBUG.LOGS.MSG_TYPE_WARNING )
+
+        # close all of the connected clients connections
+        for sock in self.connections:
+            self.connections[sock].close()
+
+        # finally make sure that the accept connection has joined
+        if self.accept_connection_thread.is_alive():
+            self.accept_connection_thread.join()

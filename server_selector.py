@@ -1,6 +1,7 @@
 import Common.DEBUG as DEBUG
 import Common.database as db
 import Common.message as message
+import Common.signal_handler as signal_handler
 import Sockets.ServerSelectSocket as ServerSelectSocket
 import Sockets.SocketHandler as SocketHandler
 import time
@@ -106,6 +107,7 @@ if __name__ == "__main__":
 
     running = True
 
+    quit_signal = signal_handler.SignalHandler()
     Global.setup()
 
     DEBUG.LOGS.init()
@@ -128,7 +130,7 @@ if __name__ == "__main__":
 
     socket_handler.start()
 
-    while running:
+    while running and not quit_signal.triggered:
 
         # clean up any zombie sockets
         socket_handler.process_connections( process_func=process_connections, extend_remove_connection_func=cleanup_connections )
@@ -137,3 +139,5 @@ if __name__ == "__main__":
         # this usually happens when the client is no longer welcome on the server
         # ie, when the game has ended, or game is starting, joining lobbies ect...
         pass
+
+    socket_handler.close()
