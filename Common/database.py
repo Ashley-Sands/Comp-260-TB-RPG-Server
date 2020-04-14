@@ -187,9 +187,9 @@ class Database:
         DEBUG.LOGS.print("LOBBY_INFO", info, lobby_id)
         return info[0]
 
-    def clear_lobby_host( self, lobby_id ):
+    def clear_lobby_host( self, lobby_host_id ):
 
-        self.database.update_row( "lobbies", ["lobby_host_id"], [-1], ["uid"], [lobby_id])
+        self.database.update_row( "lobbies", ["lobby_host_id"], [-1], ["lobby_host_id"], [lobby_host_id])
 
     def clear_lobby_from_all_users( self, lobby_id ):
 

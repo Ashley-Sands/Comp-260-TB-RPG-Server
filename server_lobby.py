@@ -137,7 +137,9 @@ def client_status( message_obj ):
 
         # clear the clients lobby in the database and disconnect client
         database.clear_client_lobby( from_conn.get_client_key()[1] )
+
         from_conn.safe_close()
+        DEBUG.LOGS.print("Client Left Lobby")
 
 
 def get_lobby_connections( lobby_id ):
@@ -224,9 +226,9 @@ if __name__ == "__main__":
 
     # bind message functions
     message.Message.bind_action( '&', Common.actions.processes_ping )
+    message.Message.bind_action( '?', client_status )
     message.Message.bind_action( 'i', process_client_identity )
     message.Message.bind_action( 'm', process_message )
-    message.Message.bind_action( 'A', client_status )
 
     # setup socket and bind to accept client socket
     port = config.get( "internal_port" )
