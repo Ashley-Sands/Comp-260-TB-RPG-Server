@@ -18,7 +18,7 @@ import time
 # - Last man standing
 # - The player has all 4 relics at the start of there turn.
 
-TIME_TO_CLOSE = 20      # the amount of time ofter the game until the game is closed.
+TIME_TO_CLOSE = 15      # the amount of time ofter the game until the game is closed.
 
 class DefaultGameMode( baseGameModel.BaseGameModel ):
 
@@ -39,8 +39,8 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
         # game loop tuple (type time)
         self.game_loop = [ (game_types.GL_CHANGE, 3),
-                           (game_types.GL_START, 25),
-                           (game_types.GL_END, 5) ]
+                           (game_types.GL_START, 20),
+                           (game_types.GL_END, 3) ]
 
         self.current_game_loop_id = 0
         self.next_game_state = False
