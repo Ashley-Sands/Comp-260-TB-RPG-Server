@@ -58,9 +58,13 @@ class SocketHandler:
         # even if we not accepting connections anymore,
         # other wise they build up and connect/disconnect
         # as soon as we start accepting connection again.
-        while self.vaild:
+        while self.valid:
+            try:
+                client_sock, addr = active_socket.accept()
+            except Exception as e:
+                DEBUG.LOGS.print("Could not accept connection ", e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
+                break
 
-            client_sock, addr = active_socket.accept()
             DEBUG.LOGS.print( "Client Accepted" )
 
             if not self.accepting_connections:
@@ -158,10 +162,16 @@ class SocketHandler:
         except Exception as e:
             DEBUG.LOGS.print( "Failed to Close Main Socket ", e, DEBUG.LOGS.MSG_TYPE_WARNING )
 
+        DEBUG.LOGS.print( "Closeing connections." )
+
         # close all of the connected clients connections
         for sock in self.connections:
             self.connections[sock].close()
 
+        DEBUG.LOGS.print( "Connections closed Successfully." )
+
         # finally make sure that the accept connection has joined
         if self.accept_connection_thread.is_alive():
             self.accept_connection_thread.join()
+
+        DEBUG.LOGS.print( "Socket handler closed successfully! :D" )

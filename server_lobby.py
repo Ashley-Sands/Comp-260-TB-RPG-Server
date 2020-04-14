@@ -2,6 +2,7 @@ import Common.DEBUG as DEBUG
 import Common.database as db
 import Sockets.ServerLobbySocket as ServerLobbySocket
 import Sockets.SocketHandler as SocketHandler
+import Common.signal_handler as signal_handler
 import Common.constants as const
 import Common.message as message
 import Common.actions
@@ -196,6 +197,7 @@ if __name__ == "__main__":
     lobbies_start_times = {} # key = lobby id value if > 0 start time else not enough players
 
     # set up
+    terminate_signal = signal_handler.SignalHandler()
     Global.setup()
 
     DEBUG.LOGS.init()
@@ -225,7 +227,7 @@ if __name__ == "__main__":
     # Welcome the server
     DEBUG.LOGS.print("Welcome", config.get("internal_host"), ":", config.get("internal_port"), " - Your lobby host id is: ", lobby_host_id )
 
-    while running:
+    while running and not terminate_signal.triggered:
 
         socket_handler.process_connections( process_func=process_connections,
                                             extend_remove_connection_func=clean_lobby )
@@ -241,3 +243,13 @@ if __name__ == "__main__":
                     lobbies_start_times[ lid ] += 2  # don't check for another couple of seconds
 
     database.remove_lobby_host( config.get( "internal_host" ) )
+
+    DEBUG.LOGS.print("Exiting...")
+
+    socket_handler.close()
+    DEBUG.LOGS.close()
+
+    time.sleep(0.2)
+
+    print(config.get("internal_host"), config.get("internal_host_lobbies"), ":", config.get("internal_port"), " - Offline")
+    print("BeyBey!")

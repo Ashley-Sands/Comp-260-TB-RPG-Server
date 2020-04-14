@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
     running = True
 
-    quit_signal = signal_handler.SignalHandler()
+    terminate_signal = signal_handler.SignalHandler()
     Global.setup()
 
     DEBUG.LOGS.init()
@@ -130,7 +130,7 @@ if __name__ == "__main__":
 
     socket_handler.start()
 
-    while running and not quit_signal.triggered:
+    while running and not terminate_signal.triggered:
 
         # clean up any zombie sockets
         socket_handler.process_connections( process_func=process_connections, extend_remove_connection_func=cleanup_connections )
@@ -140,4 +140,12 @@ if __name__ == "__main__":
         # ie, when the game has ended, or game is starting, joining lobbies ect...
         pass
 
+    DEBUG.LOGS.print("Exiting...")
+
     socket_handler.close()
+    DEBUG.LOGS.close()
+
+    time.sleep(0.2)
+
+    print(config.get("host"), ":", config.get("port"), "- Offline")
+    print("BeyBey!")

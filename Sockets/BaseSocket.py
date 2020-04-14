@@ -107,6 +107,7 @@ class BaseSocketClient:
             Closes the sockets and joins the threads asap (ignoring any queued tasks)
             Override close_socket and join_threads to extend
         """
+        DEBUG.LOGS.print("Closing client ", self._client_db_id)
         self.valid( False )
 
         self.close_socket()

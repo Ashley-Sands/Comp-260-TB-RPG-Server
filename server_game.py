@@ -4,6 +4,7 @@ import Common.constants as const
 import Common.message as message
 import Common.actions
 import Common.Protocols.status as status_protocol
+import Common.signal_handler as signal_handler
 
 import Sockets.ServerGameSocket as ServerGameSocket
 import Sockets.SocketHandler as SocketHandler
@@ -167,6 +168,7 @@ if __name__ == "__main__":
     lobby_id = -1
 
     # set up
+    terminate_signal = signal_handler.SignalHandler()
     Global.setup()
 
     DEBUG.LOGS.init()
@@ -197,7 +199,7 @@ if __name__ == "__main__":
     # Welcome the server
     DEBUG.LOGS.print("Welcome",config.get("internal_host"), ":", config.get("internal_port"), " - You game host id is: ", game_host_id )
     T = 0
-    while running:
+    while running and not terminate_signal.triggered:
         # wait for a game to be added to the que
         while running and active_game_model is None:
             # assign the game id to the next lobby in the queue
@@ -231,3 +233,15 @@ if __name__ == "__main__":
         close_game = False
 
         DEBUG.LOGS.print("Next Lobby Please...")
+
+    # TODO: remove game host.
+
+    DEBUG.LOGS.print("Exiting...")
+
+    socket_handler.close()
+    DEBUG.LOGS.close()
+
+    time.sleep(0.2)
+
+    print(config.get("internal_host"), ":", config.get("internal_port"), " (game host id: ", game_host_id, ") - Offline")
+    print("BeyBey!")

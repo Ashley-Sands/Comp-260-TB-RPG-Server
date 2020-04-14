@@ -7,6 +7,8 @@ import Common.message as message
 import Common.actions
 import time
 import Common.Protocols.status as statusProtocols
+import Common.signal_handler as signal_handler
+
 import os
 import Common.Globals as Global
 config = Global.GlobalConfig
@@ -91,6 +93,7 @@ if __name__ == "__main__":
     running = True
 
     # set up
+    terminate_signal = signal_handler.SignalHandler()
     Global.setup()
 
     DEBUG.LOGS.init()
@@ -114,6 +117,16 @@ if __name__ == "__main__":
     # Welcome the server
     DEBUG.LOGS.print("Welcome",config.get("internal_host_lobbies"), ":", config.get("internal_port") )
 
-    while running:
+    while running and not terminate_signal.triggered:
         # lets keep it clean :)
         socket_handler.process_connections( process_connection )
+
+    DEBUG.LOGS.print("Exiting...")
+
+    socket_handler.close()
+    DEBUG.LOGS.close()
+
+    time.sleep(0.2)
+
+    print(config.get("internal_host"), config.get("internal_host_lobbies"), ":", config.get("internal_port"), " - Offline")
+    print("BeyBey!")

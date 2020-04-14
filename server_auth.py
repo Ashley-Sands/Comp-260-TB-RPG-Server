@@ -1,4 +1,5 @@
 import os
+import Common.signal_handler as signal_handler
 import Common.DEBUG as DEBUG
 import Common.database as db
 import Sockets.ServerModuleSocket as ServerModuleSocket
@@ -64,9 +65,11 @@ def process_connection( connection ):
 
 if __name__ == "__main__":
 
+
     running = True
 
     # set up
+    terminate_signal = signal_handler.SignalHandler()
     Global.setup()
 
     DEBUG.LOGS.init()
@@ -88,7 +91,17 @@ if __name__ == "__main__":
 
     socket_handler.start()
 
-    while running:
+    while running and not terminate_signal.triggered:
         # lets keep it clean :)
         socket_handler.process_connections( process_connection )
         time.sleep(0.5)
+
+    DEBUG.LOGS.print("Exiting...")
+
+    socket_handler.close()
+    DEBUG.LOGS.close()
+
+    time.sleep(0.2)
+
+    print(config.get("internal_host_auth"), ":", config.get("internal_port"), "- Offline")
+    print("BeyBey!")
