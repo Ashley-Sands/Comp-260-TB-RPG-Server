@@ -13,8 +13,8 @@ import Common.Globals as Global
 config = Global.GlobalConfig
 
 MAX_GAME_START_TIME = 30
-GAME_START_TIME = 3        # seconds until the game can start once there is enough players
-NEW_PLAYER_DELAY = 10
+GAME_START_TIME = 15        # seconds until the game can start once there is enough players
+NEW_PLAYER_DELAY = 5
 
 
 def process_connections( conn ):

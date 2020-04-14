@@ -158,6 +158,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
         if message_obj["status_type"] == status.CS_LEAVE_GAME:
             reg_key = message_obj.from_connection.get_client_key()[1]
+
             # unset the clients lobby id and disconnect
             self.database.clear_client_lobby( reg_key )
 
