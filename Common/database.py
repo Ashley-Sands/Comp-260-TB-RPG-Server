@@ -51,10 +51,10 @@ class Database:
 
         rand = random.random()
         query = "SELECT word FROM {0} WHERE id >= {1} * (SELECT MAX(id) FROM {0})"
-        adj = self.database.execute( query.format( "names_list_adjective", rand, fetch=True ), [] )[0][0]
+        adj = self.database.execute( query.format( "names_list_adjective", rand ), [], fetch=True )[0][0]
 
         rand = random.random()
-        noun = self.database.execute( query.format( "names_list_nouns", rand, fetch=True ), [] )[0][0]
+        noun = self.database.execute( query.format( "names_list_nouns", rand ), [], fetch=True )[0][0]
 
         return adj[0:1].upper() + adj[1:].lower() + " " + noun[0:1].upper() + noun[1:]
 

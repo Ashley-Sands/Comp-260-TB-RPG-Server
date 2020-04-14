@@ -405,8 +405,10 @@ class sql_query():
 
         cursor.execute( query, where_data )
         if fetch:
+            # DEBUG.LOGS.print("Fetching.........................", query)
             data = cursor.fetchall()
 
-        self.close_db( connection, cursor)
+        if close_conn:
+            self.close_db( connection, cursor)
 
         return data
