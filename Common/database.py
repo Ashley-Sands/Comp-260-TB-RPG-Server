@@ -308,9 +308,14 @@ class Database:
         return self.database.select_from_table( "lobby_host", ["uid"], ["host"], [host] )[0][0]
 
     def remove_lobby_host( self, host ):
-        """Add a new lobby host to the current list of lobbies and returns the new id"""
+        """Removes lobby host from list of active lobby host"""
 
-        self.database.remove_row( "lobby_host", ["host"], [host])
+        self.database.remove_row( "lobby_host", ["host"], [host] )
+
+    def remove_game_host( self, host ):
+        """Removes game host from list of active games host"""
+
+        self.database.remove_row( "games_host", ["host"], [host] )
 
     def add_game_host( self, host ):
 
@@ -452,3 +457,9 @@ class Database:
         DEBUG.LOGS.print( "lobbies host", lobbyh_d )
         DEBUG.LOGS.print( "games host", gameh_d )
         DEBUG.LOGS.print( "levels", levels_d )
+
+    def debug_game_host( self ):
+
+        game_host_query = "SELECT * FROM games_host"
+        gameh_d = self.database.execute( game_host_query, [ ], fetch=True )
+        DEBUG.LOGS.print( "games host", gameh_d )

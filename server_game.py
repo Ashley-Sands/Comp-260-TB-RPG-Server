@@ -182,6 +182,7 @@ if __name__ == "__main__":
         time.sleep(5)
 
     game_host_id = database.add_game_host( config.get( "internal_host" ) )
+    database.debug_game_host()
 
     # bind message functions
     message.Message.bind_action( '?', process_client_status )
@@ -240,6 +241,8 @@ if __name__ == "__main__":
     # TODO: remove game host.
 
     DEBUG.LOGS.print("Exiting...")
+    database.remove_game_host( config.get("internal_host") )
+    database.debug_game_host()
 
     socket_handler.close()
     DEBUG.LOGS.close()
