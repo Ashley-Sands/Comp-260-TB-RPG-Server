@@ -198,10 +198,11 @@ if __name__ == "__main__":
 
     # Welcome the server
     DEBUG.LOGS.print("Welcome",config.get("internal_host"), ":", config.get("internal_port"), " - You game host id is: ", game_host_id )
+
     T = 0
     while running and not terminate_signal.triggered:
         # wait for a game to be added to the que
-        while running and active_game_model is None:
+        while running and not terminate_signal.triggered and active_game_model is None:
             # assign the game id to the next lobby in the queue
             next_lobby_id = database.get_next_lobby_in_queue()
             if next_lobby_id is not None:
@@ -215,7 +216,7 @@ if __name__ == "__main__":
                 game_active = True
 
         # run the game.
-        while running and game_active:
+        while running and not terminate_signal.triggered and game_active:
 
             socket_handler.process_connections( process_connection, process_remove_connection )
 
@@ -226,9 +227,11 @@ if __name__ == "__main__":
 
         # unbind the game model functions from message
         # and reset the server status
-        active_game_model.stop_game( message.Message )
-        del active_game_model
-        active_game_model = None
+        if active_game_model is not None:
+            active_game_model.stop_game( message.Message )
+            del active_game_model
+            active_game_model = None
+
         lobby_id = -1
         close_game = False
 
