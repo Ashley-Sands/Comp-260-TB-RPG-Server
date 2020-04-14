@@ -19,7 +19,7 @@ def collect_item( from_client_name, player_id, object_id ):
 GA_DROP_ITEM         = 0
 GA_LAUNCH_PROJECTILE = 1
 GA_END_TURN          = 2
-GA_LEAVE_GAME        = 3
+GA_END_GAME        = 3
 
 # A
 def game_Action( from_client_name, player_id, action ):
