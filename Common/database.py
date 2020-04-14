@@ -433,7 +433,7 @@ class Database:
 
     def clear_users( self ):
         """removes all active users"""
-        query = "DELETE active_users"
+        query = "DELETE FROM active_users"
         self.database.execute(query, [])
 
 
