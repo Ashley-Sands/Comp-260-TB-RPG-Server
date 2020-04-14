@@ -7,6 +7,7 @@ import Common.Protocols.game_types as game_types
 import Common.Protocols.status as status
 import Common.message as message
 import Common.constants as const
+from Common.yield_for_seconds import yield_for_seconds
 import Common.taskQueue as taskQueue
 import Common.database as database
 import Common.DEBUG as DEBUG
@@ -21,8 +22,8 @@ TIME_TO_CLOSE = 20      # the amount of time ofter the game until the game is cl
 
 class DefaultGameMode( baseGameModel.BaseGameModel ):
 
-    def __init__(self, socket_handler, database):
-        super().__init__( socket_handler, database )
+    def __init__(self, socket_handler, database, host_id):
+        super().__init__( socket_handler, database, host_id )
 
         self.started = False
         self.ended = False
@@ -42,7 +43,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
                            (game_types.GL_END, 5) ]
 
         self.current_game_loop_id = 0
-
+        self.next_game_state = False
         # needed??
         self.next_game_loop_id = 0
         self.next_player_id = 0
@@ -119,17 +120,22 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             msg, time_till_next_update = self.get_game_loop_message( self.current_game_loop_id, self.current_player_id )
             msg.send_message()
 
-            time.sleep( time_till_next_update )
+            for _ in yield_for_seconds( time_till_next_update, self.wake_up_game_loop ):
+                pass
 
         DEBUG.LOGS.print( "Game Has Ended. Winner:", self.current_player_id )
 
-        time.sleep( TIME_TO_CLOSE )
+        for _ in yield_for_seconds( TIME_TO_CLOSE,
+                                    lambda: len( self.socket_handler.get_connections() ) == 0,  # exit func
+                                    intervals=0.1 ) :
+            pass
 
         # disconnect all clients
+        self.database.clear_game_host(self.host_id)
         connections = self.socket_handler.get_connections()
         for conn in connections:
-            self.return_to_lobby(conn)
-            
+            conn.safe_close()
+
         self.completed = True
 
     def stop_game( self, message ):
@@ -143,14 +149,12 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
 
         self.analytics.stop()
 
-    def return_to_lobby( self, conn ):
-
-        self.database.clear_game_host()
-        conn.safe_close()
+    def wake_up_game_loop( self ):
+        return self.exit or self.next_game_state
 
     def client_status( self, message_obj ):
 
-        if message_obj["type"] == status.CS_LEAVE_GAME:
+        if message_obj["status_type"] == status.CS_LEAVE_GAME:
             reg_key = message_obj.from_connection.get_client_key()[1]
             # unset the clients lobby id and disconnect
             self.database.clear_client_lobby( reg_key )
@@ -271,7 +275,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
     def game_action( self, message_obj ):
 
         # TODO: we should only be able to launch a projectile if we are not carrying an item.
-        actions = [game_types.GA_DROP_ITEM, game_types.GA_LAUNCH_PROJECTILE]
+        actions = [game_types.GA_DROP_ITEM, game_types.GA_LAUNCH_PROJECTILE, game_types.GA_END_TURN]
         action = message_obj["action"]
 
         if action in actions:
@@ -281,9 +285,12 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
             if action == game_types.GA_DROP_ITEM and from_client.current_item is not None:
                 from_client.current_item = None
 
-            # send the message to all other clients.
-            message_obj.to_connections = self.socket_handler.get_connections()
-            message_obj.send_message( True )
+            if action != game_types.GA_END_TURN:
+                # send the message to all other clients.
+                message_obj.to_connections = self.socket_handler.get_connections()
+                message_obj.send_message( True )
+            else:
+                self.next_game_state = True
 
         self.analytics.add_data( message_obj )
 

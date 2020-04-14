@@ -431,6 +431,12 @@ class Database:
 
         self.database.update_row( "lobbies", ["game_id"], [-1], ["game_id"], [game_id] )
 
+    def clear_users( self ):
+        """removes all active users"""
+        query = "DELETE active_users"
+        self.database.execute(query, [])
+
+
     def add_analytic_data( self, data_type, data, player_id, lobby_id, game_id, level_id, t ):
         DEBUG.LOGS.print(player_id,    lobby_id,   game_id,   level_id,   data_type,   data,   t)
 

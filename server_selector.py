@@ -141,6 +141,7 @@ if __name__ == "__main__":
         pass
 
     DEBUG.LOGS.print("Exiting...")
+    database.clear_users()
 
     socket_handler.close()
     DEBUG.LOGS.close()

@@ -1,10 +1,11 @@
 
 class BaseGameModel:
 
-    def __init__(self, socket_handler, database):
+    def __init__(self, socket_handler, database, host_id):
 
         self.socket_handler = socket_handler
         self.database = database
+        self.host_id = host_id
         self.players_ready_count = 0
         self.players_set_count = 0
         self.bind_actions = {}
