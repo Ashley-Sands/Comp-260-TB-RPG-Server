@@ -94,7 +94,7 @@ if __name__ == "__main__":
     while running and not terminate_signal.triggered:
         # lets keep it clean :)
         socket_handler.process_connections( process_connection )
-        time.sleep(0.5)
+        time.sleep(0.1)
 
     DEBUG.LOGS.print("Exiting...")
 
