@@ -3,9 +3,9 @@ import Components.Game.serverObjectComponents as components
 
 class ServerGameSocket( ServerModuleSocket.ServerModuleSocket ):
 
-    def __init__(self, socket):
+    def __init__(self, socket, sharded_received_queue=None):
 
-        super().__init__(socket)
+        super().__init__(socket, sharded_received_queue=None)
 
         # Game stats
         self.ready = False
