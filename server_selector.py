@@ -119,6 +119,8 @@ if __name__ == "__main__":
     while not database.database.test_connection():
         time.sleep(10) # seconds
 
+    time.sleep(1)   # we need to give the other modules a second to come online
+
     socket_handler = SocketHandler.SocketHandler( config.get("host"), config.get("port"),
                                                   15, ServerSelectSocket.ServerSelectSocket)
 
