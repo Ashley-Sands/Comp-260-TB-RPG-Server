@@ -497,4 +497,4 @@ class Database:
 
         lobby_host_query = "SELECT * FROM lobbies"
         lobbyh_d = self.database.execute( lobby_host_query, [ ], fetch=True )
-        print( "lobbies host", lobbyh_d )
+        DEBUG.LOGS.print( "lobbies host", lobbyh_d )

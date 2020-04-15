@@ -224,7 +224,6 @@ if __name__ == "__main__":
         while running and not terminate_signal.triggered and not launched:
 
             lobby_host = database.select_lobby_by_game_host( game_host_id )
-            database.debug_lobby_host()
 
             if lobby_host is None:  # No longer assigned
                 break
