@@ -208,6 +208,12 @@ if __name__ == "__main__":
 
         # wait for a game to be added to the que
         while running and not terminate_signal.triggered and active_game_model is None:
+
+            # yield for a second
+            yield_for_seconds.yield_for_seconds(1,
+                                                exit_func=lambda: not running or terminate_signal.triggered,
+                                                intervals=0.1 )
+
             # assign the game id to the next lobby in the queue
             next_lobby_id = database.get_next_lobby_in_queue()
             if next_lobby_id is not None:
@@ -221,17 +227,18 @@ if __name__ == "__main__":
                 game_active = True
 
         # wait for the game to launch.
-        while running and not terminate_signal.triggered and not launched:
+        while running and not terminate_signal.triggered:
 
             lobby_host = database.select_lobby_by_game_host( game_host_id )
 
-            if lobby_host is None:  # No longer assigned
-                break
-            else:
-                launched = lobby_host < 0
+            yield_for_seconds.yield_for_seconds( -1,
+                                                 exit_func=lambda: not running or
+                                                                   terminate_signal.triggered and
+                                                                   lobby_host < 0,
+                                                 intervals=0.1 )
 
         expecting_player_count = database.get_lobby_player_count( lobby_id )
-        launched &= expecting_player_count >= active_game_model.min_players
+        launched = expecting_player_count >= active_game_model.min_players
 
         if launched:
             DEBUG.LOGS.print( "Game Starting on", game_host_id )
