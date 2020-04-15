@@ -202,6 +202,7 @@ if __name__ == "__main__":
 
     T = 0
     while running and not terminate_signal.triggered:
+
         # wait for a game to be added to the que
         while running and not terminate_signal.triggered and active_game_model is None:
             # assign the game id to the next lobby in the queue

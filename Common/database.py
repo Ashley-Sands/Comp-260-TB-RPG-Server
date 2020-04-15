@@ -206,8 +206,9 @@ class Database:
                         [(lobby id, level id, level name, min players, max players), ...],
                         [current_players]...
         """
-        query = "SELECT lobbies.uid, levels.uid, levels.name, levels.min_players, levels.max_players" \
-                " FROM lobbies JOIN levels ON lobbies.level_id=levels.uid WHERE lobbies.lobby_host_id >= 0"
+        query = "SELECT lobbies.uid, levels.uid, levels.name, levels.min_players, levels.max_players " \
+                "FROM lobbies JOIN levels ON lobbies.level_id=levels.uid " \
+                "WHERE lobbies.lobby_host_id >= 0 OR (lobbies.lobby_host_id < 0 AND lobbies.game_id < 0)"
 
         # stitch the current_players count
         lobbies = self.database.execute(query, [], fetch=True)
@@ -295,7 +296,7 @@ class Database:
         # check that the user can join the lobby
         query = "SELECT levels.max_players " \
                 "FROM lobbies JOIN levels ON lobbies.level_id = levels.uid " \
-                "WHERE lobbies.lobby_host_id >= 0 AND lobbies.uid = %s"
+                "WHERE (lobbies.game_id < 0 OR (lobbies.lobby_host_id >= 0 AND lobbies.game_id >= 0)) AND lobbies.uid = %s"
 
         lobby = self.database.execute( query, [lobby_id], fetch=True )
         current_players = self.get_lobby_player_count( lobby_id )
