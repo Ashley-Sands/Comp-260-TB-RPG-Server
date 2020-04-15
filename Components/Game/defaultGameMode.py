@@ -145,7 +145,7 @@ class DefaultGameMode( baseGameModel.BaseGameModel ):
         self.exit = True
 
         self.unbind_all( message )
-
+        print( "" )
         if self.game_loop_thread.is_alive():
             self.game_loop_thread.join()
 

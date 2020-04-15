@@ -183,6 +183,7 @@ def launch_game( lobby_id ):
         # unset the lobby host id and kick them out.
         # Its game time!! :P
         database.clear_lobby_host( lobby_id )
+        print( "Cleared lobby id", lobby_id )
         for client in lobbies[ lobby_id ]:
             lobbies[ lobby_id ][client].safe_close()
 
@@ -259,7 +260,7 @@ if __name__ == "__main__":
 
     # clean up any existing data in the database.
     database.remove_lobby_host( config.get( "internal_host" ) )
-    database.clear_lobby_host( lobby_host_id )
+    database.clear_lobby_host_from_all_lobbies( lobby_host_id )
 
     # clear any assigned lobbies from all clients
     for lid in lobbies:

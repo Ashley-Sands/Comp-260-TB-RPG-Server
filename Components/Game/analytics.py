@@ -24,8 +24,8 @@ class Analytics:
 
         while self.running:
 
-            if not self.queue.empty():
-                time.sleep(5)
+            if self.queue.empty():
+                time.sleep(0.1)
                 continue
 
             player_id, reg_key, message_obj = self.queue.get( )
@@ -57,6 +57,7 @@ class Analytics:
         self.running = False
         self.thread_lock.release()
 
-        self.update_thread.join()
+        if self.update_thread.is_alive():
+            self.update_thread.join()
 
         DEBUG.LOGS.print( "Analytics Stopped" )

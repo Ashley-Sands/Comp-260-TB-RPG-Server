@@ -406,6 +406,7 @@ class sql_query():
             connection, cursor = self.connect_db()
 
             if connection is None or cursor is None:
+                DEBUG.LOGS.print( "Invalid connection or cursor", message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
                 return None
 
             cursor.execute( query, where_data )

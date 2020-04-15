@@ -187,7 +187,11 @@ class Database:
         DEBUG.LOGS.print("LOBBY_INFO", info, lobby_id)
         return info[0]
 
-    def clear_lobby_host( self, lobby_host_id ):
+    def clear_lobby_host( self, lobby_id ):
+
+        self.database.update_row( "lobbies", ["lobby_host_id"], [-1], ["uid"], [lobby_id])
+
+    def clear_lobby_host_from_all_lobbies( self, lobby_host_id ):
 
         self.database.update_row( "lobbies", ["lobby_host_id"], [-1], ["lobby_host_id"], [lobby_host_id])
 
@@ -320,6 +324,16 @@ class Database:
         """Removes lobby host from list of active lobby host"""
 
         self.database.remove_row( "lobby_host", ["host"], [host] )
+
+    def select_lobby_by_game_host( self, game_host_id ):
+
+        query = "SELECT lobby_host_id FROM lobbies WHERE game_id = %s"
+        results =self.database.execute( query, [game_host_id], fetch=True )
+
+        if len(results) == 0:
+            return None
+        else:
+            return results[0][0]
 
     def remove_game_host( self, host ):
         """Removes game host from list of active games host"""
@@ -478,3 +492,9 @@ class Database:
         game_host_query = "SELECT * FROM games_host"
         gameh_d = self.database.execute( game_host_query, [ ], fetch=True )
         DEBUG.LOGS.print( "games host", gameh_d )
+
+    def debug_lobby_host( self ):
+
+        lobby_host_query = "SELECT * FROM lobbies"
+        lobbyh_d = self.database.execute( lobby_host_query, [ ], fetch=True )
+        print( "lobbies host", lobbyh_d )

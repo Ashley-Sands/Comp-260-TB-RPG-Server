@@ -5,6 +5,7 @@ import Common.message as message
 import Common.actions
 import Common.Protocols.status as status_protocol
 import Common.signal_handler as signal_handler
+import Common.yield_for_seconds as yield_for_seconds
 
 import Sockets.ServerGameSocket as ServerGameSocket
 import Sockets.SocketHandler as SocketHandler
@@ -203,6 +204,8 @@ if __name__ == "__main__":
     T = 0
     while running and not terminate_signal.triggered:
 
+        launched = False
+
         # wait for a game to be added to the que
         while running and not terminate_signal.triggered and active_game_model is None:
             # assign the game id to the next lobby in the queue
@@ -217,8 +220,27 @@ if __name__ == "__main__":
                 active_game_model.bind_all( message.Message )
                 game_active = True
 
+        # wait for the game to launch.
+        while running and not terminate_signal.triggered and not launched:
+
+            lobby_host = database.select_lobby_by_game_host( game_host_id )
+            database.debug_lobby_host()
+
+            if lobby_host is None:  # No longer assigned
+                break
+            else:
+                launched = lobby_host < 0
+
+        expecting_player_count = database.get_lobby_player_count( lobby_id )
+        launched &= expecting_player_count >= active_game_model.min_players
+
+        if launched:
+            DEBUG.LOGS.print( "Game Starting on", game_host_id )
+        else:
+            DEBUG.LOGS.print( "Reassigning game host", game_host_id )
+
         # run the game.
-        while running and not terminate_signal.triggered and \
+        while running and not terminate_signal.triggered and launched and \
                 game_active and not active_game_model.completed:
 
             socket_handler.process_connections( process_connection, process_remove_connection )
@@ -234,7 +256,6 @@ if __name__ == "__main__":
             active_game_model.stop_game( message.Message )
             del active_game_model
             active_game_model = None
-
         lobby_id = -1
         close_game = False
 
