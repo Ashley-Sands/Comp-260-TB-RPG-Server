@@ -80,11 +80,11 @@ class LOGS:
         LOGS.active = True
 
         while LOGS.active:
-            while not LOGS.print_que.empty():
-                msg_type, message = LOGS.print_que.get(block=True, timeout=None)
 
-                print( LOGS.__get_console_color(message, msg_type) )
-                LOGS.add_to_logs(msg_type, message)
+            msg_type, message = LOGS.print_que.get(block=True, timeout=None)
+
+            print( LOGS.__get_console_color(message, msg_type) )
+            LOGS.add_to_logs(msg_type, message)
 
             time.sleep(LOGS.print_debug_intervals)   # theres no need to
 
@@ -133,3 +133,5 @@ class LOGS:
     def close():
 
         LOGS.active = False
+        # we must put an message into the que to make sure it gets un blocked
+        LOGS.print_que.put("Closing Debug (Unblock message)")
