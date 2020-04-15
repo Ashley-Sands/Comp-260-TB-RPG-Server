@@ -14,7 +14,7 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
         self.client_nickname = "None"
 
         # set up the receive queue
-        if sharded_received_queue is None:
+        if sharded_received_queue is not None:
             self._receive_queue = sharded_received_queue
             self.sharded_queue = True
         else:   # leave in the old one queue per client for backwards capability

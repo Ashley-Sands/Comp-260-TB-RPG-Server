@@ -133,5 +133,6 @@ class LOGS:
     def close():
 
         LOGS.active = False
+
         # we must put an message into the que to make sure it gets un blocked
-        LOGS.print_que.put("Closing Debug (Unblock message)")
+        LOGS.print( "Closing Debug (Unblock message)" )

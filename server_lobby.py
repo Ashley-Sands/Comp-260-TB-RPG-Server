@@ -246,6 +246,7 @@ if __name__ == "__main__":
         socket_handler.process_connections( process_func=process_connections,
                                             extend_remove_connection_func=clean_lobby )
 
+        # process change to game.
         # TODO: pre-compute lobby key ids.
         # we really should not do this evey update.
         lobby_ids = list( lobbies_start_times.keys() )

@@ -1,6 +1,7 @@
 import Common.DEBUG as DEBUG
 import socket
 import threading
+import time
 import Common.constants as constants
 
 class SocketHandler:
@@ -156,6 +157,8 @@ class SocketHandler:
             # process the clients.
             if process_func is not None:
                 process_func( self.connections[s] )
+
+        time.sleep( constants.FIXED_TIME_STEP )
 
     def close( self ):
         """ closes all connections and terminates all threads """
