@@ -58,6 +58,7 @@ class SocketHandler:
         # even if we not accepting connections anymore,
         # other wise they build up and connect/disconnect
         # as soon as we start accepting connection again.
+
         while self.valid:
             try:
                 client_sock, addr = active_socket.accept()

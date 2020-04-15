@@ -44,10 +44,16 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
 
         DEBUG.LOGS.print( "starting send thread" )
 
-        while not self._send_queue.empty() and self.valid():
+        #while not self._send_queue.empty() and self.valid():
+        while self.valid():
             # send message all messages in queue.
 
-            message_obj = self._send_queue.get()
+            message_obj = self._send_queue.get(block=True)
+
+            if message_obj is None:
+                DEBUG.LOGS.print("Received None message to send, exiting...")
+                break
+
             msg_str = message_obj.get_json()
 
             # convert the message len and identity char to bytes
@@ -135,8 +141,17 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
         """
 
         DEBUG.LOGS.print("### Pre safe close", self.valid(), not self._send_queue.empty(), self.outbound_thread is not None)
-        while ( self.valid() and not self._send_queue.empty() ) or self.outbound_thread is not None:
+
+        while self.valid() and not self._send_queue.empty():
             pass # wait until the outbound thread stops
 
         self.close()
+
         DEBUG.LOGS.print("########## Safely Closed ", self._client_db_id)
+
+    def close( self ):
+
+        # we must put something in the send que to unblock it :)
+        # and allow the threads to join
+        self._send_queue.put( None )
+        super().close()

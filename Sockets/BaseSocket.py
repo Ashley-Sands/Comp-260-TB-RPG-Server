@@ -108,6 +108,7 @@ class BaseSocketClient:
             Override close_socket and join_threads to extend
         """
         DEBUG.LOGS.print("Closing client ", self._client_db_id)
+
         self.valid( False )
 
         self.close_socket()
