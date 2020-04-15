@@ -22,7 +22,6 @@ class ServerGameSocket( ServerModuleSocket.ServerModuleSocket ):
         self.current_item = None
         self.relic_area = None
 
-
     def get_player_info( self ):
         """ gets the players info.
 
@@ -36,7 +35,7 @@ class ServerGameSocket( ServerModuleSocket.ServerModuleSocket ):
         return info
 
     def set_position( self, x, y, z ):
-        self.position = (x, y, z)
+        self.transform.position = (x, y, z)
 
     def set_rotation( self, x, y, z ):
-        self.rotation = ( x, y, z )
+        self.transform.rotation = ( x, y, z )
