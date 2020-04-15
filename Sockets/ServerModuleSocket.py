@@ -7,13 +7,20 @@ import time
 
 class ServerModuleSocket( BaseSocket.BaseSocketClient ):
 
-    def __init__(self, socket):
+    def __init__(self, socket, sharded_received_queue=None):
 
         super().__init__( socket )
 
         self.client_nickname = "None"
 
-        self._receive_queue = queue.Queue()
+        # set up the receive queue
+        if sharded_received_queue is None:
+            self._receive_queue = sharded_received_queue
+            self.sharded_queue = True
+        else:   # leave in the old one queue per client for backwards capability
+            self._receive_queue = queue.Queue()
+            self.sharded_queue = False
+
         self._send_queue = queue.Queue()
 
     def start( self ):
@@ -82,11 +89,18 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
         DEBUG.LOGS.print("Exiting outbound")
 
     def receive_message_pending( self ):
-        return not self._receive_queue.empty()
+        """ returns true if theres a message in the que to be received.
+            if using a sharded queue it will always return False
+        :return:
+        """
+        return not self.sharded_queue and not self._receive_queue.empty()
 
     def receive_message( self ):
-
-        if not self._receive_queue.empty():
+        """
+            retrieves a message from the cue if one is available.
+            if using a sharded queue it will always return None.
+        """
+        if not self.sharded_queue and not self._receive_queue.empty():
             return self._receive_queue.get()
         else:
             return None

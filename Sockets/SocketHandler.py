@@ -5,7 +5,7 @@ import Common.constants as constants
 
 class SocketHandler:
 
-    def __init__( self, ip, port, max_conn, socket_client_class ):
+    def __init__( self, ip, port, max_conn, base_socket ):
 
         self.ip = ip
         self.port = port
@@ -15,11 +15,11 @@ class SocketHandler:
 
         self.socket_inst = None
 
-        self.socket_client_class = socket_client_class
+        self.socket_client_class = base_socket
         self.connections = {}   # key socket, value is base socket client
 
-        self.accept_connection_thread = None
         self.thread_lock = threading.Lock()
+        self.accept_connection_thread = None
 
         self._accepted_client_callback = []
 
@@ -79,6 +79,10 @@ class SocketHandler:
 
         DEBUG.LOGS.print("Not accepting connections anymore")
 
+    def new_connection( self, client_socket ):
+        """Returns a new socket client class"""
+        return self.socket_client_class( client_socket )
+
     def connection_exist( self, sock ):
 
         self.thread_lock.acquire()
@@ -124,25 +128,32 @@ class SocketHandler:
 
     def process_connections( self, process_func=None, extend_remove_connection_func=None ):
         """
-            Cleans any zombie clients and pass the connection to the process func if available
-        :param process_func:                    function with connection param
+            Cleans up any invalid connections, and call the process client function if supplied.
+            This does not process any messages. consider using ModuleSocketHandler for processing message.
+            In any case that is not an options process the clients messages in the process_func.
+            WARNING: process_connections updates in fixed time steps. See constants.FIXED_TIME_STEP for update rate
+
+        :param process_func:                    function with connection param to process each client
         :param extend_remove_connection_func:   extends the clean up functionality. requires connection param.
                                                 this is call just before the connection is removed if supplied.
-        :return:
+        :return:                                None
         """
         # get all the keys from the connection so we can remove any invalid connections
         socks = list( self.connections )
-        for s in socks:
 
+        for s in socks:
+            # clear any invalid connections
             if not self.connections[ s ].valid():
 
                 if extend_remove_connection_func is not None:
                     extend_remove_connection_func( self.connections[ s ] )
+
                 DEBUG.LOGS.print( "Client ", self.connections[ s ]._client_db_id, "Not Valid, Removing..." )
 
                 self.remove_connection(s)
                 continue    # even if it fails to remove the connection skip any invalid
 
+            # process the clients.
             if process_func is not None:
                 process_func( self.connections[s] )
 
