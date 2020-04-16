@@ -176,7 +176,8 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
                                   "\ndecode body", (decode-receive_msg) / 1000000.0,
                                   message_type=DEBUG.LOGS.MSG_TYPE_TIMES )
 
-            self._receive_queue.put( message_obj )
+            message_obj.run_action()
+            # self._receive_queue.put( message_obj )
 
     def safe_close( self ):
         """
