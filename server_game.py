@@ -210,9 +210,10 @@ if __name__ == "__main__":
         while running and not terminate_signal.triggered and active_game_model is None:
 
             # yield for a second
-            yield_for_seconds.yield_for_seconds(1,
-                                                exit_func=lambda: not running or terminate_signal.triggered,
-                                                intervals=0.1 )
+            for _ in yield_for_seconds.yield_for_seconds(1,
+                                                         exit_func=lambda: not running or terminate_signal.triggered,
+                                                         intervals=0.1 ):
+                pass
 
             # assign the game id to the next lobby in the queue
             next_lobby_id = database.get_next_lobby_in_queue()
@@ -231,11 +232,12 @@ if __name__ == "__main__":
 
             lobby_host = database.select_lobby_by_game_host( game_host_id )
 
-            yield_for_seconds.yield_for_seconds( -1,
-                                                 exit_func=lambda: not running or
+            for _ in yield_for_seconds.yield_for_seconds( -1,
+                                                          exit_func=lambda: not running or
                                                                    terminate_signal.triggered and
                                                                    lobby_host < 0,
-                                                 intervals=0.1 )
+                                                          intervals=0.1 ):
+                pass
 
         expecting_player_count = database.get_lobby_player_count( lobby_id )
         launched = expecting_player_count >= active_game_model.min_players
