@@ -98,9 +98,12 @@ class Message:
     def run_action( self ):
         """Run all the actions bound to this messages identity"""
 
+        self.times[ "time till run" ][ 1 ] = time.time_ns()
+        self.times["run action"] = [time.time_ns(), 0]
         if not self.ERR and self.identity in Message.ACTION:
             for func in Message.ACTION[self.identity]:
                 func( self )
+        self.times["run action"][1] = time.time_ns()
 
     def new_message( self, *params ):
         """
@@ -109,7 +112,9 @@ class Message:
         """
 
         if not self.ERR:
+            self.times["New message"] = [time.time_ns(), 0]
             self.message = Message.TYPES[self.identity](*params)
+            self.times["New message"][1] = time.time_ns()
 
     def send_message( self, ignore_from_client=False ):
 
@@ -152,7 +157,14 @@ class Message:
     def print_times( self ):
 
         s = ""
+        total_time = 0
         for t in self.times:
+            if t == "Out":
+                return
             time_ = self.times[t]
-            s += " "+ str(t) +"|"+ str((time_[1]-time_[0])/1000000.0) + "| ms |"
-        DEBUG.LOGS.print(s, message_type=DEBUG.LOGS.MSG_TYPE_TIMES)
+            len = (time_[1]-time_[0])/1000000.0
+            s += " "+ str(t) +"|"+ str(len) + "ms |"
+            if t != "Out" and t != "In/Out" and t != "receive time" and t != "JsonDumps":
+                total_time += len
+
+        DEBUG.LOGS.print(s, "| Total time:", total_time, message_type=DEBUG.LOGS.MSG_TYPE_TIMES)

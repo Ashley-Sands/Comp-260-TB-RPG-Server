@@ -37,8 +37,7 @@ class ModuleSocketHandler( SocketHandler.SocketHandler ):
                 DEBUG.LOGS.print("Received None message, exiting process inbound message")
                 break
 
-            message_obj["time till run"][1] = time.time_ns()
-            message_obj.measure_time("run action", message_obj.run_action() )
+            message_obj.run_action()
 
     def close( self ):
 

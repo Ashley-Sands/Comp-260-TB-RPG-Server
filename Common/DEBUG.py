@@ -16,7 +16,7 @@ class LOGS:
 
     debug_mode = True
     debug_sql = False
-    print_times_only = False # True
+    print_times_only = True
     que_pre_init_msg = True
     inited = False
     active = False
