@@ -232,10 +232,11 @@ if __name__ == "__main__":
 
             lobby_host = database.select_lobby_by_game_host( game_host_id )
 
-            for _ in yield_for_seconds.yield_for_seconds( -1,
-                                                          exit_func=lambda: not running or
-                                                                   terminate_signal.triggered and
-                                                                   lobby_host < 0,
+            if lobby_host < 0:
+                break
+
+            for _ in yield_for_seconds.yield_for_seconds( 1,
+                                                          exit_func=lambda: not running or terminate_signal.triggered,
                                                           intervals=0.1 ):
                 pass
 
