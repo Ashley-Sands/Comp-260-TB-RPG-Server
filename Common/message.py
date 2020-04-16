@@ -67,7 +67,7 @@ class Message:
         else:
             t_name = "In/Out"
 
-        self.times = [ [t_name, time.time_ns(), 0] ]
+        self.times = { t_name: [time.time_ns(), 0] }
 
     def __getitem__(self, item):
         """Shortcut to access message dict"""
@@ -123,7 +123,9 @@ class Message:
     def set_from_json( self, from_name, json_str ):
         """set self.message with json string"""
         try:
+            self.times["JsonLoads"] = [time.time_ns(), 0]
             self.message = json.loads(json_str)
+            self.times["JsonLoads"][1] = time.time_ns()
         except Exception as e:
             DEBUG.LOGS.print("Could not convert from json: ", json_str, message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
 
@@ -132,7 +134,10 @@ class Message:
     def get_json( self ):
         """get self.message as a json string"""
         try:
-            return json.dumps( self.message )
+            self.times["JsonDumps"] = [time.time_ns(), 0]
+            json_str = json.dumps( self.message )
+            self.times["JsonDumps"][1] = time.time_ns()
+            return json_str
         except Exception as e:
             DEBUG.LOGS.print("Could not convert to json: (-E001)", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
             return "-E001"
@@ -140,5 +145,6 @@ class Message:
     def print_times( self ):
         s = ""
         for t in self.times:
-            s += " "+ str(t[0]) +"("+ str((t[2]-t[1])/1000000.0) +"ms)"
+            time_ = self.times[t]
+            s += " "+ str(t) +"("+ str((time_[1]-time_[0])/1000000.0) + "ms)"
             DEBUG.LOGS.print(s, message_type=DEBUG.LOGS.MSG_TYPE_TIMES)
