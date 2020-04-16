@@ -1,7 +1,7 @@
 import Common.DEBUG as DEBUG
 import Common.database as db
 import Sockets.ServerLobbiesSocket as ServerLobbiesSocket
-import Sockets.SocketHandler as SocketHandler
+import Sockets.ModuleSocketHandler as SocketHandler
 import Common.constants as const
 import Common.message as message
 import Common.actions
@@ -109,7 +109,7 @@ if __name__ == "__main__":
     port = config.get( "internal_port" )
 
     # setup socket and bind to accept client socket
-    socket_handler = SocketHandler.SocketHandler( config.get( "internal_host_lobbies" ), port,
+    socket_handler = SocketHandler.ModuleSocketHandler( config.get( "internal_host_lobbies" ), port,
                                                   15, ServerLobbiesSocket.ServerLobbiesSocket )
 
     socket_handler.start()

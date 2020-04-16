@@ -1,3 +1,4 @@
+import Common.DEBUG as DEBUG
 import Common.message as message
 import Common.DEBUG as DEBUG
 import Sockets.BaseSocket as BaseSocket
@@ -15,6 +16,7 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
 
         # set up the receive queue
         if sharded_received_queue is not None:
+            DEBUG.LOGS.print( "Using shared que" )
             self._receive_queue = sharded_received_queue
             self.sharded_queue = True
         else:   # leave in the old one queue per client for backwards capability

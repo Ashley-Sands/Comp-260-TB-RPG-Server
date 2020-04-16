@@ -8,7 +8,7 @@ import Common.signal_handler as signal_handler
 import Common.yield_for_seconds as yield_for_seconds
 
 import Sockets.ServerGameSocket as ServerGameSocket
-import Sockets.SocketHandler as SocketHandler
+import Sockets.ModuleSocketHandler as SocketHandler
 
 import Components.Game.defaultGameMode as defaultGameMode
 
@@ -193,7 +193,7 @@ if __name__ == "__main__":
     port = config.get( "internal_port" )
 
     # setup socket and bind to accept client socket
-    socket_handler = SocketHandler.SocketHandler( config.get( "internal_host" ), port,
+    socket_handler = SocketHandler.ModuleSocketHandler( config.get( "internal_host" ), port,
                                                   15, ServerGameSocket.ServerGameSocket )
 
     socket_handler.start()

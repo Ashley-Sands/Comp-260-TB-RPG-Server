@@ -72,7 +72,7 @@ class SocketHandler:
             if not self.accepting_connections:
                 continue
 
-            self.connections[client_sock] = self.socket_client_class(client_sock)
+            self.connections[client_sock] = self.new_connection(client_sock)
             self.connections[client_sock].start()
 
             if client_sock in self.connections:

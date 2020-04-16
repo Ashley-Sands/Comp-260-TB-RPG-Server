@@ -1,7 +1,7 @@
 import Common.DEBUG as DEBUG
 import Common.database as db
 import Sockets.ServerLobbySocket as ServerLobbySocket
-import Sockets.SocketHandler as SocketHandler
+import Sockets.ModuleSocketHandler as SocketHandler
 import Common.signal_handler as signal_handler
 import Common.constants as const
 import Common.message as message
@@ -233,7 +233,7 @@ if __name__ == "__main__":
 
     # setup socket and bind to accept client socket
     port = config.get( "internal_port" )
-    socket_handler = SocketHandler.SocketHandler( config.get( "internal_host" ), port,
+    socket_handler = SocketHandler.ModuleSocketHandler( config.get( "internal_host" ), port,
                                                   15, ServerLobbySocket.ServerLobbySocket )
 
     socket_handler.start()
