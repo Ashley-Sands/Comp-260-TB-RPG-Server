@@ -12,9 +12,11 @@ class LOGS:
     MSG_TYPE_WARNING = 2
     MSG_TYPE_ERROR   = 3
     MSG_TYPE_FATAL   = 4
+    MSG_TYPE_TIMES   = 5
 
     debug_mode = True
     debug_sql = False
+    print_times_only = True
     que_pre_init_msg = True
     inited = False
     active = False
@@ -49,6 +51,9 @@ class LOGS:
     def print( *argv, message_type=1, sept=' ' ):
 
         if not LOGS.debug_mode or (not LOGS.que_pre_init_msg and not LOGS.inited):
+            return
+
+        if LOGS.print_times_only and message_type != LOGS.MSG_TYPE_TIMES:
             return
 
         now = datetime.datetime.utcnow()
@@ -101,6 +106,7 @@ class LOGS:
             LOGS.MSG_TYPE_WARNING: "\033[1;33m",
             LOGS.MSG_TYPE_ERROR: "\033[1;31m",
             LOGS.MSG_TYPE_FATAL: "\033[1;31;40m",
+            LOGS.MSG_TYPE_TIMES: "\033[1;35m",
         }
 
         return msg[ 0 ] + "|"+ cols[msg_type] + msg[ 1 ] + "\033[0;37m|" + '|'.join( msg[ 2: ] )

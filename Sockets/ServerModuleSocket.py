@@ -79,7 +79,8 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
 
                 DEBUG.LOGS.print( "Message sent", msg_str, "len", len( msg_str ),
                                   "identity", chr( ord( message_obj.identity ) ) )
-
+                message_obj.times[0][2] = time.time_ns()
+                message_obj.print_times()
             except Exception as e:
                 DEBUG.LOGS.print( "Could not send data:", e,
                                   message_type=DEBUG.LOGS.MSG_TYPE_ERROR )

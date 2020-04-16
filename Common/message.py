@@ -1,3 +1,4 @@
+import time
 import json
 import Common.DEBUG as DEBUG
 from Common.Protocols import request_types, info_types, scene_control, status, common, test, game_types
@@ -60,6 +61,13 @@ class Message:
 
         # the function to create a new message
         self.__new_message = Message.TYPES[identity_char]
+
+        if from_connection is None:
+            t_name = "Out"
+        else:
+            t_name = "In/Out"
+
+        self.times = [ [t_name, time.time_ns(), 0] ]
 
     def __getitem__(self, item):
         """Shortcut to access message dict"""
@@ -128,3 +136,9 @@ class Message:
         except Exception as e:
             DEBUG.LOGS.print("Could not convert to json: (-E001)", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
             return "-E001"
+
+    def print_times( self ):
+        s = ""
+        for t in self.times:
+            s += " "+ str(t[0]) +"("+ str((t[2]-t[1])/1000000.0) +"ms)"
+            DEBUG.LOGS.print(s, message_type=DEBUG.LOGS.MSG_TYPE_TIMES)
