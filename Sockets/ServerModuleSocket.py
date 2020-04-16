@@ -56,12 +56,13 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
             # send message all messages in queue.
 
             message_obj = self._send_queue.get(block=True)
-            message_obj.times[ "time till sent" ][1] = time.time_ns()
-            message_obj.times["send_time"] = [time.time_ns(), 0]
 
             if message_obj is None:
                 DEBUG.LOGS.print("Received None message to send, exiting...")
                 break
+
+            message_obj.times[ "time till sent" ][1] = time.time_ns()
+            message_obj.times["send_time"] = [time.time_ns(), 0]
 
             msg_str = message_obj.get_json()
 
@@ -117,7 +118,13 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
             # receive messages in three parts
             # Protocol layout.
             # message len (2 bytes) identity (1 byte) json message ( message len bytes)
+            msg_len = 0
             start_receive = 0
+            receive_id = 0
+            convert = 0
+            receive_msg = 0
+            print_m = 0
+            decode = 0
             try:
                 msg_len_data = socket.recv( self.MESSAGE_LEN_PACKET_SIZE )
                 start_receive = time.time_ns()
@@ -128,6 +135,7 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
                     break
 
                 msg_identity_data = socket.recv( self.MESSAGE_TYPE_PACKET_SIZE )
+                receive_id = time.time_ns()
             except Exception as e:
                 DEBUG.LOGS.print( "Could not receive data", e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
                 self.valid( False )
@@ -136,13 +144,17 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
             # convert our bytes to int and char
             msg_len = int.from_bytes( msg_len_data, self.BYTE_ORDER )
             msg_identity = chr( int.from_bytes( msg_identity_data, self.BYTE_ORDER ) )
-
+            convert = time.time_ns()
             DEBUG.LOGS.print( "Received message len:",
                                msg_len, "Type:", msg_identity )
+            print_m = time.time_ns()
 
             # receive the json message of msg_type with length msg_length
             try:
-                json_str = self.socket.recv( msg_len ).decode( "utf-8" )
+                json_str = self.socket.recv( msg_len )
+                receive_msg = time.time_ns()
+                json_str = json_str.decode( "utf-8" )
+                decode = time.time_ns()
             except Exception as e:
                 DEBUG.LOGS.print( "Could not receive data", e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
                 self.valid( False )
@@ -154,6 +166,15 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
             message_obj.times["receive time"] = [start_receive, time.time_ns()]
             message_obj.set_from_json( "Client", json_str )
             message_obj.times["time till run"] = [time.time_ns(), 0]
+
+            if (message_obj.times["receive time"][1] - message_obj.times["receive time"][0]) / 1000000.0 > 5:
+                DEBUG.LOGS.print( "\nmessage length", msg_len,
+                                  "\nreceive id", (receive_id - start_receive) / 1000000.0,
+                                  "\nconvert", (convert - receive_id) / 1000000.0,
+                                  "\ndebug print", (print_m - convert) / 1000000.0,
+                                  "\nreceive body", (receive_msg-print_m) / 1000000.0,
+                                  "\ndecode body", (decode-receive_msg) / 1000000.0,
+                                  message_type=DEBUG.LOGS.MSG_TYPE_TIMES )
 
             self._receive_queue.put( message_obj )
 
