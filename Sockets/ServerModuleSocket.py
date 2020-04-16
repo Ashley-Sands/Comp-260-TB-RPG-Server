@@ -56,7 +56,7 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
             # send message all messages in queue.
 
             message_obj = self._send_queue.get(block=True)
-
+            message_obj.times["start_time"] = [time.time_ns(), 0]
             if message_obj is None:
                 DEBUG.LOGS.print("Received None message to send, exiting...")
                 break
@@ -79,12 +79,15 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
 
                 DEBUG.LOGS.print( "Message sent", msg_str, "len", len( msg_str ),
                                   "identity", chr( ord( message_obj.identity ) ) )
-                message_obj.times[0][2] = time.time_ns()
-                message_obj.print_times()
+
             except Exception as e:
                 DEBUG.LOGS.print( "Could not send data:", e,
                                   message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
                 self.valid( False )
+
+            message_obj.times["start_time"][1] = time.time_ns()
+            message_obj.times[list( message_obj.times.keys() )[0]][1] = time.time_ns()  # the fist time is always our in/out time
+            message_obj.print_times()
 
         self.outbound_thread = None
         DEBUG.LOGS.print("Exiting outbound")
@@ -112,9 +115,10 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
             # receive messages in three parts
             # Protocol layout.
             # message len (2 bytes) identity (1 byte) json message ( message len bytes)
-
+            start_receive = 0
             try:
                 msg_len_data = socket.recv( self.MESSAGE_LEN_PACKET_SIZE )
+                start_receive = time.time_ns()
 
                 # check there is data. if the connection was lost we will receive 0 bytes
                 if len( msg_len_data ) == 0:
@@ -146,6 +150,8 @@ class ServerModuleSocket( BaseSocket.BaseSocketClient ):
 
             message_obj = message.Message(msg_identity, self)
             message_obj.set_from_json( "Client", json_str )
+            message_obj.times["receive time"] = [start_receive, time.time_ns()]
+            message_obj.times["time till run"] = [time.time_ns(), 0]
 
             self._receive_queue.put( message_obj )
 

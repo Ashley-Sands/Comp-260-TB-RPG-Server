@@ -1,5 +1,6 @@
 import Common.DEBUG as DEBUG
 import socket
+import time
 import queue
 import threading
 import Common.constants as constants
@@ -33,10 +34,11 @@ class ModuleSocketHandler( SocketHandler.SocketHandler ):
             message_obj = self.inbound_message.get(block=True, timeout=None)
 
             if message_obj is None:
-                DEBUG.LOGS.print_que("Received None message, exiting process inbound message")
+                DEBUG.LOGS.print("Received None message, exiting process inbound message")
                 break
 
-            message_obj.run_action()
+            message_obj["time till run"][1] = time.time_ns()
+            message_obj.measure_time("run action", message_obj.run_action() )
 
     def close( self ):
 
@@ -49,4 +51,4 @@ class ModuleSocketHandler( SocketHandler.SocketHandler ):
         if self.process_message_thread.is_alive():
             self.process_message_thread.join()
 
-        DEBUG.LOGS.print_que( "Process message thread closed successfully" )
+        DEBUG.LOGS.print( "Process message thread closed successfully" )

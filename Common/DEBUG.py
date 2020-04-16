@@ -16,7 +16,7 @@ class LOGS:
 
     debug_mode = True
     debug_sql = False
-    print_times_only = True
+    print_times_only = False # True
     que_pre_init_msg = True
     inited = False
     active = False
@@ -69,6 +69,8 @@ class LOGS:
             message_type_name = "ERROR  "
         elif message_type == LOGS.MSG_TYPE_FATAL:
             message_type_name = "FATAL"
+        elif message_type == LOGS.MSG_TYPE_TIMES:
+            message_type_name = "TIMES"
         else:
             message_type_name = "MESSAGE"
 
@@ -141,4 +143,4 @@ class LOGS:
         LOGS.active = False
 
         # we must put an message into the que to make sure it gets un blocked
-        LOGS.print( "Closing Debug (Unblock message)" )
+        LOGS.print_que.put( (LOGS.MSG_TYPE_DEFAULT, "| | Closing Debug (Unblock message)" ) )

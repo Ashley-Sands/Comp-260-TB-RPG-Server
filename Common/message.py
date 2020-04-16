@@ -142,9 +142,17 @@ class Message:
             DEBUG.LOGS.print("Could not convert to json: (-E001)", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
             return "-E001"
 
+# debugging bits
+    def measure_time( self, name, func, args=() ):
+
+        self.times[name] = [time.time_ns(), 0]
+        func(*args)
+        self.times[name][1] = time.time_ns()
+
     def print_times( self ):
+
         s = ""
         for t in self.times:
             time_ = self.times[t]
-            s += " "+ str(t) +"("+ str((time_[1]-time_[0])/1000000.0) + "ms)"
-            DEBUG.LOGS.print(s, message_type=DEBUG.LOGS.MSG_TYPE_TIMES)
+            s += " "+ str(t) +"|"+ str((time_[1]-time_[0])/1000000.0) + "| ms |"
+        DEBUG.LOGS.print(s, message_type=DEBUG.LOGS.MSG_TYPE_TIMES)
