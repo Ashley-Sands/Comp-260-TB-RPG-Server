@@ -164,6 +164,9 @@ class Message:
 
     def print_times( self ):
 
+        if not DEBUG.LOGS.print_times_only:
+            return
+
         s = ""
         total_time = 0
         for t in self.times:

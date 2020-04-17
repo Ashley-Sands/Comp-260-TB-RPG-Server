@@ -16,7 +16,7 @@ class LOGS:
 
     debug_mode = True
     debug_sql = False
-    print_times_only = True
+    print_times_only = False
     que_pre_init_msg = True
     inited = False
     active = False
@@ -53,7 +53,8 @@ class LOGS:
         if not LOGS.debug_mode or (not LOGS.que_pre_init_msg and not LOGS.inited):
             return
 
-        if LOGS.print_times_only and message_type != LOGS.MSG_TYPE_TIMES:
+        if (LOGS.print_times_only and message_type != LOGS.MSG_TYPE_TIMES) or \
+           (not LOGS.print_times_only and message_type == LOGS.MSG_TYPE_TIMES):
             return
 
         now = datetime.datetime.utcnow()
