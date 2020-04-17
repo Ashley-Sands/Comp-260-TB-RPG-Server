@@ -1,5 +1,6 @@
 import time
 import json
+import threading
 import Common.DEBUG as DEBUG
 from Common.Protocols import request_types, info_types, scene_control, status, common, test, game_types
 
@@ -99,11 +100,18 @@ class Message:
         """Run all the actions bound to this messages identity"""
 
         self.times[ "time till run" ][ 1 ] = time.time_ns()
-        self.times["run action"] = [time.time_ns(), 0]
+
         if not self.ERR and self.identity in Message.ACTION:
-            for func in Message.ACTION[self.identity]:
-                func( self )
-        self.times["run action"][1] = time.time_ns()
+            threading.Thread(target=self.action_thread, args=( Message.ACTION[self.identity], )).start()
+
+    def action_thread( self, funcs ):
+
+        self.times[ "run action" ] = [ time.time_ns(), 0 ]
+
+        for func in funcs:
+            func( self )
+
+        self.times[ "run action" ][ 1 ] = time.time_ns()
 
     def new_message( self, *params ):
         """
