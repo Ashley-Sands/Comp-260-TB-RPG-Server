@@ -6,7 +6,7 @@ from Common.Globals import Global, GlobalConfig
 
 # config
 GlobalConfig.set("http_host", "0.0.0.0")
-GlobalConfig.set("http_port", 8111)
+GlobalConfig.set("http_port", 80)
 
 class Server(BaseHTTPRequestHandler):
     # Both use the first part of path as key (ie if url = 'abc.com/path_p0/path_p1/page.html' key = 'path_p0' )
@@ -96,16 +96,13 @@ if __name__ == "__main__":
 
     import server_setup
 
-    # insure that the database folder exist
-    Helpers.create_directory(GlobalConfig.get("db_root"))
-
     print("- Run Test.py to test sql_query ")
     print("- Starting...")
 
     server_directories = server_setup.ServerSetup(Server)
     server_directories.setup()
 
-    server = HTTPServer( (GlobalConfig.get("host"), GlobalConfig.get("port")), Server )
+    server = HTTPServer( (GlobalConfig.get("http_host"), GlobalConfig.get("http_port")), Server )
 
     print("- Waiting on you request...")
 

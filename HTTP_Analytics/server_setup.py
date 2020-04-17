@@ -1,4 +1,3 @@
-from HTTP_Analytics.requestServers import TEST_mysql
 
 class ServerSetup:
 
@@ -6,10 +5,7 @@ class ServerSetup:
         self.server = server
 
     def setup(self):
-        # start TEST mysql
-        test_sql = TEST_mysql.TEST_mysql()
-        test_sql.force_200_status = True
-        self.add_callback("testSQL", test_sql)
+        pass
 
 
     def add_callback(self, root_dir, _server_request):
