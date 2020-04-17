@@ -241,7 +241,11 @@ if __name__ == "__main__":
                 pass
 
         expecting_player_count = database.get_lobby_player_count( lobby_id )
-        launched = expecting_player_count >= active_game_model.min_players
+
+        if active_game_model is not None:
+            launched = expecting_player_count >= active_game_model.min_players
+        else:
+            launched = False
 
         if launched:
             DEBUG.LOGS.print( "Game Starting on", game_host_id )
