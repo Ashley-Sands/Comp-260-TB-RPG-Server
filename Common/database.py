@@ -457,7 +457,7 @@ class Database:
 
 
     def add_analytic_data( self, data_type, data, player_id, lobby_id, game_id, level_id, t ):
-        DEBUG.LOGS.print(player_id,    lobby_id,   game_id,   level_id,   data_type,   data,   t)
+        DEBUG.LOGS.print(">>>>>>>>>>>>>>>ANALYTICS: ", player_id,    lobby_id,   game_id,   level_id,   data_type,   data,   t)
 
         self.database.insert_row("analytics",
                                  ["player_id", "lobby_id", "game_id", "level_id", "data_type", "data", "time"],

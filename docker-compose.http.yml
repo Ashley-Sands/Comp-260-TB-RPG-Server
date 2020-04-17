@@ -4,8 +4,6 @@ services:
   http_anayltics:
     image: http_analytics
     working_dir: /services
-    ports: 
-      - 8111:80
     volumes:
       - ./:/services
     networks:

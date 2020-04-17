@@ -1,3 +1,4 @@
+import HTTP_Analytics.requestServers.server_analytics as server_analytics
 
 class ServerSetup:
 
@@ -5,7 +6,11 @@ class ServerSetup:
         self.server = server
 
     def setup(self):
-        pass
+
+        analytics = server_analytics.ServerAnalytics()
+        analytics.force_200_status = False
+        analytics.test_request = True
+        self.add_callback("analytics", analytics)
 
 
     def add_callback(self, root_dir, _server_request):

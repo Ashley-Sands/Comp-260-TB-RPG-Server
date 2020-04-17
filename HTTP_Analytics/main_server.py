@@ -1,8 +1,10 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
+import Common.DEBUG as DEBUG
 
 from HTTP_Analytics.helpers import Helpers
 from Common.Globals import Global, GlobalConfig
+from Common.Globals import setup as global_setup
 
 # config
 GlobalConfig.set("http_host", "0.0.0.0")
@@ -98,6 +100,11 @@ if __name__ == "__main__":
 
     print("- Run Test.py to test sql_query ")
     print("- Starting...")
+
+    DEBUG.LOGS.init()
+    DEBUG.LOGS.set_log_to_file(message=True, warning=True, error=True, fatal=True)
+
+    global_setup()
 
     server_directories = server_setup.ServerSetup(Server)
     server_directories.setup()

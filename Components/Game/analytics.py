@@ -27,6 +27,7 @@ class Analytics:
             if self.queue.empty():
                 time.sleep(0.1)
                 continue
+            DEBUG.LOGS.print( "Update Analytics" )
 
             player_id, reg_key, message_obj = self.queue.get( )
             data = message_obj.get_json()
@@ -48,6 +49,7 @@ class Analytics:
         :param data:        ?
         :return:
         """
+        DEBUG.LOGS.print("New Analytics")
         connection = message_obj.from_connection
         self.queue.put( (connection.player_id, connection.get_client_key()[1], message_obj) )
 
