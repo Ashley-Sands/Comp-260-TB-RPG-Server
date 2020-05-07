@@ -15,7 +15,8 @@ services:
     volumes:
       - mysql_db:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: password!2E
+      MYSQL_USER: admin__
+      MYSQL_PASSWORD: password1"e
     networks:
       - back-tier
   
@@ -32,7 +33,7 @@ services:
     volumes:
       - mysql_db:/phpMyAdmin
     networks:
-	  - back-tier
+      - back-tier
 
 volumes:
   mysql_db:
