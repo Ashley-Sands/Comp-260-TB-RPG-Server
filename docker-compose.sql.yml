@@ -33,7 +33,7 @@ services:
       - mysql_db:/phpMyAdmin
     networks:
 	  - back-tier
-	
+
 volumes:
   mysql_db:
     
