@@ -20,7 +20,7 @@ def setup():
     database.drop_table("lobbies")
     database.drop_table("lobby_host")
     database.drop_table("game_queue")
-    database.drop_table("games_host")    #   // quick fix while we only support 1 host // TODO: fix
+    database.drop_table("games_host")
     database.drop_table("levels")
 
     database.add_table( "analytics", ["uid", "player_id", "lobby_id", "game_id",
