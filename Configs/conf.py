@@ -23,8 +23,8 @@ conf = {
     "internal_host_lobbies": "localhost_lobbies",
 
     # mysql
-    "mysql_host": "localhost",
-    "mysql_user": "root",
+    "mysql_host": secrets.Secrets.store["sql_host"],
+    "mysql_user": secrets.Secrets.store["sql_user"],
     "mysql_pass": secrets.Secrets.store["sql_password"]
 
 }

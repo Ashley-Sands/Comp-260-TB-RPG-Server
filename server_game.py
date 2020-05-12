@@ -161,7 +161,7 @@ def process_client_status_game_ready( message_obj ):
 if __name__ == "__main__":
 
     # import the config file.
-    import Configs.docker_conf as conf
+    import Configs.conf as conf
 
     running = True
     game_active = False

@@ -106,7 +106,7 @@ def process_connections( conn ):
 if __name__ == "__main__":
 
     # import the config file.
-    import Configs.docker_conf as conf
+    import Configs.conf as conf
 
     running = True
 
