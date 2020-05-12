@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir -r py_requirements.txt
 
 COPY ./mysql_setup.py ./
 COPY ./Common/ ./Common/
+COPY ./logs/ ./logs/
 
 
 CMD [ "python", "-u", "./mysql_setup.py" ]

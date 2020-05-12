@@ -8,7 +8,6 @@ WORKDIR /usr/src/app
 
 ENV PYTHONPATH "${PYTHONPATH}:/usr/src/app"
 
-
 COPY ./server_socket_info_status.py ./
 
 CMD [ "python", "-u", "./server_socket_info_status.py" ]

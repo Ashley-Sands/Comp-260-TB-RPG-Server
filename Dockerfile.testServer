@@ -11,5 +11,6 @@ RUN pip install --no-cache-dir -r py_requirements.txt
 
 COPY ./Test/test_server.py ./TEST/TEST
 COPY ./Common/ ./Common/
+COPY ./logs/ ./logs/
 
 CMD [ "python", "-u", "./Test/test_server.py" ]

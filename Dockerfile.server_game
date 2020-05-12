@@ -14,5 +14,6 @@ RUN pip install --no-cache-dir -r py_requirements.txt
 COPY ./server_game.py ./
 COPY ./Common/ ./Common/
 COPY ./Sockets/ ./Sockets/
+COPY ./logs/ ./logs/
 
 CMD [ "python", "-u", "./server_game.py" ]
