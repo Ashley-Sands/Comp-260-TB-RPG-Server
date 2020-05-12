@@ -1,5 +1,4 @@
-# GAME_SERVER
-# server_game.0.1.0
+# gizzmo123456/game_server:server_game-1.0
 ######################
 
 FROM python:3.7.7-alpine3.11

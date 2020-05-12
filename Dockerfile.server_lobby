@@ -1,5 +1,4 @@
-# SERVER LOBBIES
-# server_lobby.0.1.1
+# gizzmo123456/game_server:server_lobby-1.0
 ######################
 
 FROM python:3.7.7-alpine3.11

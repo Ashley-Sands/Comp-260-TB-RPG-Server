@@ -1,5 +1,4 @@
-# AUTH_SERVER
-# server_auth.0.1.0
+# gizzmo123456/game_server:server_auth-1.0
 ######################
 
 FROM python:3.7.7-alpine3.11
@@ -10,7 +9,6 @@ ENV PYTHONPATH "${PYTHONPATH}:/usr/src/app"
 
 COPY py_requirements.txt ./
 RUN pip install --no-cache-dir -r py_requirements.txt
-
 
 COPY ./server_auth.py ./
 COPY ./Common/ ./Common/

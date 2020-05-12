@@ -1,5 +1,4 @@
-# SERVER SELECTOR
-# server_selector.0.1.8
+# gizzmo123456/game_server:server_selector-1.0
 ######################
 
 FROM python:3.7.7-alpine3.11
