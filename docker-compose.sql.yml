@@ -1,5 +1,5 @@
 version: "3.7"
-
+# docker compose to set up the database when db is running in docker.
 services:
   sql_setup:
     image: gizzmo123456/game_server:sql_setup.0.1.3

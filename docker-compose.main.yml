@@ -1,4 +1,5 @@
 version: "3.7"
+# Docker compose file to run all server modules in a single docker instance.
 
 services:  
   server_auth:
@@ -43,12 +44,10 @@ services:
     volumes:
       - ./:/services
     networks:
-      - front-tier
       - back-tier
                
 volumes:
   mysql_db:
     
 networks:
-  front-tier:
   back-tier:
