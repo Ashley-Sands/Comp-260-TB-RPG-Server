@@ -106,8 +106,11 @@ def mysql_test():
 
 if __name__ == "__main__":
 
+    # import the config file.
+    import Configs.docker_conf as conf
+
     DEBUG.LOGS.init()
-    Global.setup()
+    Global.setup(conf)
 
     setup()
     mysql_test()

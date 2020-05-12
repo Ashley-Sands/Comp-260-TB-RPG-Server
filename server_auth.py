@@ -65,11 +65,14 @@ def process_connection( connection ):
 
 if __name__ == "__main__":
 
+    # import the config file.
+    import Configs.docker_conf as conf
+
     running = True
 
     # set up
     terminate_signal = signal_handler.SignalHandler()
-    Global.setup()
+    Global.setup( conf )
 
     DEBUG.LOGS.init()
     DEBUG.LOGS.set_log_to_file(message=True, warning=True, error=True, fatal=True)

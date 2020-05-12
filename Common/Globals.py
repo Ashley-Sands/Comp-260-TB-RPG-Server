@@ -25,25 +25,15 @@ class GlobalConfig:
     def is_set(config_name):
         return config_name in GlobalConfig.__CONFIG__
 
-def setup():
+def setup( config_module ):
 
-    # global connections (ie online)
-    if os.name == 'nt':  # local testing
-        GlobalConfig.set("host", "localhost_0")
-    else:  # docker production setup
-        GlobalConfig.set("host", "0.0.0.0")         # allow connections from the outside world
+    """
+    :param config: dict key, config name, value, config value
+    :return:
+    """
 
-    GlobalConfig.set("port", 8222)
+    config = config_module.conf
 
-    # fixed local connections (all use the internal port, 8223)
-    GlobalConfig.set( "internal_host_auth", "localhost_auth" )
-    GlobalConfig.set( "internal_host_lobbies", "localhost_lobbies" )
+    for c in config:
+        GlobalConfig.set( c, config[c] )
 
-    # dynamic local connections
-    GlobalConfig.set("internal_host", socket.gethostname())     # internal host address
-    GlobalConfig.set("internal_port", 8223)                     # internal port
-
-    # MYSQL connection (local)
-    GlobalConfig.set("mysql_host", "localhost_sql")
-    GlobalConfig.set("mysql_user", "root")
-    GlobalConfig.set("mysql_pass", "password!2E")

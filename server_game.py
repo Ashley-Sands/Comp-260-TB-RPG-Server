@@ -160,6 +160,9 @@ def process_client_status_game_ready( message_obj ):
 
 if __name__ == "__main__":
 
+    # import the config file.
+    import Configs.docker_conf as conf
+
     running = True
     game_active = False
     close_game = False
@@ -170,7 +173,7 @@ if __name__ == "__main__":
 
     # set up
     terminate_signal = signal_handler.SignalHandler()
-    Global.setup()
+    Global.setup( conf )
 
     DEBUG.LOGS.init()
     DEBUG.LOGS.set_log_to_file(message=True, warning=True, error=True, fatal=True)
