@@ -4,18 +4,18 @@ services:
 
   server_auth:
     container_name: localhost_auth
-    image: gizzmo123456/game_server:server_auth.0.1.0
+    image: gizzmo123456/game_server:server_auth-1.0
     networks:
       - back-tier
   
   server_lobbies:
     container_name: localhost_lobbies
-    image: gizzmo123456/game_server:server_lobbies.0.1.1
+    image: gizzmo123456/game_server:server_lobbies-1.0
     networks:
       - back-tier
 
   selector:
-    image: gizzmo123456/game_server:server_selector.0.1.8
+    image: gizzmo123456/game_server:server_selector-1.0
     ports: 
       - 8222:8222
     networks:
