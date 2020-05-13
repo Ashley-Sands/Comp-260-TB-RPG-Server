@@ -23,9 +23,23 @@ class Secrets:
                     secrets_lines = file.readlines()  # format key, value
                     # add the values to the secrets store.
                     for l in secrets_lines:
-                        key, value = l.split(",")
+                        line = l.split(",")
+
+                        if len(line) < 2:
+                            print("bad line in secrets")
+                            continue
+
+                        key, value = line
+
                         # remove the new line if present
+                        # todo improve
                         if value[-1] == '\n':
                             value = value[:-1]
+                        if value[0] == ' ':
+                            value = value[1:]
+                        if key[0] == ' ':
+                            key = key[1:]
 
                         Secrets.store[key] = value
+
+        print(Secrets.store)
