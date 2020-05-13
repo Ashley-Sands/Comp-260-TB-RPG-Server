@@ -13,6 +13,7 @@ COPY py_requirements.txt ./
 RUN pip install --no-cache-dir -r py_requirements.txt
 
 COPY ./server_selector.py ./
+COPY ./Configs/ ./Configs/
 COPY ./Common/ ./Common/
 COPY ./Sockets/ ./Sockets/
 COPY ./logs/ ./logs/

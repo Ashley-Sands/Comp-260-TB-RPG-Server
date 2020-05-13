@@ -19,7 +19,7 @@ class Secrets:
 
         for f in files:
             if f != "SHOWFILE":
-                with open(f) as file:
+                with open("Configs/Secrets/"+f) as file:
                     secrets_lines = file.readlines()  # format key, value
                     # add the values to the secrets store.
                     for l in secrets_lines:
