@@ -24,4 +24,8 @@ class Secrets:
                     # add the values to the secrets store.
                     for l in secrets_lines:
                         key, value = l.split(",")
+                        # remove the new line if present
+                        if value[-1] == '\n':
+                            value = value[:-1]
+
                         Secrets.store[key] = value
