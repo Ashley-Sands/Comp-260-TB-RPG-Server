@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -r py_requirements.txt
 COPY ./server_game.py ./
 COPY ./Configs/ ./Configs/
 COPY ./Common/ ./Common/
-COPY ./Components/ ./components/
+COPY ./Components/ ./Components/
 COPY ./Sockets/ ./Sockets/
 COPY ./logs/ ./logs/
 
