@@ -41,5 +41,3 @@ class Secrets:
                             key = key[1:]
 
                         Secrets.store[key] = value
-
-        print(Secrets.store)
