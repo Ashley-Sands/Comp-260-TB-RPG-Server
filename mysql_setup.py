@@ -12,16 +12,16 @@ def setup():
     database = sql.sql_query( "tb_rpg", True )
 
     while not database.test_connection():
+        time.sleep( 1 )  # try every second if we cant connect to the database
 
-        time.sleep( 1 )  # try every second
-
-    database.drop_table("analytics")
-    database.drop_table("active_users")
-    database.drop_table("lobbies")
-    database.drop_table("lobby_host")
-    database.drop_table("game_queue")
-    database.drop_table("games_host")
-    database.drop_table("levels")
+    # local testing....
+    #database.drop_table("analytics")
+    #database.drop_table("active_users")
+    #database.drop_table("lobbies")
+    #database.drop_table("lobby_host")
+    #database.drop_table("game_queue")
+    #database.drop_table("games_host")
+    #database.drop_table("levels")
 
     database.add_table( "analytics", ["uid", "player_id", "lobby_id", "game_id",
                                       "level_id", "data_type", "data", "time" ],
