@@ -435,6 +435,10 @@ class Database:
 
         queued_lobby = result[0][1]
 
+        # remove from queue
+        query = "DELETE FROM game_queue WHERE lobby_id = %s"
+        self.database.execute( query, [ queued_lobby ] )
+
         # make sure that the lobby still exist.
         # Should probably check it has enough players too
         query = "SELECT COUNT(UID) FROM lobbies WHERE uid = %s"
