@@ -176,7 +176,6 @@ class Database:
         """ updates the lobbies game host removeing it from the game que"""
 
         self.database.update_row( "lobbies", ["game_id"], [game_host_id], ["uid"], [lobby_id])
-        self.database.remove_row("game_queue", ["lobby_id"], [lobby_id])
 
     def get_lobby_row( self, lobby_id ):
 
@@ -361,8 +360,12 @@ class Database:
         self.database.update_row("lobbies", ["game_id"], [-1], ["uid"], [lobby_id])
 
     def game_slot_assigned( self, lobby_id ):
-        print(self.database.select_from_table( "lobbies", ["game_id"], ["uid"], [lobby_id] )[0][0])
-        return self.database.select_from_table( "lobbies", ["game_id"], ["uid"], [lobby_id] )[0][0] > 0
+        selected_lobby = self.database.select_from_table( "lobbies", ["game_id"], ["uid"], [lobby_id] )[0][0]
+
+        if len( selected_lobby ) > 0:
+            return self.database.select_from_table( "lobbies", ["game_id"], ["uid"], [lobby_id] )[0][0] > 0
+        else:
+            return False
 
     def get_available_game_slots( self ):
         """
@@ -422,15 +425,26 @@ class Database:
         return results[0][0]
 
     def get_next_lobby_in_queue( self ):
-        """Gets the next lobby id from the que"""
+        """Gets the next lobby id from the queue (removing it)"""
 
         query = "SELECT MIN(uid), lobby_id FROM game_queue"
         result = self.database.execute( query, [], fetch=True )
 
-        if len(result) == 0:
+        if len(result) == 0:    # empty queue
             return None
 
-        return result[0][1]
+        queued_lobby = result[0][1]
+
+        # make sure that the lobby still exist.
+        # Should probably check it has enough players too
+        query = "SECLECT COUNT(UID) FROM lobbies WHERE uid = %s"
+        result = self.database.execute( query, [queued_lobby], fetch=True )
+
+        if result[0][0] > 0:
+            return queued_lobby
+        else:
+            DEBUG.LOGS.print("Removed invalid lobby from que")
+            return None
 
     def get_game_queue_size( self ):
         """Gets the size of the que"""
