@@ -437,7 +437,7 @@ class Database:
 
         # make sure that the lobby still exist.
         # Should probably check it has enough players too
-        query = "SECLECT COUNT(UID) FROM lobbies WHERE uid = %s"
+        query = "SELECT COUNT(UID) FROM lobbies WHERE uid = %s"
         result = self.database.execute( query, [queued_lobby], fetch=True )
 
         if result[0][0] > 0:
