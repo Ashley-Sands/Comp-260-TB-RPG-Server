@@ -430,7 +430,7 @@ class Database:
         query = "SELECT MIN(uid), lobby_id FROM game_queue"
         result = self.database.execute( query, [], fetch=True )
 
-        if len(result) == 0:    # empty queue
+        if len(result) == 0 or result[0][0] is None:    # empty queue
             return None
 
         queued_lobby = result[0][1]
