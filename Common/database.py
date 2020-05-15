@@ -176,28 +176,21 @@ class Database:
            returns: tuple ( lobby_host.uid, lobby_host.host )
         """
 
-        all_lobby_host = "SELECT * FROM lobby_host "
-
-        # find this host with the minimal amout of assigned lobbies.
-        lobby_host_assigned_counts_query = "SELECT lobby_host.uid, COUNT( lobbies.lobby_host_id ), lobby_host.host " \
+        # find the host with the minimal amount of assigned lobbies.
+        lobby_host_assigned_counts_query = "SELECT lobby_host.uid, lobby_host.host, COUNT( lobbies.lobby_host_id ) AS assigned_lobbies " \
                                            "FROM lobbies " \
-                                           "JOIN lobby_host ON lobby_host.uid = lobbies.lobby_host_id " \
-                                           "GROUP by lobby_host.uid"
+                                           "RIGHT JOIN lobby_host ON lobby_host.uid = lobbies.lobby_host_id " \
+                                           "GROUP BY lobby_host.uid " \
+                                           "ORDER BY assigned_lobbies ASC " \
+                                           "LIMIT 0,1"
 
         lobby_host_assigned_counts = self.database.execute( lobby_host_assigned_counts_query, [], fetch=True )
 
-        min_lobby_count = 9999
-        min_lobby = (-1, None)
+        # no host
+        if lobby_host_assigned_counts is None or len( lobby_host_assigned_counts ) == 0:
+            return -1, None
 
-        if lobby_host_assigned_counts is None:
-            return min_lobby
-
-        for l in lobby_host_assigned_counts:
-            if l[1] < min_lobby_count:
-                min_lobby = l[0], l[2]
-                min_lobby_count = l[1]
-
-        return min_lobby
+        return lobby_host_assigned_counts[0][:2]
 
     def update_lobby_game_host ( self, lobby_id, game_host_id ):
         """ updates the lobbies game host removeing it from the game que"""
