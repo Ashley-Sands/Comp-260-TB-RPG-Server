@@ -55,7 +55,7 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
         """
 
         if host is None:
-            DEBUG.LOGS.print( "Unable to connect pass-through, no host", message_type=DEBUG.LOGS.MSG_TYPE_WARNING )
+            DEBUG.LOGS.print( "Unable to connect proxy, no host", message_type=DEBUG.LOGS.MSG_TYPE_WARNING )
             return
 
         # can not que type outbound.
@@ -70,7 +70,7 @@ class ServerSelectSocket( BaseSocket.BaseSocketClient ):
 
     def que_connect_passthrough_thread( self, conn_mode, host, port ):
 
-        DEBUG.LOGS.print("Connecting passthrough to server @ ", (host, port) )
+        DEBUG.LOGS.print("Connecting proxy to server @ ", (host, port) )
 
         # wait until all messages have been sent while in outbound mode
         while self.CONN_TYPE_OUTBOUND and not self._outbound_queue.empty():
