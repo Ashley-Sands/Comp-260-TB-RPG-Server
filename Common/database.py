@@ -141,14 +141,14 @@ class Database:
         """
         # find the lobby host with the least active lobbies
         used_host = "SELECT lobby_host.uid, COUNT(lobby_host.uid) " \
-                "FROM lobbies " \
-                "JOIN lobby_host ON lobbies.lobby_host_id=lobby_host.uid " \
-                "GROUP BY lobby_host.uid " \
-                "WHERE lobbies.game_id < 0 "
+                    "FROM lobbies " \
+                    "JOIN lobby_host ON lobbies.lobby_host_id=lobby_host.uid " \
+                    "GROUP BY lobby_host.uid " \
+                    "WHERE lobbies.game_id < 0 "
 
-        min_host = self.get_min_lobby_host()
+        min_host = self.get_min_lobby_host()[0]
 
-        if min_host[0] == -1:
+        if min_host == -1:
             DEBUG.LOGS.print("Unable to add new lobby, no host available.")
             return False
 
@@ -161,9 +161,9 @@ class Database:
 
             :return: true if successful
         """
-        min_host = self.get_min_lobby_host()
+        min_host = self.get_min_lobby_host()[0]
 
-        if min_host[0] == -1:
+        if min_host == -1:
             DEBUG.LOGS.print("Unable to update lobby id, no host available.")
             return False
 
