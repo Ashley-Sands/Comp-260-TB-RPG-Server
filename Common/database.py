@@ -360,10 +360,11 @@ class Database:
         self.database.update_row("lobbies", ["game_id"], [-1], ["uid"], [lobby_id])
 
     def game_slot_assigned( self, lobby_id ):
-        selected_lobby = self.database.select_from_table( "lobbies", ["game_id"], ["uid"], [lobby_id] )[0][0]
+
+        selected_lobby = self.database.select_from_table( "lobbies", ["game_id"], ["uid"], [lobby_id] )
 
         if len( selected_lobby ) > 0:
-            return self.database.select_from_table( "lobbies", ["game_id"], ["uid"], [lobby_id] )[0][0] > 0
+            return selected_lobby[0][0] > 0
         else:
             return False
 
