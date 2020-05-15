@@ -189,6 +189,9 @@ class Database:
         min_lobby_count = 9999
         min_lobby = (-1, None)
 
+        if lobby_host_assigned_counts is None:
+            return min_lobby
+
         for l in lobby_host_assigned_counts:
             if l[1] < min_lobby_count:
                 min_lobby = l[0], l[2]
