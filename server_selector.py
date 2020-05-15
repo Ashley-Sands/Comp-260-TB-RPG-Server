@@ -66,7 +66,8 @@ def get_host( conn, send_scene_change=False ):
                 connect_to_host = database.get_game_host( game_host_id )
                 scene_name = database.get_lobby_target_scene_name( current_client_lobby )
                 send_scene_change_message( send_scene_change, conn, scene_name )
-            else:
+
+            if connect_to_host is None or connect_to_host == -1:    # if no host was found assign a new one :)
                 database.update_lobby_host( current_client_lobby )
                 DEBUG.LOGS.print( "No lobby host or game host assigned to lobby, assigning new...",
                                   current_client_lobby, message_type=DEBUG.LOGS.MSG_TYPE_FATAL )
