@@ -181,7 +181,7 @@ class Database:
         # find this host with the minimal amout of assigned lobbies.
         lobby_host_assigned_counts_query = "SELECT lobby_host.uid, COUNT( lobbies.lobby_host_id ), lobby_host.host " \
                                            "FROM lobbies " \
-                                           "JOIN lobbby_host ON lobby_host.uid = lobbies.lobby_host_id " \
+                                           "JOIN lobby_host ON lobby_host.uid = lobbies.lobby_host_id " \
                                            "GROUP by lobby_host.uid"
 
         lobby_host_assigned_counts = self.database.execute( lobby_host_assigned_counts_query, [], fetch=True )
