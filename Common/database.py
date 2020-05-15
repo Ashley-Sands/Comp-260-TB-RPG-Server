@@ -186,6 +186,8 @@ class Database:
 
         lobby_host_assigned_counts = self.database.execute( lobby_host_assigned_counts_query, [], fetch=True )
 
+        DEBUG.LOGS.print( lobby_host_assigned_counts )
+
         # no host
         if lobby_host_assigned_counts is None or len( lobby_host_assigned_counts ) == 0:
             return -1, None
