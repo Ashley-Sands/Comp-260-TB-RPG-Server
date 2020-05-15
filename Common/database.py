@@ -135,7 +135,10 @@ class Database:
                                  ["reg_key"],  [reg_key] )
 
     def add_new_lobby( self ):
+        """ Add a new lobby
 
+        :return: true if successful
+        """
         # find the lobby host with the least active lobbies
         used_host = "SELECT lobby_host.uid, COUNT(lobby_host.uid) " \
                 "FROM lobbies " \
@@ -145,32 +148,53 @@ class Database:
 
         min_host = self.get_min_lobby_host()
 
+        if min_host[0] == -1:
+            DEBUG.LOGS.print("Unable to add new lobby, no host available.")
+            return False
+
         self.database.insert_row("lobbies", ["level_id", "lobby_host_id"], ["1", min_host])    # TODO: this should just select a level at random.
 
-    def update_lobby_host( self, lobby_id ):
+        return True
 
+    def update_lobby_host( self, lobby_id ):
+        """ updates a new lobby
+
+            :return: true if successful
+        """
         min_host = self.get_min_lobby_host()
+
+        if min_host[0] == -1:
+            DEBUG.LOGS.print("Unable to update lobby id, no host available.")
+            return False
+
         self.database.update_row("lobbies", ["lobby_host_id"], [min_host], ["uid"], [lobby_id])
 
+        return True
+
     def get_min_lobby_host( self ):
-        """Get the lobby host with the least amount of lobbies assigned to it."""
+        """Get the lobby host with the least amount of lobbies assigned to it.
+           returns: tuple ( lobby_host.uid, lobby_host.host )
+        """
 
-        all_lobby_host = "SELECT * FROM lobby_host"
+        all_lobby_host = "SELECT * FROM lobby_host "
 
+        # find this host with the minimal amout of assigned lobbies.
+        lobby_host_assigned_counts_query = "SELECT lobby_host.uid, COUNT( lobbies.lobby_host_id ), lobby_host.host " \
+                                           "FROM lobbies " \
+                                           "JOIN lobbby_host ON lobby_host.uid = lobbies.lobby_host_id " \
+                                           "GROUP by lobby_host.uid"
 
-        # return (host id, lobby count)
-        # if theres more ahost than uhost then theres host without lobbies
-        # uhost_rows = self.database.execute(used_host, []) # TODO: make dynamic
-        ahost_rows = self.database.execute( all_lobby_host, [ ], fetch=True )
+        lobby_host_assigned_counts = self.database.execute( lobby_host_assigned_counts_query, [], fetch=True )
 
-        min_host = ahost_rows[ 0 ]
+        min_lobby_count = 9999
+        min_lobby = (-1, None)
 
-        # find the host with the list lobbies
-        # for uh in uhost_rows :
-        #    if r[1] < min_host[1]:
-        #        min_host = r
+        for l in lobby_host_assigned_counts:
+            if l[1] < min_lobby_count:
+                min_lobby = l[0], l[2]
+                min_lobby_count = l[1]
 
-        return min_host[0]
+        return min_lobby
 
     def update_lobby_game_host ( self, lobby_id, game_host_id ):
         """ updates the lobbies game host removeing it from the game que"""
